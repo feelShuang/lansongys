@@ -1,0 +1,13 @@
+//
+//  TranscationRecordTableViewController.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/17.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface TranscationRecordTableViewController : UITableViewController
+
+@end

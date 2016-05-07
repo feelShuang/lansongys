@@ -1,0 +1,699 @@
+//
+//  OrderInfoViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/26.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderInfoViewController.h"
+#import "UIBarButtonItem+Extension.h"
+#import "OrderInfo.h"
+#import "Common.h"
+#import "OrderDetailInfo.h"
+#import <UIImageView+WebCache.h>
+#import "SelectPayModeController.h"
+#import "RefundOrderViewController.h"
+#import "OrderManagerVC.h"
+
+
+@interface OrderInfoViewController ()<UINavigationBarDelegate>
+
+// 订单进度条
+// 提交预约
+@property (weak, nonatomic) IBOutlet UIImageView *commitImage;
+@property (weak, nonatomic) IBOutlet UIImageView *commitRightLineImage;
+@property (weak, nonatomic) IBOutlet UILabel *commitLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *daiFuKuanLeftLineImage;
+@property (weak, nonatomic) IBOutlet UIImageView *daiFuKuanImage;
+@property (weak, nonatomic) IBOutlet UIImageView *daiFuKuanRightLineImage;
+@property (weak, nonatomic) IBOutlet UILabel *daiFuKuanLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *chuHaoLeftLineIamge;
+@property (weak, nonatomic) IBOutlet UIImageView *chuHaoImage;
+@property (weak, nonatomic) IBOutlet UIImageView *chuHaoRightLineIamge;
+@property (weak, nonatomic) IBOutlet UILabel *chuHaoLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *markSureLeftLineImage;
+@property (weak, nonatomic) IBOutlet UIImageView *markSureImage;
+@property (weak, nonatomic) IBOutlet UILabel *markSureLabel;
+
+
+// 订单状态提示
+// 标题
+@property (weak, nonatomic) IBOutlet UILabel *orderTipTitleLabel;
+// 详情
+@property (weak, nonatomic) IBOutlet UILabel *orderTipInfoLabel;
+
+
+// 订单状态
+// 状态
+@property (weak, nonatomic) IBOutlet UILabel *orderStateLabel;
+// 订单类型
+@property (weak, nonatomic) IBOutlet UILabel *orderTypeLabel;
+// 医生头像
+@property (weak, nonatomic) IBOutlet UIImageView *doctorAvatarImage;
+// 医生姓名
+@property (weak, nonatomic) IBOutlet UILabel *doctorNameLabel;
+// 医院&科室
+@property (weak, nonatomic) IBOutlet UILabel *hospitalLabel;
+// 预约时间
+@property (weak, nonatomic) IBOutlet UILabel *appointmentTimeLabel;
+// 服务价格
+@property (weak, nonatomic) IBOutlet UILabel *servicePriceLabel;
+// 取消预约按钮
+@property (weak, nonatomic) IBOutlet UIButton *cancleButton;
+// 分隔线
+@property (weak, nonatomic) IBOutlet UIView *orderSeparatorLine;
+
+
+// 患者就诊信息
+// 患者就诊信息title
+@property (weak, nonatomic) IBOutlet UILabel *visitInfoTitleLabel;
+// 就诊地址提示
+@property (weak, nonatomic) IBOutlet UILabel *visitHospitalAddressTitleLabel;
+// 就诊医院提示
+@property (weak, nonatomic) IBOutlet UILabel *visitHospitalNameTitleLabel;
+// 就诊科室提示
+@property (weak, nonatomic) IBOutlet UILabel *visitDepartmentTitleLabel;
+
+// 目前就诊地址
+@property (weak, nonatomic) IBOutlet UILabel *visitHospitalAddressLabel;
+// 目前就诊医院
+@property (weak, nonatomic) IBOutlet UILabel *visitHospitalNameLabel;
+// 目前就诊科室
+@property (weak, nonatomic) IBOutlet UILabel *visitDepartmentLabel;
+// 患者就诊信息的背景视图
+@property (weak, nonatomic) IBOutlet UIView *visitStateBgView;
+
+
+// 患者信息
+// 姓名
+@property (weak, nonatomic) IBOutlet UILabel *patientNameLabel;
+// 电话
+@property (weak, nonatomic) IBOutlet UILabel *patientPhoneNumLabel;
+
+
+// 经纪人信息
+// 经纪人手机号
+@property (weak, nonatomic) IBOutlet UITextField *brokerNameTextField;
+
+
+// 订单详情
+// 订单编号
+@property (weak, nonatomic) IBOutlet UILabel *orderCodeLabel;
+// 订单时间
+@property (weak, nonatomic) IBOutlet UILabel *orderTimeLabel;
+
+
+// 订单详情信息模型
+@property (nonatomic, strong) OrderDetailInfo *orderDetailInfo;
+// 是否取消预约
+@property (nonatomic, assign) BOOL isCancle;
+// 支付按钮
+@property (nonatomic, strong) UIButton *payButton;
+// 确认凭证是否通过
+@property (nonatomic, assign) NSInteger result_flag;
+
+#pragma mark - 约束
+// scorllView
+// contentView的高度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *scrollContentViewHight;
+
+
+// 订单状态
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *orderStateBgViewHight;
+
+
+
+// 患者就诊信息
+// 患者就诊信息Top订单状态
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *visitStateTopToOrderState;
+// 目前就诊医院地址Top距离分割线距离
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *visitHospitalAddressTopToLine;
+// 高度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *visitStateBgHight;
+
+
+@property (nonatomic, assign) BOOL isPush;
+@end
+
+@implementation OrderInfoViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view
+    
+    // 设置UI
+    [self setUI];
+    
+    // 解决主刀医生服务，本院就诊时患者就诊信息一直减少高度问题
+    _isPush = YES;
+    
+    // 刷新标识
+    [OrderInfo shareInstance].isUpLoading = NO;
+
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    // 请求数据
+    [self loadHttpRequest];
+    
+    
+}
+
+#pragma mark - 加载网络请求
+- (void)loadHttpRequest {
+    
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"请稍后..."];
+    
+    // 2.1创建请求体
+    NSString *urlString = [NSString stringWithFormat:@"%@/uc/order/order_detail",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"]; // 1.登录token
+    [params setObject:self.order_code forKey:@"order_code"];
+    ZZLog(@"%@",self.order_code);
+    
+    
+    // 2.2发送post请求
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlString params:params success:^(id responseObj) {
+        ZZLog(@"订单详情——————%@",responseObj);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUD];
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+
+            NSDictionary *dict = responseObj[@"result"];
+            _orderDetailInfo = [OrderDetailInfo mj_objectWithKeyValues:dict];
+            
+            // 设置进度条
+            [weakSelf setProgressState];
+            
+            // 设置页面数据
+            [weakSelf setOrderDetailPageInfo];
+            
+            // 设置订单不同状态的UI
+            [weakSelf setDifferentOrderTypePage];
+            
+        }else {
+            [MBProgressHUD showError:@"发生异常，请重试"];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+        
+    }];
+}
+
+#pragma mark - 设置UI
+- (void)setUI {
+    
+    // 重写导航栏按钮
+    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTitle:@"返回" imageName:@"NavBack" target:self action:@selector(leftBtnClicked)];
+    
+    // 设置按钮外观
+    self.cancleButton.layer.borderColor = ZZBackgroundColor.CGColor;
+    self.cancleButton.layer.cornerRadius = 6;
+
+}
+
+- (void)leftBtnClicked {
+    
+    // 点击返回按钮将订单对象置空
+    [OrderInfo shareInstance].doctor_name = nil;
+    [OrderInfo shareInstance].doctor_id = nil;
+    [OrderInfo shareInstance].department_id = nil;
+    [OrderInfo shareInstance].patient_id = nil;
+    [OrderInfo shareInstance].hospital_id = nil;
+    [OrderInfo shareInstance].hospital_name = nil;
+    [OrderInfo shareInstance].assure_flag = NO;
+    [OrderInfo shareInstance].department_name = nil;
+    [OrderInfo shareInstance].service_type = 0;
+    
+    // 隐藏按钮
+    _payButton.hidden = YES;
+    
+    [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:0] animated:YES];
+    
+}
+
+#pragma mark - 取消预约按钮或申请退单按钮
+- (IBAction)cancleButtonAction:(UIButton *)sender {
+    
+    if ([_orderDetailInfo.order_status isEqualToString:@"1"]) {
+        ZZLog(@"取消预约");
+        _isCancle = YES;
+        if (_isCancle) {
+            [self cancleOrderButtonAction];
+        }
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"3"]) {
+        ZZLog(@"申请退单");
+        _isCancle = YES;
+        if (_isCancle) {
+            
+            RefundOrderViewController *refundOrderVC = [RefundOrderViewController new];
+            refundOrderVC.order_code = _orderDetailInfo.order_code;
+            
+            [self.navigationController pushViewController:refundOrderVC animated:YES];
+            
+        }
+    }
+    
+}
+
+#pragma mark - 取消订单预约事件网络请求
+- (void)cancleOrderButtonAction {
+    
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"取消预约中..."];
+    
+    // 2.1创建请求体
+    NSString *urlString = [NSString stringWithFormat:@"%@/uc/order/cancel_order",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:_orderDetailInfo.order_code forKey:@"order_code"];
+    
+    // 2.2发送post请求
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlString params:params success:^(id responseObj) {
+        ZZLog(@"订单详情——————%@",responseObj);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUD];
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            
+            // 确认更新数据
+            [OrderInfo shareInstance].isUpLoading = YES;
+            // 设置取消状态的UI
+            [weakSelf setCancleStateUI];
+            
+        }else {
+            [MBProgressHUD showError:@"发生异常，请重试"];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+        
+    }];
+    
+}
+
+#pragma mark - 设置取消状态的UI
+- (void)setCancleStateUI {
+    
+    _isCancle = NO;
+    // 提交预约
+    [self setDaiFuKuanProgressImageWithTag:1];
+    _daiFuKuanLabel.text = @"提交预约";
+    
+    // 取消预约
+    [self setChuHaoProgressImageWithTag:1];
+    _chuHaoLabel.text = @"取消预约";
+    
+    // 隐藏无关的进度
+    _commitImage.hidden = YES;
+    _commitRightLineImage.hidden = YES;
+    _commitLabel.hidden = YES;
+    
+    _daiFuKuanLeftLineImage.hidden = YES;
+    
+    _chuHaoRightLineIamge.hidden = YES;
+    
+    _markSureImage.hidden = YES;
+    _markSureLeftLineImage.hidden = YES;
+    _markSureLabel.hidden = YES;
+    
+    // 订单状态提示
+    _orderTipTitleLabel.text = @"当前订单已取消";
+    _orderTipInfoLabel.text = @"可重新预约或预约其他医生";
+    
+    // 订单状态
+    _cancleButton.hidden = YES;
+    _orderSeparatorLine.hidden = YES;
+    _orderStateBgViewHight.constant -= 30;
+    _scrollContentViewHight.constant -= 30;
+
+}
+
+#pragma mark - 设置不同状态下展示不同的UI场景
+- (void)setDifferentOrderTypePage {
+    
+    CGFloat payButtonX = ZZMarins;
+    CGFloat payButtonY = SCREEN_HEIGHT - 40;
+    CGFloat payButtonW = SCREEN_WIDTH - 2 * ZZMarins;
+    CGFloat payButtonH = 40;
+    
+    _payButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _payButton.frame = CGRectMake(payButtonX, payButtonY, payButtonW, payButtonH);
+    _payButton.backgroundColor = ZZColor(91, 160, 230, 1);
+    _payButton.layer.cornerRadius = 5;
+
+    // ------根据订单类型设置预约中的订单的UI------
+    // 患者就诊信息
+    if (![_orderDetailInfo.order_type isEqualToString:@"2"] && ![_orderDetailInfo.order_type isEqualToString:@"3"]) {
+        
+        self.visitStateTopToOrderState.constant = -160;
+        self.scrollContentViewHight.constant = 800;
+        self.visitStateBgView.hidden = YES;
+        
+    }
+    if ([_orderDetailInfo.attach.visit_type isEqualToString:@"2"]) {
+        if (_isPush) {
+            self.visitHospitalAddressTopToLine.constant = -17;
+            self.visitStateBgHight.constant -= 30;
+            self.scrollContentViewHight.constant -= 30;
+            _isPush = NO;
+        }
+        self.visitHospitalAddressTitleLabel.hidden = YES;
+        self.visitHospitalAddressLabel.hidden = YES;
+    }
+
+    // ------待出号和待确定的支付和确认凭证事件------
+    // 添加支付和确认凭证按钮
+    if ([_orderDetailInfo.order_status isEqualToString:@"2"]) {
+        
+        // UI更改
+        [self hiddenButtonChangeHightWithNumber:40];
+        
+        // 支付按钮
+        [_payButton setTitle:@"支付" forState:UIControlStateNormal];
+        [_payButton addTarget:self action:@selector(payButtonAction) forControlEvents:UIControlEventTouchUpInside];
+        [[UIApplication sharedApplication].keyWindow addSubview:_payButton];
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"3"]) {
+        
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"4"] || [_orderDetailInfo.order_status isEqualToString:@"6"]) {
+        [self hiddenButtonChangeHightWithNumber:30];
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"5"]) {
+
+        if ([_orderDetailInfo.over_over.over_status isEqualToString:@"1"]) {
+            [self hiddenButtonChangeHightWithNumber:40];
+        }
+        else if ([_orderDetailInfo.over_over.over_status isEqualToString:@"3"]) {
+            _payButton.hidden = YES;
+            [self hiddenButtonChangeHightWithNumber:40];
+        }
+        [_payButton setTitle:@"确认凭证" forState:UIControlStateNormal];
+        [_payButton addTarget:self action:@selector(payButtonAction) forControlEvents:UIControlEventTouchUpInside];
+        [[UIApplication sharedApplication].keyWindow addSubview:_payButton];
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"7"]) {
+
+    }
+    
+}
+
+#pragma mark - 隐藏订单信息取消按钮和高度
+- (void)hiddenButtonChangeHightWithNumber:(CGFloat)hightNumber {
+    
+    self.cancleButton.hidden = YES;
+    _orderSeparatorLine.hidden = YES;
+    _orderStateBgViewHight.constant -= hightNumber;
+    if ([_orderDetailInfo.over_over.over_status isEqualToString:@"3"]) {
+        _scrollContentViewHight.constant -= hightNumber;
+    }
+    
+}
+
+#pragma mark - 支付或确认凭证事件
+- (void)payButtonAction {
+    
+    if ([_orderDetailInfo.order_status isEqualToString:@"2"]) {
+        
+        // 推出付款页面
+        SelectPayModeController *selectPayOrderVC = [SelectPayModeController new];
+        selectPayOrderVC.orderCode = _orderDetailInfo.order_code;
+        selectPayOrderVC.payType = @"2";
+        selectPayOrderVC.price = _orderDetailInfo.price;
+        
+        _payButton.hidden = YES;
+        
+        [self.navigationController pushViewController:selectPayOrderVC animated:YES];
+    }
+    else {
+        
+        UIAlertController *alertView = [UIAlertController alertControllerWithTitle:@"提示" message:@"请确认您的凭证是否有效" preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"是" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            self.result_flag = 1;
+            // 提交确认凭证请求
+            [self loadCertificateRequest];
+        }];
+        
+        UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:@"否" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            self.result_flag = 0;
+            // 提交确认凭证请求
+            [self loadCertificateRequest];
+        }];
+        
+        [alertView addAction:okAction];
+        [alertView addAction:cancleAction];
+        
+        [self presentViewController:alertView animated:YES completion:nil];
+        
+    }
+}
+
+#pragma mark - 提交确认凭证请求
+- (void)loadCertificateRequest {
+    
+    // 创建请求体
+    NSString *urlString = [NSString stringWithFormat:@"%@/uc/order/publish_confirm",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"]; // 登陆标识
+    [params setObject:self.order_code forKey:@"order_code"]; // 订单编号
+    [params setObject:[NSNumber numberWithInteger:self.result_flag] forKey:@"result_flag"]; // 是否通过
+    [params setObject:_orderDetailInfo.over_over.memo forKey:@"memo"];
+    ZZLog(@"params = %@",params);
+    // 发送post请求
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlString params:params success:^(id responseObj) {
+        ZZLog(@"确认凭证-----%@",responseObj);
+        
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            
+            // 隐藏付款按钮
+            self.payButton.hidden = YES;
+            
+            // 更改进度条
+            [self.markSureLeftLineImage setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+            [self.markSureImage setImage:[UIImage imageNamed:@"icon_order_ok"]];
+            self.markSureLabel.text = @"完成";
+            
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+    
+}
+
+#pragma mark - 设置进度条状态
+- (void)setProgressState {
+    
+    if ([_orderDetailInfo.order_status isEqualToString:@"2"]) {
+        [self setDaiFuKuanProgressImageWithTag:0];
+    }
+    if ([_orderDetailInfo.order_status isEqualToString:@"3"]) {
+        self.daiFuKuanLabel.text = @"已付款";
+        [self setDaiFuKuanProgressImageWithTag:0];
+        [self setChuHaoProgressImageWithTag:0];
+    }
+    if ([_orderDetailInfo.order_status isEqualToString:@"4"]) {
+        self.daiFuKuanLabel.text = @"已付款";
+        self.chuHaoLabel.text = @"申请退单中";
+        [self setDaiFuKuanProgressImageWithTag:0];
+        [self setChuHaoProgressImageWithTag:0];
+    }
+    if ([_orderDetailInfo.order_status isEqualToString:@"5"]) {
+        if ([_orderDetailInfo.over_over.over_status isEqualToString:@"3"]) {
+            [self setMarkSureProgressImageWithTag:1];
+            self.markSureLabel.text = @"凭证无效";
+        }
+        [self setDaiFuKuanProgressImageWithTag:0];
+        [self setChuHaoProgressImageWithTag:0];
+        self.daiFuKuanLabel.text = @"已付款";
+        self.chuHaoLabel.text = @"已出号";
+    }
+    if ([_orderDetailInfo.order_status isEqualToString:@"6"]) {
+        self.chuHaoLabel.text = @"已出号";
+        self.markSureLabel.text = @"完成";
+        [self setDaiFuKuanProgressImageWithTag:0];
+        [self setChuHaoProgressImageWithTag:0];
+        [self setMarkSureProgressImageWithTag:0];
+    }
+    if ([_orderDetailInfo.order_status isEqualToString:@"9"]) {
+        [self setCancleStateUI];
+    }
+    
+}
+
+#pragma mark - 进度条状态(根据tag值区分正常状态和取消订单状态的设置)
+- (void)setDaiFuKuanProgressImageWithTag:(NSInteger)tag {
+    if (tag == 0) {
+        [self.daiFuKuanLeftLineImage setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+        [self.daiFuKuanImage setImage:[UIImage imageNamed:@"icon_order_ok"]];
+        [self.daiFuKuanRightLineImage setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+    }
+    else {  // 取消订单后的进度条状态
+        [self.daiFuKuanImage setImage:[UIImage imageNamed:@"icon_order_ok"]];
+        [self.daiFuKuanRightLineImage setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+    }
+}
+
+- (void)setChuHaoProgressImageWithTag:(NSInteger)tag {
+    if (tag == 0) {
+        [self.chuHaoLeftLineIamge setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+        [self.chuHaoImage setImage:[UIImage imageNamed:@"icon_order_ok"]];
+        [self.chuHaoRightLineIamge setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+    }
+    else {
+        [self.chuHaoLeftLineIamge setImage:[UIImage imageNamed:@"icon_order_erro_line"]];
+        [self.chuHaoImage setImage:[UIImage imageNamed:@"icon_order_erro"]];
+    }
+    
+}
+
+- (void)setMarkSureProgressImageWithTag:(NSInteger)tag {
+    if (tag == 0) {
+        [self.markSureLeftLineImage setImage:[UIImage imageNamed:@"icon_order_ok_line"]];
+        [self.markSureImage setImage:[UIImage imageNamed:@"icon_order_ok"]];
+    }
+    else {
+        [self.markSureLeftLineImage setImage:[UIImage imageNamed:@"icon_order_erro_line"]];
+        [self.markSureImage setImage:[UIImage imageNamed:@"icon_order_erro"]];
+    }
+    
+}
+
+#pragma Mark - 给详情页面添加数据
+- (void)setOrderDetailPageInfo {
+
+    // 订单状态
+    if ([_orderDetailInfo.order_status isEqualToString:@"1"]) {
+        self.orderStateLabel.text = @"预约中";
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"2"]) {
+        self.orderTipTitleLabel.text = @"您的订单已被抢";
+        self.orderTipInfoLabel.text = @"请在规定时间内完成支付";
+        
+        self.orderStateLabel.text = @"待付款";
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"3"]) {
+        self.orderTipTitleLabel.text = @"待出号，请耐心等待";
+        self.orderTipInfoLabel.text = @"经纪人正在为您服务，请耐心等待";
+        
+        self.orderStateLabel.text = @"待出号";
+        
+        self.cancleButton.titleLabel.text = @" 申请退单 ";
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"4"]) {
+        self.orderTipTitleLabel.text = @"申请退单中";
+        self.orderTipInfoLabel.text = @"请联系经纪人，是否同意";
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"5"]) {
+        if ([_orderDetailInfo.over_over.over_status isEqualToString:@"1"]) {
+            self.orderTipTitleLabel.text = @"凭证待确认";
+            self.orderTipInfoLabel.text = @"经纪人已提交凭证,请服务完成之后确认";
+        }
+        if ([_orderDetailInfo.over_over.over_status isEqualToString:@"3"]) {
+            self.orderTipTitleLabel.text = @"凭证已被拒绝";
+            self.orderTipInfoLabel.text = @"请经纪人再次提交凭证";
+        }
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"6"]) {
+        self.orderTipTitleLabel.text = @"订单完成";
+        self.orderTipInfoLabel.text = @"您的服务已完成";
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"7"]) {
+        
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"8"]) {
+        
+    }
+    else if ([_orderDetailInfo.order_status isEqualToString:@"9"]) {
+        self.orderTipTitleLabel.text = @"当前订单已取消";
+        self.orderTipInfoLabel.text = @"取消预约，交易关闭";
+    }
+    else {
+        
+    }
+    
+    self.orderTypeLabel.text = _orderDetailInfo.order_type_str;
+    [self.doctorAvatarImage sd_setImageWithURL:[NSURL URLWithString:_orderDetailInfo.doctor_avator] placeholderImage:[UIImage imageNamed:@"doctor_head_default"]];
+    self.doctorNameLabel.text = _orderDetailInfo.doctor_name;
+    self.hospitalLabel.text = [NSString stringWithFormat:@"%@[%@]",_orderDetailInfo.hospital_name,_orderDetailInfo.department_name];
+    self.appointmentTimeLabel.text = [NSString stringWithFormat:@"%@~%@",_orderDetailInfo.visit_start_time,_orderDetailInfo.visit_end_time];
+    self.servicePriceLabel.text = [NSString stringWithFormat:@"￥%ld.00",_orderDetailInfo.init_price];
+    
+    
+    // 患者就诊信息
+    if ([_orderDetailInfo.order_type isEqualToString:@"3"]) {
+        self.visitInfoTitleLabel.text = @"会诊信息";
+        self.visitHospitalAddressTitleLabel.text = @"会诊地点:";
+        self.visitHospitalNameTitleLabel.text = @"会诊医院:";
+        self.visitDepartmentTitleLabel.text = @"会诊科室";
+    }
+    if ([_orderDetailInfo.attach.visit_type isEqualToString:@"2"]) {
+        self.visitHospitalNameLabel.text = _orderDetailInfo.hospital_name;
+        self.visitDepartmentLabel.text = _orderDetailInfo.department_name;
+    }
+    else {
+        self.visitHospitalAddressLabel.text = _orderDetailInfo.attach.visit_address;
+        self.visitHospitalNameLabel.text = _orderDetailInfo.attach.visit_hospital;
+        self.visitDepartmentLabel.text = _orderDetailInfo.attach.visit_department;
+    }
+
+    
+    // 患者信息
+    self.patientNameLabel.text = _orderDetailInfo.human.name;
+    self.patientPhoneNumLabel.text = _orderDetailInfo.human.mobile;
+    
+    // 经纪人信息
+    if ([_orderDetailInfo.order_status isEqualToString:@"2"]) {
+        NSMutableString *brokerStr = [NSMutableString stringWithString:_orderDetailInfo.offer.mobile];
+        NSRange range = NSMakeRange(3, 4);
+        self.brokerNameTextField.text = [brokerStr stringByReplacingCharactersInRange:range withString:@"****"];
+    }
+    else {
+        self.brokerNameTextField.text = _orderDetailInfo.offer.mobile;
+    }
+    
+    
+    // 订单详情
+    self.orderCodeLabel.text = _orderDetailInfo.order_code;
+    self.orderTimeLabel.text = _orderDetailInfo.created_at;
+
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

@@ -1,0 +1,15 @@
+//
+//  AddBalanceVc.h
+//  BeiYi
+//
+//  Created by Joe on 15/8/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  余额充值 控制器
+ */
+@interface AddBalanceVc : UIViewController
+
+@end

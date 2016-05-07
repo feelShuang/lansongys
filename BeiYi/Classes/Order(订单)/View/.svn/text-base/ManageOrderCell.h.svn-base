@@ -1,0 +1,33 @@
+//
+//  ManageOrderCell.h
+//  BeiYi
+//
+//  Created by Joe on 15/12/28.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class ManageOrder,ManageOrderCell;
+
+@protocol ManageOrderCellDelegate <NSObject>
+
+@optional
+/** 监听 抢单按钮 点击 */
+- (void)manageOrderCell:(ManageOrderCell *)manageOrderCell didClickedDeleteButton:(UIButton *)btn;
+
+@end
+
+/**
+ *  我的订单 自定义Cell
+ */
+@interface ManageOrderCell : UITableViewCell
+
+/** 通过一个tableView来创建一个cell */
++ (instancetype)cellWithTableView:(UITableView *)tableView;
+
+/** 订单 模型 */
+@property (nonatomic, strong) ManageOrder *order;
+
+@property (nonatomic, weak) id<ManageOrderCellDelegate> delegate;
+
+@end

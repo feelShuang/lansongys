@@ -1,0 +1,164 @@
+//
+//  UpdateAccountController.m
+//  BeiYi
+//
+//  Created by Joe on 15/6/17.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "UpdateAccountController.h"
+#import "Common.h"
+#import "SectionCell.h"
+#import "ZZSelectedView.h"
+#import "MBProgressHUD+MJ.h"
+#import "LoginController.h"
+#import "ZZHttpTool.h"
+#import "ZZTabBarController.h"
+
+@interface UpdateAccountController ()<UITextFieldDelegate,ZZSelectedViewDelegate>
+/** 性别标记:1男 2女 */
+@property (nonatomic, assign) int sex;
+/** 就诊人姓名 */
+@property (nonatomic, weak) UITextField *txName;
+/** 就诊人身份证 */
+@property (nonatomic, weak) UITextField *txIDCode;
+/** 就诊人性别 */
+@property (nonatomic, weak) UITextField *txSex;
+/** 就诊人手机号 */
+@property (nonatomic, weak) UITextField *txPhoneNum;
+
+@end
+
+@implementation UpdateAccountController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view .backgroundColor = ZZBackgroundColor;
+    self.title = @"修改账号";
+    self.tableView.tableFooterView = [[UIView alloc] init];
+    
+    // 2.设置导航栏右侧按钮
+    UIButton *btnSave = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnSave.frame = CGRectMake(270, 0, 60, 40);
+    [btnSave setTitle:@"保存" forState:UIControlStateNormal];
+    btnSave.titleLabel.font = [UIFont systemFontOfSize:15];
+    [btnSave setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnSave setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    [btnSave addTarget:self action:@selector(gotoUpdate) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btnSave];
+}
+
+#pragma mark - 监听右侧保存按钮点击
+- (void)gotoUpdate {
+    if (self.txName.text.length == 0) {
+        [MBProgressHUD showError:@"昵称不能为空"];
+        return;
+    }
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/my/update",BASEURL];
+
+    NSMutableDictionary *params  = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];
+//    [params setObject:self.txName.text forKey:@"nick_name"];// 昵称
+    [params setObject:self.txIDCode.text forKey:@"realname"];// 真实姓名
+    [params setObject:[NSString stringWithFormat:@"%d",self.sex] forKey:@"sex"];
+    [params setObject:self.txPhoneNum.text forKey:@"email"];// 邮箱
+
+    __weak typeof(self) weakSelf = self;
+
+    // 2.发送网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~~%@~~~",responseObj);
+        
+        if ([responseObj[@"message"] isEqualToString:@"操作成功!"]) {// 如果操作成功，请重新登陆
+            
+            [MBProgressHUD showSuccess:[NSString stringWithFormat:@"账号信息已修改，请重新登陆"]];
+            
+            // 1.移除账号存储信息
+            [ZZAccountTool deleteAccount];
+            
+            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+            window.rootViewController = [[ZZTabBarController alloc] init];
+            
+        }else {
+            [MBProgressHUD showError:@"发生未知错误."];
+        }
+
+        
+        [weakSelf.navigationController popViewControllerAnimated:YES];
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"~~~%@~~~",error);
+        
+    }];
+    
+}
+
+#pragma mark - UITableViewDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    SectionCell *cell = [SectionCell cellWithTableView:tableView];
+    
+    // 设定 cell的 选中样式
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    switch (indexPath.row) {
+        case 0: {
+            cell.lblTitle.text = @"昵   称";
+            cell.txField.placeholder = @"请输入您的昵称";
+            cell.txField.clearButtonMode = UITextFieldViewModeWhileEditing;
+            self.txName = cell.txField;
+        }
+            break;
+        case 1: {
+            cell.lblTitle.text = @"姓   名";
+            cell.txField.placeholder = @"请输入您的真实姓名";
+            cell.txField.clearButtonMode = UITextFieldViewModeWhileEditing;
+            cell.txField.delegate = self;
+            self.txIDCode = cell.txField;
+        }
+            break;
+        case 2: {
+            cell.lblTitle.text = @"性   别";
+            cell.txField.hidden = YES;
+            ZZSelectedView *selectedView = [[ZZSelectedView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(cell.lblTitle.frame)+ZZMarins *2.5, 0, cell.frame.size.width, cell.frame.size.height) selectOne:@"男" selectTwo:@"女"];
+            selectedView.delegate = self;
+            [self ZZSelectedViewDidClickedBtnMan:selectedView];
+            [cell.contentView addSubview:selectedView];
+        }
+            break;
+        case 3: {
+            cell.lblTitle.text = @"邮箱";
+            cell.txField.placeholder = @"请输入您的邮箱";
+            cell.txField.clearButtonMode = UITextFieldViewModeWhileEditing;
+            cell.txField.keyboardType = UIKeyboardTypeEmailAddress;
+            cell.txField.delegate = self;
+            self.txPhoneNum = cell.txField;
+        }
+            break;
+        default:
+            break;
+    }
+    return cell;
+}
+
+#pragma mark - ZZSelectedViewDelegate
+- (void)ZZSelectedViewDidClickedBtnMan:(ZZSelectedView *)selectedView {
+    selectedView.btnMan.selected = YES;
+    selectedView.btnWoman.selected = NO;
+    self.sex = 1;
+    ZZLog(@"性别参数～～～%d",self.sex);
+}
+
+- (void)ZZSelectedViewDidClickedBtnWoman:(ZZSelectedView *)selectedView {
+    selectedView.btnMan.selected = NO;
+    selectedView.btnWoman.selected = YES;
+    self.sex = 2;
+    ZZLog(@"性别参数～～～%d",self.sex);
+}
+
+@end

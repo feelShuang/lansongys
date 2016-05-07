@@ -1,0 +1,19 @@
+//
+//  EditPatientController.h
+//  BeiYi
+//
+//  Created by Joe on 15/6/16.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "Patient.h"
+/**
+ *  修改就诊人 控制器
+ */
+@interface EditPatientController : UITableViewController
+
+/** 修改就诊人 控制器 的就诊人模型  */
+@property (nonatomic, strong) Patient *patient;
+
+@end

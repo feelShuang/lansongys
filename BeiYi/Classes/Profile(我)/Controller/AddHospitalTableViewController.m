@@ -1,0 +1,120 @@
+//
+//  AddHospitalTableViewController.m
+//  BeiYi
+//
+//  Created by LiuShuang on 16/3/11.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "AddHospitalTableViewController.h"
+#import "LSCollectionHospital.h"
+#import "Common.h"
+#import "CollectionHosTableViewCell.h"
+#import "SettingDocPriceVc.h"
+
+@interface AddHospitalTableViewController ()
+
+// 未添加的医院
+@property (nonatomic, strong) NSArray *hospitalArray;
+
+@end
+
+@implementation AddHospitalTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.title = @"提供的医院";
+    
+    // 1. 注册Cell
+    [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([CollectionHosTableViewCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([CollectionHosTableViewCell class])];
+    
+    // 2. 网络请求
+    [self loadHttpRequest];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    return _hospitalArray.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CollectionHosTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([CollectionHosTableViewCell class]) forIndexPath:indexPath];
+    
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    
+    LSCollectionHospital *hospital = _hospitalArray[indexPath.row];
+    cell.hospital = hospital;
+    
+    return cell;
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    return 80;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    LSCollectionHospital *hospital = _hospitalArray[indexPath.row];
+    
+    SettingDocPriceVc *setHospital = [[SettingDocPriceVc alloc] init];
+    setHospital.controllerID = 10;
+    setHospital.typeNum = @"4";
+    setHospital.hospital_id = hospital.hos_id;
+    [self.navigationController pushViewController:setHospital animated:YES];
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
+}
+
+- (void)loadHttpRequest {
+    [MBProgressHUD showMessage:@"请稍后..."];
+    
+    // 准备请求网址
+    NSString *urlString = [NSString stringWithFormat:@"%@/uc/offer/hospital_list",BASEURL];
+    // 2.1创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"]; // 1.登录token
+    
+    
+    // 2.2发送post请求
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlString params:params success:^(id responseObj) {
+        ZZLog(@"医院列表——————%@",responseObj);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUD];
+        
+        self.hospitalArray = [LSCollectionHospital mj_objectArrayWithKeyValuesArray:responseObj[@"result"]];
+        
+        [self.tableView reloadData];
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+        
+    }];
+}
+
+@end

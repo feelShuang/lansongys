@@ -1,0 +1,18 @@
+//
+//  Offer.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/2.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface Offer : NSObject
+
+// 昵称
+@property (nonatomic, copy) NSString *nick_name;
+// 经纪人手机号
+@property (nonatomic, copy) NSString *mobile;
+
+@end

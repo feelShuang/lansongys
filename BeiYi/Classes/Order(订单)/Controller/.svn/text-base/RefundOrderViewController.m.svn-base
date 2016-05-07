@@ -1,0 +1,139 @@
+//
+//  RefundOrderViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/1.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "RefundOrderViewController.h"
+#import "UIBarButtonItem+Extension.h"
+#import "Common.h"
+#import "ZZNavBackBtn.h"
+#import "OrderInfo.h"
+#import "OrderInfoViewController.h"
+
+@interface RefundOrderViewController ()<UITextViewDelegate>
+
+// pleaceholder
+@property (weak, nonatomic) IBOutlet UILabel *pleaceholderLabel;
+// 退款原因
+@property (weak, nonatomic) IBOutlet UITextView *refundReasonTextView;
+// 无损退单按钮
+@property (weak, nonatomic) IBOutlet UIButton *wuSunRefundButton;
+
+@end
+
+@implementation RefundOrderViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    // 设置UI
+    [self setUI];
+    
+    // 设置代理
+    self.refundReasonTextView.delegate = self;
+    
+}
+
+- (void)setUI {
+    
+    // 设置标题
+    self.title = @"申请退单";
+    
+    // 重写导航条item
+    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTitle:@"确定" imageName:@"" target:self action:@selector(markSureButtonAction)];
+    
+}
+
+- (void)markSureButtonAction {
+    
+    [_refundReasonTextView resignFirstResponder];
+    
+    UIAlertController *alertView = [UIAlertController alertControllerWithTitle:@"提示" message:@"只有提供者同意退单，您的退单才能成功" preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        
+        [self loadRequest];
+        // 直接pop回控制器界面不能刷新？
+    }];
+    
+    UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    
+    [alertView addAction:okAction];
+    [alertView addAction:cancleAction];
+    
+    [self presentViewController:alertView animated:YES completion:nil];
+}
+
+#pragma mark - 申请退单网络请求
+- (void)loadRequest {
+    
+    // 创建请求体
+    NSString *urlString = [NSString stringWithFormat:@"%@/uc/order/refund",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"]; // 登陆标记
+    [params setObject:_refundReasonTextView.text forKey:@"reason"]; // 退单原因
+    [params setObject:self.order_code forKey:@"order_code"]; // 订单编号
+    [params setObject:@"2" forKey:@"refund_type"]; // 退款赔付类型
+    
+    // 发送post请求
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlString params:params success:^(id responseObj) {
+        ZZLog(@"申请退单接口---%@",responseObj);
+        
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            // 确认刷新数据标识
+            [OrderInfo shareInstance].isUpLoading = YES;
+            
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+    
+}
+
+#pragma mark - UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    
+    self.refundReasonTextView = textView;
+    // 借助Label实现placeholder效果
+    if (textView.text.length == 0) {
+        
+    }
+    else {
+        _pleaceholderLabel.text = @"";
+    }
+    
+}
+
+#pragma mark - 隐藏键盘，UITextViewDelegate
+-(BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString*)text {
+    
+    if ([text isEqualToString:@"\n"]) {
+        
+        [_refundReasonTextView resignFirstResponder];
+        
+        return NO;
+    }
+    return YES;  
+    
+}  
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

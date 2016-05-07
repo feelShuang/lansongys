@@ -1,0 +1,38 @@
+//
+//  ZZAccount.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/20.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+/**
+ *  用户帐号模型
+ */
+@interface ZZAccount : NSObject <NSCoding>
+
+/** NSString 	用户昵称 */
+//@property (nonatomic, copy) NSString *nickName;
+
+/** NSString 	用户电话 */
+@property (nonatomic, copy) NSString *mobile;
+
+/** NSString 	用户的UID */
+@property (nonatomic, copy) NSString *userId;
+
+/** NSString 用户登陆名称（电话号码） */
+@property (nonatomic, strong) NSString *loginName;
+
+/** NSString 	登陆标识符token */
+@property (nonatomic, copy) NSString *token;
+
+/** BOOL 	是否是提供者: 1是/0非 */
+@property (nonatomic, assign) BOOL offer;
+
+/** NSArray 	提供者拥有的医院资源 */
+@property (nonatomic, strong) NSArray *hospitalList;
+
++ (instancetype)accountWithDict:(NSDictionary *)dict;
+
+@end

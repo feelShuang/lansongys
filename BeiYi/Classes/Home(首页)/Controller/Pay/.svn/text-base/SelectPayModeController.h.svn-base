@@ -1,0 +1,24 @@
+//
+//  SelectPayModeController.h
+//  BeiYi
+//
+//  Created by Joe on 15/6/24.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  选择支付方式 控制器
+ */
+@interface SelectPayModeController : UIViewController
+
+/**  NSString 保证金金额 */
+@property (nonatomic, copy) NSString *price;
+
+/**  NSString 订单号 */
+@property (nonatomic, copy) NSString *orderCode;
+
+/**  NSString 付款类型2-发布订单 4-抢单 */
+@property (nonatomic, copy) NSString *payType;
+
+@end

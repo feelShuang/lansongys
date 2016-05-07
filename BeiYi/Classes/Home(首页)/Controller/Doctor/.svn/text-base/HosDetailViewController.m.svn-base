@@ -1,0 +1,170 @@
+//
+//  HosDetailViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/24.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "HosDetailViewController.h"
+#import "Common.h"
+#import "HospitalDetail.h"
+#import <UIImageView+WebCache.h>
+
+@interface HosDetailViewController ()
+
+// 医院图片
+@property (weak, nonatomic) IBOutlet UIImageView *hospitalImageView;
+// 医院全称
+@property (weak, nonatomic) IBOutlet UILabel *hospitalFullNameLabel;
+// 医院地址
+@property (weak, nonatomic) IBOutlet UILabel *hospitalAddressLabel;
+// 收藏按钮
+@property (weak, nonatomic) IBOutlet UIButton *collectionButton;
+// 联系方式
+@property (weak, nonatomic) IBOutlet UILabel *phoneNumberLabel;
+// 介绍
+@property (weak, nonatomic) IBOutlet UILabel *memoInfoLabel;
+
+// 医院详情
+@property (nonatomic, strong) HospitalDetail *hos_detail;
+
+@end
+
+@implementation HosDetailViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    // 加载网络请求
+    [self loadHttpRequestData];
+
+}
+
+- (void)loadHttpRequestData {
+    
+    // 1. 准备请求网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/hospital_detail",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:self.hospital_id forKey:@"hospital_id"];
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            weakSelf.hos_detail = [HospitalDetail mj_objectWithKeyValues:responseObj[@"result"]];
+            // 加载数据
+            [weakSelf setvaluesWithHospitalDetail:weakSelf.hos_detail];
+        }
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+#pragma mark - 加载页面数据
+- (void)setvaluesWithHospitalDetail:(HospitalDetail *)hospitalDetail {
+    _hos_detail = hospitalDetail;
+    
+    if ([hospitalDetail.favorite_flag isEqualToString:@"1"]) {
+        [self.collectionButton setImage:[UIImage imageNamed:@"hos_favotites_select"] forState:UIControlStateNormal];
+    }
+    [self.hospitalImageView sd_setImageWithURL:[NSURL URLWithString:hospitalDetail.image] placeholderImage:[UIImage imageNamed:@"hos_default"]];
+    self.hospitalFullNameLabel.text = hospitalDetail.full_name;
+    self.hospitalAddressLabel.text = [NSString stringWithFormat:@"%@%@%@%@",hospitalDetail.province_name,hospitalDetail.city_name,hospitalDetail.county_name,hospitalDetail.address];
+    self.phoneNumberLabel.text = hospitalDetail.telephone;
+    self.phoneNumberLabel.textColor = ZZBaseColor;
+    if (!hospitalDetail.memo.length == 0) {
+        self.memoInfoLabel.text = hospitalDetail.memo;
+    }
+}
+
+#pragma mark - 收藏按钮监听事件
+- (IBAction)collectionButtonAction:(UIButton *)sender {
+
+        // 1. 准备请求网址
+        NSString *urlStr = [NSString stringWithFormat:@"%@/uc/favorite/create",BASEURL];
+        
+        // 2. 创建请求体
+        NSMutableDictionary *params = [NSMutableDictionary dictionary];
+        
+        [params setObject:myAccount.token forKey:@"token"]; // 登陆标记
+        [params setObject:@1 forKey:@"obj_type"]; // 收藏类型 1.医院 2.医生
+        [params setObject:self.hos_detail.hos_id forKey:@"obj_id"]; // 收藏对象ID
+        ZZLog(@"params = %@",params);
+        
+        __weak typeof(self)weakSelf = self;
+        [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+            ZZLog(@"---responseObj = %@",responseObj);
+            
+            if ([responseObj[@"code"] isEqualToString:@"0001"]) {
+                // 取消收藏
+                [weakSelf cancleAttention];
+            }
+            if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+                [self.collectionButton setImage:[UIImage imageNamed:@"hos_favotites_select"] forState:UIControlStateNormal];
+                [MBProgressHUD showSuccess:@"收藏成功" toView:weakSelf.view];
+            }
+            
+        } failure:^(NSError *error) {
+            ZZLog(@"--error = %@",error);
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+        }];
+
+}
+
+
+#pragma mark - 取消收藏
+- (void)cancleAttention {
+    
+    // 1. 准备网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/favorite/cancel",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:@1 forKey:@"obj_type"];
+    [params setObject:self.hos_detail.hos_id forKey:@"obj_id"];
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            ZZLog(@"取消收藏");
+            [self.collectionButton setImage:[UIImage imageNamed:@"hos_favotites"] forState:UIControlStateNormal];
+            [MBProgressHUD showSuccess:@"取消收藏" toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"--error = %@",error);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

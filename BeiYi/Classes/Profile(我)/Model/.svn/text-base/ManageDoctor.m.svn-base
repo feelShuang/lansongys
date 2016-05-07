@@ -1,0 +1,31 @@
+//
+//  ManageDoctor.m
+//  BeiYi
+//
+//  Created by Joe on 15/9/14.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "ManageDoctor.h"
+
+@implementation ManageDoctor
+
+- (instancetype)initWithDict:(NSDictionary *)dict {
+    if ( self = [super init]) {
+        self.avator = dict[@"avator"];
+        self.manageDoc_id = dict[@"id"];
+        self.level = dict[@"level"];
+        self.good_at = dict[@"good_at"];
+        self.short_name = dict[@"short_name"];
+        self.dept_name = dict[@"dept_name"];
+        self.hospital_id = dict[@"hospital_id"];
+        self.name = dict[@"name"];
+    }
+    return self;
+}
+
++ (instancetype)manageDoctorWithDict:(NSDictionary *)dict {
+    return [[self alloc] initWithDict:dict];
+}
+
+@end

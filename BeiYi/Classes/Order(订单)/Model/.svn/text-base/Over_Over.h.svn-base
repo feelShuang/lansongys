@@ -1,0 +1,30 @@
+//
+//  Over_Over.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/2.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface Over_Over : NSObject
+
+// 图片
+@property (nonatomic, copy) NSString *iamges;
+// 确认时间
+@property (nonatomic, copy) NSString *confirm_time;
+// 凭证提交状态
+@property (nonatomic, copy) NSString *over_status;
+// 凭证ID
+@property (nonatomic, copy) NSString *over_id;
+// 凭证描述
+@property (nonatomic, copy) NSString *memo;
+// 拒绝原因
+@property (nonatomic, copy) NSString *refuse_reason;
+// 凭证提交时间
+@property (nonatomic, copy) NSString *over_time;
+// 凭证提交状态str
+@property (nonatomic, copy) NSString *over_status_str;
+
+@end

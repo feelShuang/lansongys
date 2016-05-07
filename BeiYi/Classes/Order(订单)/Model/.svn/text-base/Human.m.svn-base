@@ -1,0 +1,18 @@
+//
+//  Human.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "Human.h"
+
+@implementation Human
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+    
+}
+
+@end

@@ -1,0 +1,67 @@
+//
+//  MyOrder.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "OrderAttach.h"
+#import "RefundInfo.h"
+#import "Over_Over.h"
+
+@interface MyOrder : NSObject
+
+// 我的订单 id
+@property (nonatomic, copy) NSString *myorder_id;
+
+// 我的订单 类型
+@property (nonatomic, copy) NSString *order_type;
+
+// 我的订单 初始价格
+@property (nonatomic, copy) NSString *price_init;
+
+// 我的订单 医院名称
+@property (nonatomic, copy) NSString *hospital_name;
+
+// 我的订单 attach
+@property (nonatomic, strong) OrderAttach *attach;
+
+// 我的订单 创建时间
+@property (nonatomic, copy) NSString *created_at;
+
+// 我的订单 开始时间
+@property (nonatomic, copy) NSString *start_time;
+
+// 退单信息
+@property (nonatomic, strong) RefundInfo *refund_info;
+
+// 我的订单 状态字符串
+@property (nonatomic, copy) NSString *order_status_str;
+
+// 我的订单 医生头像
+@property (nonatomic, copy) NSString *doctor_avator;
+
+// 我的订单 价格
+@property (nonatomic, copy) NSString *price;
+
+// 我的订单 编号
+@property (nonatomic, copy) NSString *order_code;
+
+// 我的订单 状态
+@property (nonatomic, copy) NSString *order_status;
+
+// 我的订单 待确定的状态
+@property (nonatomic, strong) Over_Over *over_over;
+
+// 我的订单 结束时间
+@property (nonatomic, copy) NSString *end_time;
+
+// 我的订单 医生名称
+@property (nonatomic, copy) NSString *doctor_name;
+
+// 我的订单 科室
+@property (nonatomic, copy) NSString *department_name;
+
+@end

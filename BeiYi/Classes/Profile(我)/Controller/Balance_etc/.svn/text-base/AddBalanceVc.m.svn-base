@@ -1,0 +1,168 @@
+//
+//  AddBalanceVc.m
+//  BeiYi
+//
+//  Created by Joe on 15/8/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "AddBalanceVc.h"
+#import "Common.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import "AlipayOrder.h"
+#import "DataSigner.h"
+
+@interface AddBalanceVc ()
+/**  UITextField 充值金额 */
+@property (nonatomic, strong) UITextField *txAdding;
+/** UIButton 支付宝--支付按钮 */
+@property (nonatomic, strong) UIButton *btnAliPay;
+
+@end
+
+@implementation AddBalanceVc
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = @"余额充值";
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    [self setUpUI];
+}
+
+- (void)setUpUI {
+    
+    // 1.UILabel 充值金额
+    UILabel *lblTip = [ZZUITool labelWithframe:CGRectMake(ZZMarins, 64 +ZZMarins, SCREEN_WIDTH, ZZMarins) Text:@"充值金额" textColor:ZZColor(153, 153, 153, 1)  fontSize:(CGFloat)14 superView:self.view];
+//    lblTip.textAlignment = NSTextAlignmentCenter;
+    
+    CGFloat txAddingH = 55;
+    
+    // 2.UILabel 输入充值金额
+    UITextField *txAdding = [ZZUITool textFieldWithframe:CGRectMake(0, CGRectGetMaxY(lblTip.frame) +ZZMarins, SCREEN_WIDTH, txAddingH) text:nil fontSize:18.0f placeholder:@"请输入充值金额" backgroundColor:[UIColor whiteColor] superView:self.view];
+    txAdding.textColor = ZZButtonColor;
+    txAdding.keyboardType = UIKeyboardTypeNumberPad;
+    txAdding.textAlignment = NSTextAlignmentCenter;
+    self.txAdding = txAdding;
+    
+    // 3.UILabel 支付方式
+    UILabel *lblType = [ZZUITool labelWithframe:CGRectMake(ZZMarins, CGRectGetMaxY(txAdding.frame) +ZZMarins, SCREEN_WIDTH, ZZMarins) Text:@"支付方式" textColor:ZZColor(153, 153, 153, 1)  fontSize:(CGFloat)14 superView:self.view];
+    
+    // 4.UIView 支付方式 背景
+    UIView *payBackVeiw = [ZZUITool viewWithframe:CGRectMake(0, CGRectGetMaxY(lblType.frame) +ZZMarins, SCREEN_WIDTH, txAddingH) backGroundColor:[UIColor whiteColor] superView:self.view];
+    
+    // 5.支付宝图标
+    UIImageView *imgAliPay = [ZZUITool imageViewWithframe:CGRectMake(15, 7.5, 40, 40) imageName:@"payAli" highlightImageName:nil superView:payBackVeiw];
+    
+    // 6.UILabel 提示：支付宝支付
+    UILabel *lblAliPay = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgAliPay.frame) +15, 7.5, SCREEN_WIDTH/2, 20) Text:@"支付宝支付" textColor:[UIColor blackColor]  fontSize:(CGFloat)15 superView:payBackVeiw];
+    lblAliPay.textAlignment = NSTextAlignmentLeft;
+    
+    // 7.UILabel 小提示
+    UILabel *lblLittleTip = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgAliPay.frame)+15, 32.5, SCREEN_WIDTH- 55 -60, 15) Text:@"推荐安装支付宝客户端的用户使用" textColor:[UIColor lightGrayColor]  fontSize:(CGFloat)13 superView:payBackVeiw];
+    lblLittleTip.textAlignment = NSTextAlignmentLeft;
+
+    // 8.UIButton 支付宝支付按钮
+    _btnAliPay = [ZZUITool buttonWithframe:CGRectMake(SCREEN_WIDTH -50, 12.5, 30, 30) title:nil titleColor:nil backgroundColor:nil target:self action:nil superView:payBackVeiw];
+    [_btnAliPay setImage:[UIImage imageNamed:@"OKBtn_Clicked"] forState:UIControlStateNormal];
+    
+    // 9.立即支付按钮
+    UIButton *btn = [ZZUITool buttonWithframe:CGRectMake(ZZMarins, CGRectGetMaxY(payBackVeiw.frame)+ZZMarins, SCREEN_WIDTH- 2*ZZMarins, ZZBtnHeight) title:@"充值" titleColor:[UIColor whiteColor] backgroundColor:ZZBaseColor target:self action:@selector(addMoney) superView:self.view];
+    btn.layer.cornerRadius = ZZBtnHeight/2;
+}
+
+#pragma mark - 监听充值按钮点击
+- (void)addMoney {
+    
+    if ([self.txAdding.text floatValue] < 1.0f) {
+        [MBProgressHUD showError:@"请输入正确的价格(金额必须大于1元)"];
+        
+        return;
+    }
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/trader/recharge",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary]
+    ;
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:self.txAdding.text forKey:@"price"];// 充值金额
+    [params setObject:@"1" forKey:@"pay_source"];// 付款源1-支付宝
+
+    __weak typeof(self) wSelf = self;
+
+    // 获取订单交易号
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~--responseObj~%@",responseObj);
+        
+        // 判断是否成功获取交易单号
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {// 成功获取订单编号
+            ZZLog(@"~~成功获取交易单号--orderCode~%@",responseObj[@"result"]);
+            
+            NSString *tradeCode = responseObj[@"result"];
+            
+            // 2.1 成功获取，则进行点击之后的网络链接
+            [wSelf alipayWithTradeCode:tradeCode];// 用支付宝进行支付
+            
+        }else {// 获取订单编号失败
+            // 2.2 获取失败,提示获取失败
+            [MBProgressHUD showError:responseObj[@"message"] toView:wSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"~~~%@",error);
+        
+    }];
+
+}
+
+#pragma mark 支付宝支付--生成支付宝订单
+- (void)alipayWithTradeCode:(NSString *)tradeCode {
+    __weak typeof(self) weakSelf = self;
+    
+    AlipayOrder *aliOrder = [[AlipayOrder alloc] init];
+    aliOrder.partner = AlipayPartner;
+    aliOrder.seller = AlipaySeller;
+    aliOrder.tradeNO = tradeCode;//订单ID（由商家自行制定）
+    aliOrder.productName = @"贝医科技服务"; //商品标题
+    aliOrder.productDescription = @"贝医服务"; //商品描述
+    aliOrder.amount = [NSString stringWithFormat:@"%.2f",[weakSelf.txAdding.text floatValue]]; //商品价格
+    aliOrder.notifyURL =  @"http://www.bieiyi.com"; //回调URL
+    
+    aliOrder.service = @"mobile.securitypay.pay";
+    aliOrder.paymentType = @"1";
+    aliOrder.inputCharset = @"utf-8";
+    aliOrder.itBPay = @"30m";
+    aliOrder.showUrl = @"m.alipay.com";
+    
+    //应用注册scheme,在AlixPayDemo-Info.plist定义URL types
+    NSString *appScheme = @"BEIYIPAY";
+    
+    //将商品信息拼接成字符串
+    NSString *orderSpec = [aliOrder description];
+    
+    //获取私钥并将商户信息签名,外部商户可以根据情况存放私钥和签名,只需要遵循RSA签名规范,并将签名字符串base64编码和UrlEncode
+    id<DataSigner> signer = CreateRSADataSigner(AlipayRSA_PrivateKey);
+    NSString *signedString = [signer signString:orderSpec];
+    
+    //将签名成功字符串格式化为订单字符串,请严格按照该格式
+    NSString *orderString = nil;
+    if (signedString != nil) {
+        orderString = [NSString stringWithFormat:@"%@&sign=\"%@\"&sign_type=\"%@\"",
+                       orderSpec, signedString, @"RSA"];
+        
+        [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+            ZZLog(@"支付宝----支付结果---reslut = %@",resultDic);
+            
+            if ([resultDic[@"resultStatus"] isEqualToString:@"9000"]) {// 支付成功
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                [MBProgressHUD showSuccess:@"充值成功"];
+                
+            }else {// 支付失败
+                ZZLog(@"----支付宝-支付失败----");
+                [MBProgressHUD showError:@"充值失败，请重试！"];
+            }
+        }];
+    }
+}
+
+@end

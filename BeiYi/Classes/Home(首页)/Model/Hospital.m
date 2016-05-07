@@ -1,0 +1,33 @@
+//
+//  Hostipal.m
+//  NetWokText
+//
+//  Created by Joe on 15/5/6.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "Hospital.h"
+
+@implementation Hospital
+
+- (instancetype)initWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self.address = dict[@"address"];
+        self.city_name = dict[@"city_name"];
+        self.county_name = dict[@"county_name"];
+        self.hospital_id = dict[@"id"];
+        self.image = dict[@"image"];
+        self.level_str = dict[@"level_str"];
+        self.province_name = dict[@"province_name"];
+        self.short_name = dict[@"short_name"];
+    }
+    return self;
+}
++ (instancetype)hospitalWithDict:(NSDictionary *)dict {
+    return [[self alloc] initWithDict:dict];
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+@end

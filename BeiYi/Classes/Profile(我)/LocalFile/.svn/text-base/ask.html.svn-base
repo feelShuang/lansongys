@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"></meta>
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>常见问题</title>
+    <style>
+        .p-about {
+        font-size: .6rem;
+        padding: 0 .8rem;
+        color: #394659
+        }
+
+        .p-about .my-head {
+        padding: .5rem 0;
+        font-size: .65rem;
+        font-weight: bold;
+        color: #23a8f5;
+        }
+        .p-about .my-head1 {
+        padding: 0 0 .5rem 0;
+        }
+    </style>
+    <link rel="stylesheet" href="content.css"/>
+</head>
+
+<body>
+<div class="p-about">
+    <div class="my-head">Q1：一个手机号能注册几个账号？</div>
+    <div class="#">一个手机只能注册一个账号。</div>
+    <div class="my-head">Q2：我为家人预约，预约时填我本人的姓名和手机号还是家人的？</div>
+    <div class="#">本人或家人都可以，但是患者信息必须要填患者本人的。</div>
+    <div class="my-head">Q3：订单超过30分钟没有支付，超时了怎么办？</div>
+    <div class="content">订单超时未支付，系统会自动取消，您需要重新发布信息。</div>
+    <div class="my-head">Q4：确认预约之后可以修改订单信息吗？</div>
+    <div class="content">订单确认之后无法操作更改，如果您遇到特殊情况，请联系我们的客服。</div>
+    <div class="my-head">Q5：确认预约之后如何取消订单？</div>
+    <div class="content">
+        您可以在“我的订单-待出号”页面申请取消订单，由客服确认后取消，您不可以单方面取消订单。此外，您还需要支付20%的违约金。因为医生工作繁忙，不是特殊情况，建议您不要轻易取消订单。
+    </div>
+    <div class="my-head">Q6：取消订单如何退款？</div>
+    <div class="content">客服确认取消订单之后，系统会自动扣除20%的违约金，并将剩余金额返还至您的账户余额。</div>
+    <div class="my-head">Q7：在线支付过程中，订单显示未支付成功，款项却被扣了，怎么办？</div>
+    <div class="content">请您保留好您的支付凭证及交易流水号，及时与我们的客服联系确认。</div>
+    <div class="my-head">Q8：什么是凭证？</div>
+    <div class="content">凭证是您就医的最重要凭据，在订单确认后，系统会自动生成，包含您的基本信息、就医时间地点等。您在就医前，需要将凭证提供给客服或医生确认，方可就诊。
+    </div>
+    <div class="my-head">Q9：预约成功之后如何取号就诊？</div>
+    <div class="content">预约成功后，我们的客服会再次和您联系，在就诊的当天陪同您就诊，并为您办理相关的挂号手续。请您就诊时务必带好就医凭证，方便客服及医生的确认。</div>
+    <div class="my-head">Q10：预约成功后，专家临时停诊了怎么办？</div>
+    <div class="content"> 预约成功后，我们的客服会随时跟踪专家的出诊信息，如果专家临时停诊，客服会第一时间和您联系确认改期或安排其他医生就诊。</div>
+    <div class="my-head">Q11：就诊完成后还需要做什么？</div>
+    <div class="content">就诊完成后，您需要最终确认订单。</div>
+    <div class="my-head">Q12：余额充值目前支持哪些方式？</div>
+    <div class="my-head1">目前支持支付宝充值。</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,100 @@
+//
+//  BalanceVc.m
+//  BeiYi
+//
+//  Created by Joe on 15/8/25.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "BalanceVc.h"
+#import "Common.h"
+#import "AddBalanceVc.h"
+#import "GetCashVc.h"
+#import "TranscationRecordTableViewController.h"
+
+@interface BalanceVc ()
+@property (nonatomic, strong) UILabel *lblBalance;
+
+@end
+
+@implementation BalanceVc
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    // 1.刷新余额
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/trader/account",BASEURL];
+    
+    __weak typeof(self) wSelf = self;
+    
+    [ZZHTTPTool post:urlStr params:[NSDictionary dictionaryWithObject:myAccount.token forKey:@"token"] success:^(NSDictionary *responseObj) {
+        ZZLog(@"---余额---%@",responseObj);
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            NSString *balance = [NSString stringWithFormat:@"￥%.2f",[responseObj[@"result"][@"use_balance"] floatValue]];
+            wSelf.lblBalance.text = balance;
+        }
+        
+    } failure:^(NSError *error) {
+        wSelf.lblBalance.text = @"null";
+    }];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = @"我的余额";
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    [self setUpUI];
+}
+
+- (void)setUpUI {
+    CGFloat FirstY = (SCREEN_HEIGHT - 7*ZZBtnHeight)/2;
+    
+    // 1.UILabel 我的余额
+    UILabel *lblBalanceTip = [ZZUITool labelWithframe:CGRectMake(0, FirstY, SCREEN_WIDTH, ZZBtnHeight) Text:@"我的余额" textColor:[UIColor blackColor] fontSize:20 superView:self.view];
+    lblBalanceTip.textAlignment = NSTextAlignmentCenter;
+    
+    // 2.UILabel 余额-->数字
+    UILabel *lblBalance = [ZZUITool labelWithframe:CGRectMake(0, CGRectGetMaxY(lblBalanceTip.frame), SCREEN_WIDTH, ZZBtnHeight) Text:nil textColor:ZZButtonColor fontSize:20 superView:self.view];
+    lblBalance.textAlignment = NSTextAlignmentCenter;
+    self.lblBalance = lblBalance;
+    
+    // 3.UIButton 充值按钮
+    UIButton *btnRecharge = [ZZUITool buttonWithframe:CGRectMake(ZZMarins, CGRectGetMaxY(lblBalance.frame)+ZZBtnHeight/2, SCREEN_WIDTH - 2*ZZMarins, ZZBtnHeight) title:@"充值" titleColor:[UIColor whiteColor] backgroundColor:ZZBaseColor target:self action:@selector(recharge) superView:self.view];
+    btnRecharge.layer.cornerRadius = ZZBtnHeight/2;
+    
+    // 4.UIButton 提现按钮
+    UIButton *btnCash = [ZZUITool buttonWithframe:CGRectMake(ZZMarins, CGRectGetMaxY(btnRecharge.frame)+ZZBtnHeight/2, SCREEN_WIDTH -2*ZZMarins, ZZBtnHeight) title:@"提现" titleColor:ZZBaseColor backgroundColor:[UIColor whiteColor] target:self action:@selector(getCash) superView:self.view];
+    btnCash.layer.cornerRadius = ZZBtnHeight/2;
+    
+    // 5.设置导航条
+    UIButton *rightBtnItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtnItem.frame = CGRectMake(0, 0, 70, 40);
+    [rightBtnItem setTitle:@"交易记录" forState:UIControlStateNormal];
+    [rightBtnItem setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [rightBtnItem setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    rightBtnItem.titleLabel.font = [UIFont systemFontOfSize:15];
+    [rightBtnItem addTarget:self action:@selector(transactionRecord) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightBtnItem];
+    
+}
+
+#pragma mark - 交易记录
+- (void)transactionRecord {
+    
+    TranscationRecordTableViewController *transcaRecordTVC = [TranscationRecordTableViewController new];
+    [self.navigationController pushViewController:transcaRecordTVC animated:YES];
+    
+}
+
+#pragma mark 充值按钮点击
+- (void)recharge {
+    [self.navigationController pushViewController:[[AddBalanceVc alloc] init]animated:YES];
+}
+
+#pragma mark 提现按钮点击
+- (void)getCash {
+    [self.navigationController pushViewController:[[GetCashVc alloc] init]animated:YES];
+}
+
+@end

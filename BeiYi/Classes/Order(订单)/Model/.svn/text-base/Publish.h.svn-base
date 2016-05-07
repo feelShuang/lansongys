@@ -1,0 +1,18 @@
+//
+//  Publish.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface Publish : NSObject
+
+// 发布者nick_name
+@property (nonatomic, copy) NSString *nick_name;
+// 发布者电话号码
+@property (nonatomic, copy) NSString *mobile;
+
+@end

@@ -1,0 +1,312 @@
+//
+//  SelectPayModeController.m
+//  BeiYi
+//
+//  Created by Joe on 15/6/24.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "SelectPayModeController.h"
+#import "Common.h"
+#import "MyOrderController.h"
+#import "ZZTabBarController.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import "AlipayOrder.h"
+#import "DataSigner.h"
+#import "OrderController.h"
+#import "OrderManagerTableViewController.h"
+#import "OrderInfo.h"
+
+@interface SelectPayModeController ()
+/** UILabel 账户余额 */
+@property (nonatomic, strong) UILabel *lblBalance;
+/** UIButton 账户余额--支付按钮 */
+@property (nonatomic, strong) UIButton *btnBalance;
+/** UIButton 支付宝--支付按钮 */
+@property (nonatomic, strong) UIButton *btnAliPay;
+
+@end
+
+@implementation SelectPayModeController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self GetBalance];// 获取余额
+}
+
+#pragma mark - 获取余额
+- (void)GetBalance {
+    [MBProgressHUD showMessage:@"请稍后..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/trader/account",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"---获取余额---%@",responseObj);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        
+        if ([responseObj[@"code"] isEqual:@"0000"]) {// 操作成功
+            NSDictionary *resultDict = responseObj[@"result"];
+            weakSelf.lblBalance.text = [NSString stringWithFormat:@"可用余额：%.2f 元",[resultDict[@"use_balance"] floatValue]];
+            
+        }else {// 操作失败
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---获取余额---%@",error);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - UI布局
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 1.基本设置
+    self.view.backgroundColor = ZZBackgroundColor;
+    self.title = @"保证金付款";
+    
+    [self setUpUI];
+}
+
+- (void)setUpUI {
+    
+    // 1.UILabel 订单号
+    UILabel *lblTip = [ZZUITool labelWithframe:CGRectMake(0, 64 +ZZMarins, SCREEN_WIDTH, ZZMarins) Text:[NSString stringWithFormat:@"订单号：%@",self.orderCode] textColor:ZZColor(153, 153, 153, 1)  fontSize:(CGFloat)14 superView:self.view];
+    lblTip.textAlignment = NSTextAlignmentCenter;
+    
+    // 2.UILabel 显示保证金金额
+    UILabel *lblPrice = [ZZUITool labelWithframe:CGRectMake(0, CGRectGetMaxY(lblTip.frame)+5, SCREEN_WIDTH, 60) Text:[NSString stringWithFormat:@"￥%@.00元",_price] textColor:[UIColor redColor] fontSize:21 superView:self.view];
+    lblPrice.textAlignment = NSTextAlignmentCenter;
+    
+    // 4.UIView 支付方式 背景
+    UIView *payBackVeiw = [ZZUITool viewWithframe:CGRectMake(0, CGRectGetMaxY(lblPrice.frame) +5, SCREEN_WIDTH, 110) backGroundColor:[UIColor whiteColor] superView:self.view];
+    
+    // 余额图标
+    UIImageView *imgBalance = [ZZUITool imageViewWithframe:CGRectMake(15, 7.5, 40, 40) imageName:@"payBalance" highlightImageName:nil superView:payBackVeiw];
+    
+    // 5.UILabel 提示：余额支付
+    UILabel *lblTipLeft = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgBalance.frame) +15, 7.5, SCREEN_WIDTH/2, 20) Text:@"余额支付" textColor:[UIColor blackColor]  fontSize:(CGFloat)15 superView:payBackVeiw];
+    lblTipLeft.textAlignment = NSTextAlignmentLeft;
+    
+    // 6.UILabel 提示：可用余额
+    _lblBalance = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgBalance.frame) +15, 28, SCREEN_WIDTH/2, 15) Text:nil textColor:[UIColor darkGrayColor]  fontSize:(CGFloat)13 superView:payBackVeiw];
+    _lblBalance.textAlignment = NSTextAlignmentLeft;
+    
+    // 7.水平分割线1
+    [ZZUITool linehorizontalWithPosition:CGPointMake(CGRectGetMaxX(imgBalance.frame) +15, 50) width:SCREEN_WIDTH backGroundColor:ZZBackgroundColor superView:payBackVeiw];
+    
+    // 8.支付宝图标
+    UIImageView *imgAliPay = [ZZUITool imageViewWithframe:CGRectMake(15, 55+7.5, 40, 40) imageName:@"payAli" highlightImageName:nil superView:payBackVeiw];
+    
+    // 9.UILabel 提示：支付宝支付
+    UILabel *lblAliPay = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgAliPay.frame) +15, 55 +7.5, SCREEN_WIDTH/2, 20) Text:@"支付宝支付" textColor:[UIColor blackColor]  fontSize:(CGFloat)15 superView:payBackVeiw];
+    lblAliPay.textAlignment = NSTextAlignmentLeft;
+    
+    // 10.UILabel 小提示
+    UILabel *lblLittleTip = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(imgAliPay.frame)+15, 87.5, SCREEN_WIDTH- 55 -60, 15) Text:@"推荐安装支付宝客户端的用户使用" textColor:[UIColor lightGrayColor]  fontSize:(CGFloat)13 superView:payBackVeiw];
+    lblLittleTip.textAlignment = NSTextAlignmentLeft;
+    
+    // 11.UIButton 余额支付按钮
+    _btnBalance = [ZZUITool buttonWithframe:CGRectMake(SCREEN_WIDTH -50, 10, 30, 30) title:nil titleColor:nil backgroundColor:nil target:self action:@selector(payUseBalance) superView:payBackVeiw];
+    [_btnBalance setImage:[UIImage imageNamed:@"OKBtn"] forState:UIControlStateNormal];
+    [_btnBalance setImage:[UIImage imageNamed:@"OKBtn_Clicked"] forState:UIControlStateSelected];
+    
+    // 12.UIButton 支付宝支付按钮
+    _btnAliPay = [ZZUITool buttonWithframe:CGRectMake(SCREEN_WIDTH -50, 60, 30, 30) title:nil titleColor:nil backgroundColor:nil target:self action:@selector(payUseAliPay) superView:payBackVeiw];
+    [_btnAliPay setImage:[UIImage imageNamed:@"OKBtn"] forState:UIControlStateNormal];
+    [_btnAliPay setImage:[UIImage imageNamed:@"OKBtn_Clicked"] forState:UIControlStateSelected];
+    
+    // 默认选择余额支付按钮
+    [self payUseBalance];
+    
+    // 13.立即支付按钮
+    UIButton *btn = [ZZUITool buttonWithframe:CGRectMake(ZZMarins, CGRectGetMaxY(payBackVeiw.frame)+ZZMarins, SCREEN_WIDTH- 2*ZZMarins, ZZBtnHeight) title:@"立即支付" titleColor:nil backgroundColor:ZZButtonColor target:self action:@selector(payNow) superView:self.view];
+    btn.layer.cornerRadius = 3.0f;
+}
+
+#pragma mark -
+#pragma mark  监听 余额支付按钮 点击
+- (void)payUseBalance {
+    self.btnBalance.selected = YES;
+    self.btnAliPay.selected = NO;
+}
+
+#pragma mark  监听 支付宝支付按钮 点击
+- (void)payUseAliPay {
+    self.btnAliPay.selected = YES;
+    self.btnBalance.selected = NO;
+}
+
+#pragma mark - 监听 立即支付按钮 点击（先获取交易单号，再进行支付）
+- (void)payNow {
+    
+    // 1.先要获取订单编号
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/trader/gen_code",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary]
+    ;
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:self.orderCode forKey:@"order_code"];// 订单编号
+    [params setObject:self.payType forKey:@"pay_type"];// 付款类型2-发布订单 4-抢单
+    
+    // 付款源1-支付宝 2-帐户余额
+    if (self.btnAliPay.selected) {
+        [params setObject:@1 forKey:@"pay_source"];
+        
+    }else {
+        [params setObject:@2 forKey:@"pay_source"];
+        
+    }
+    
+    __weak typeof(self) wSelf = self;
+    
+    /** 交易单号 */
+    __block NSString *tradeCode = [NSString string];
+    
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~获取交易单号--responseObj~%@",responseObj);
+        
+        tradeCode = responseObj[@"result"];
+        // 2.判断是否成功获取交易单号
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {// 成功获取订单编号
+            ZZLog(@"~~成功获取交易单号--orderCode~%@",tradeCode);
+            
+            // 2.1 成功获取，则进行点击之后的网络链接
+            [wSelf payButtonClicked:tradeCode];// 点击支付按钮进行支付
+            
+        }else {// 获取订单编号失败
+            // 2.2 获取失败,提示获取失败
+            [MBProgressHUD showError:responseObj[@"message"] toView:wSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"~~~%@",error);
+        
+    }];
+}
+
+#pragma mark 支付宝支付--生成支付宝订单
+- (void)alipay {
+    __weak typeof(self) weakSelf = self;
+    
+    AlipayOrder *aliOrder = [[AlipayOrder alloc] init];
+    aliOrder.partner = AlipayPartner;
+    aliOrder.seller = AlipaySeller;
+    aliOrder.tradeNO = weakSelf.orderCode;//订单ID（由商家自行制定）
+    aliOrder.productName = @"贝医科技服务"; //商品标题
+    aliOrder.productDescription = @"贝医服务"; //商品描述
+    aliOrder.amount = [NSString stringWithFormat:@"%.2f",weakSelf.price.floatValue]; //商品价格
+    aliOrder.notifyURL =  @"http://www.bieiyi.com"; //回调URL
+    
+    aliOrder.service = @"mobile.securitypay.pay";
+    aliOrder.paymentType = @"1";
+    aliOrder.inputCharset = @"utf-8";
+    aliOrder.itBPay = @"30m";
+    aliOrder.showUrl = @"m.alipay.com";
+    
+    //应用注册scheme,在AlixPayDemo-Info.plist定义URL types
+    NSString *appScheme = @"BEIYIPAY";
+    
+    //将商品信息拼接成字符串
+    NSString *orderSpec = [aliOrder description];
+    
+    //获取私钥并将商户信息签名,外部商户可以根据情况存放私钥和签名,只需要遵循RSA签名规范,并将签名字符串base64编码和UrlEncode
+    id<DataSigner> signer = CreateRSADataSigner(AlipayRSA_PrivateKey);
+    NSString *signedString = [signer signString:orderSpec];
+    
+    //将签名成功字符串格式化为订单字符串,请严格按照该格式
+    NSString *orderString = nil;
+    if (signedString != nil) {
+        orderString = [NSString stringWithFormat:@"%@&sign=\"%@\"&sign_type=\"%@\"",
+                       orderSpec, signedString, @"RSA"];
+        
+        [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+            ZZLog(@"支付宝----支付结果---reslut = %@",resultDic);
+            
+            if ([resultDic[@"resultStatus"] isEqualToString:@"9000"]) {// 支付成功
+                [MBProgressHUD showSuccess:@"支付成功"];
+                // 跳转到 "我的订单" 界面
+                [weakSelf.navigationController pushViewController:[[MyOrderController alloc] init] animated:YES];
+                
+                
+            }else {// 支付失败
+                ZZLog(@"----支付宝-支付失败----");
+                [MBProgressHUD showError:@"支付失败，请重试！"];
+                
+                [weakSelf.navigationController pushViewController:[[MyOrderController alloc] init] animated:YES];
+            }
+        }];
+    }
+}
+
+#pragma mark  余额支付
+- (void)loadHttpForPay:(NSString *)orderCode {
+    
+    [MBProgressHUD showMessage:@"请稍后..." toView:self.view];
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/trader/pay",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary]
+    ;
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:orderCode forKey:@"trader_code"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"~~*&*&*~%@",responseObj);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            
+            [MBProgressHUD showSuccess:@"支付成功"];
+
+            
+            // 跳转返回 "我的订单" 列表界面
+            OrderManagerTableViewController *orderManagerTVC = [OrderManagerTableViewController new];
+            [OrderInfo shareInstance].isUpLoading = YES;
+            
+            [weakSelf.navigationController popViewControllerAnimated:orderManagerTVC];
+
+            
+        }else {
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        ZZLog(@"~~~%@",error);
+        
+    }];
+    
+}
+
+#pragma mark  点击支付按钮-->根据支付方式来付款
+- (void)payButtonClicked:(NSString *)orderCode {
+    ZZLog(@"---点击了支付按钮---");
+    
+    __weak typeof(self) weakSelf = self;
+    
+    if (weakSelf.btnAliPay.selected) {// 进行支付宝支付
+        [weakSelf alipay];
+        
+    }else {// 余额支付
+        [weakSelf loadHttpForPay:orderCode];
+    }
+}
+
+@end

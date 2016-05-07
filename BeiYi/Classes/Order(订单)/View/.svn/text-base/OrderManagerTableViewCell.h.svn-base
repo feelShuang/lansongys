@@ -1,0 +1,41 @@
+//
+//  OrderManagerTableViewCell.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyOrder.h"
+
+@interface OrderManagerTableViewCell : UITableViewCell
+
+// 订单状态
+@property (weak, nonatomic) IBOutlet UILabel *OrderStateLabel;
+
+// 订单类型
+@property (weak, nonatomic) IBOutlet UILabel *OrderTypeLabel;
+
+// 医生头像
+@property (weak, nonatomic) IBOutlet UIImageView *DoctorHeaderImage;
+
+// 医生名字
+@property (weak, nonatomic) IBOutlet UILabel *DoctorNameLabel;
+
+// 医院名声
+@property (weak, nonatomic) IBOutlet UILabel *HospitalNameLabel;
+
+// 预约时间
+@property (weak, nonatomic) IBOutlet UILabel *AppointmentTimeLabel;
+
+// 服务金额
+@property (weak, nonatomic) IBOutlet UILabel *ServicePriceLabel;
+
+@property (nonatomic, strong) MyOrder *myOrder;
+
+//
+@property (nonatomic, copy) NSString *over_status;
+
+
+@end

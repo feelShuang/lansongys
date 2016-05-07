@@ -1,0 +1,62 @@
+//
+//  GetOrder.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/28.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+
+
+#import <Foundation/Foundation.h>
+#import "OrderAttach.h"
+
+/**
+ *  抢单模型
+ */
+@interface GetOrder : NSObject
+
+// 抢单 id
+@property (nonatomic, copy) NSString *get_id;
+
+// 抢单 是否可以抢单
+@property (nonatomic, assign) BOOL grab_flag;
+
+// 抢单 服务类型
+@property (nonatomic, copy) NSString *order_type;
+
+// 抢单 医院名称
+@property (nonatomic, copy) NSString *hospital_name;
+
+// 抢单 附加
+@property (nonatomic, strong) OrderAttach *attach;
+
+// 抢单 订单创建时间
+@property (nonatomic, copy) NSString *created_at;
+
+// 抢单 就诊开始时间
+@property (nonatomic, copy) NSString *start_time;
+
+// 抢单 价格
+@property (nonatomic, copy) NSString *price;
+
+// 抢单 order_code
+@property (nonatomic, copy) NSString *order_code;
+
+// 抢单 order_type_str
+@property (nonatomic, copy) NSString *order_type_str;
+
+// 抢单 就诊结束时间
+@property (nonatomic, copy) NSString *end_time;
+
+// 抢单 医生姓名
+@property (nonatomic, copy) NSString *doctor_name;
+
+// 抢单 科室名称
+@property (nonatomic, copy) NSString *department_name;
+
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
+
++ (instancetype)getOrderWithDict:(NSDictionary *)dict;
+@end

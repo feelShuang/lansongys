@@ -1,0 +1,15 @@
+//
+//  ProfileController.h
+//  BeiYi
+//
+//  Created by Joe on 15/4/13.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  个人中心
+ */
+@interface ProfileController : UIViewController
+
+@end

@@ -1,0 +1,66 @@
+//
+//  RabOrderManagerTableViewCell.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/18.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIImageView+WebCache.h>
+#import "Common.h"
+#import "RabOrderManagerTableViewCell.h"
+
+@implementation RabOrderManagerTableViewCell
+
+- (void)setMyOrder:(MyOrder *)myOrder {
+    
+    _myOrder = myOrder;
+    
+    if ([myOrder.order_status isEqualToString:@"1"]) {
+        self.rabOrderStateLabel.text = @"待报价";
+    }
+    if ([myOrder.order_status isEqualToString:@"3"]) {
+        self.rabOrderStateLabel.text = @"待出号";
+    }
+    if ([myOrder.order_status isEqualToString:@"4"]) {
+        self.rabOrderStateLabel.text = @"退单中";
+    }
+    if ([myOrder.order_status isEqualToString:@"5"]) {
+        self.rabOrderStateLabel.text = @"凭证确认";
+    }
+    if ([myOrder.order_status isEqualToString:@"6"]) {
+        self.rabOrderStateLabel.text = @"待评价";
+    }
+    if ([myOrder.order_status isEqualToString:@"9"]) {
+        self.rabOrderStateLabel.text = @"交易关闭";
+    }
+    
+    self.rabOrderTypeLabel.text = myOrder.order_type;
+    self.doctorAvatarImageView.contentMode = UIViewContentModeScaleToFill;
+    [self.doctorAvatarImageView sd_setImageWithURL:[NSURL URLWithString:myOrder.doctor_avator] placeholderImage:[UIImage imageNamed:@"doctor_head_default"]];
+    self.doctorNameLabel.text = myOrder.doctor_name;
+    self.hospitalNameLabel.text = [NSString stringWithFormat:@"%@[%@]",myOrder.hospital_name,myOrder.department_name];
+    self.appointmentTimeLabel.text = [NSString stringWithFormat:@"%@~%@",myOrder.start_time,myOrder.end_time];
+    
+    if ([myOrder.order_status isEqualToString:@"1"]) {
+        self.priceLabel.text = [NSString stringWithFormat:@"￥%@",myOrder.price_init];
+    }else {
+        self.priceLabel.text = [NSString stringWithFormat:@"￥%@",myOrder.price];
+    }
+    
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+    
+    self.doctorAvatarImageView.layer.cornerRadius = 20;
+    self.doctorAvatarImageView.layer.masksToBounds = YES;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

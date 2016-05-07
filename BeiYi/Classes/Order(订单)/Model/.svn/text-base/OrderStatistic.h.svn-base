@@ -1,0 +1,18 @@
+//
+//  OrderStatistic.h
+//  BeiYi
+//
+//  Created by LiuShuang on 16/3/3.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface OrderStatistic : NSObject
+
+// 数量
+@property (nonatomic, copy) NSString *count;
+// 类型
+@property (nonatomic, copy) NSString *type;
+
+@end

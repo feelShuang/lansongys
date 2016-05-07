@@ -1,0 +1,27 @@
+//
+//  Patient.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/26.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "Patient.h"
+
+@implementation Patient
+- (instancetype)initWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self.address = dict[@"address"];
+        self.id_card = dict[@"id_card"];
+        self.patient_id = dict[@"id"];
+        self.age = dict[@"age"];
+        self.sex = dict[@"sex"];
+        self.name = dict[@"name"];
+        self.mobile = dict[@"mobile"];
+    }
+    return self;
+}
++ (instancetype)patientWithDict:(NSDictionary *)dict {
+    return [[self alloc] initWithDict:dict];
+}
+@end

@@ -1,0 +1,70 @@
+//
+//  OrderDetailInfo.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "Human.h"
+#import "Publish.h"
+#import "OrderDetailAttach.h"
+#import "Over_Over.h"
+#import "Offer.h"
+
+@interface OrderDetailInfo : NSObject
+
+// 医生名称
+@property (nonatomic, copy) NSString *doctor_name;
+// 订单类型
+@property (nonatomic, copy) NSString *order_type;
+// grab_flag
+@property (nonatomic, copy) NSString *grab_flag;
+// 医生头像
+@property (nonatomic, copy) NSString *doctor_avator;
+// 订单类型描述
+@property (nonatomic, copy) NSString *order_type_str;
+// 订单状态
+@property (nonatomic, copy) NSString *order_status;
+// 医院名称
+@property (nonatomic, copy) NSString *hospital_name;
+// 订单状态描述
+@property (nonatomic, copy) NSString *order_status_str;
+// 订单id
+@property (nonatomic, copy) NSString *order_id;
+// init_price
+@property (nonatomic, assign) NSInteger init_price;
+// 科室名称
+@property (nonatomic, copy) NSString *department_name;
+// is_refund = 0
+@property (nonatomic, copy) NSString *is_refund;
+// 就诊时间
+@property (nonatomic, copy) NSString *visit_start_time;
+// 创建时间
+@property (nonatomic, copy) NSString *created_at;
+// 价格
+@property (nonatomic, copy) NSString *price;
+// 出院时间
+@property (nonatomic, copy) NSString *visit_end_time;
+// 订单编号
+@property (nonatomic, copy) NSString *order_code;
+
+
+// 就诊人信息
+@property (nonatomic, strong) Human *human;
+
+// publish
+@property (nonatomic, strong) Publish *publish;
+
+// attach
+@property (nonatomic, strong) OrderDetailAttach *attach;
+
+// 凭证
+@property (nonatomic, strong) Over_Over *over_over;
+
+// 经纪人
+@property (nonatomic, strong) Offer *offer;
+
+
+@end

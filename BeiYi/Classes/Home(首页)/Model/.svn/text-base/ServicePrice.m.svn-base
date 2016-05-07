@@ -1,0 +1,17 @@
+//
+//  ServicePrice.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/16.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "ServicePrice.h"
+
+@implementation ServicePrice
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end

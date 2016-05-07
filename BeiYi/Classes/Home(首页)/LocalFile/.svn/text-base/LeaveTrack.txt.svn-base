@@ -1,0 +1,34 @@
+[
+
+    {
+        "img": "guahao01",
+        "title": "医生",
+        "pleaceholder": "请选择挂号医生"
+    },
+    {
+        "img": "guahao04",
+        "title": "价格",
+        "pleaceholder": "订单价格"
+    },
+    {
+        "img": "guahao05",
+        "title": "服务周期",
+        "pleaceholder": "请选择服务周期"
+    },
+    {
+        "img": "guahao02",
+        "title": "出院时间",
+        "pleaceholder": "请选择出院时间"
+    },
+    {
+        "img": "guahao05",
+        "title": "病历号",
+        "pleaceholder": "请输入病例号"
+    },
+    {
+        "img": "guahao05",
+        "title": "就诊人",
+        "pleaceholder": "请选择就诊人"
+    }
+
+]

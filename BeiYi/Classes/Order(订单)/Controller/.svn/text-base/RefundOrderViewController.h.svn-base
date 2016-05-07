@@ -1,0 +1,17 @@
+//
+//  RefundOrderViewController.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/1.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RefundOrderViewController : UIViewController
+
+// 订单编号
+@property (nonatomic, copy) NSString *order_code;
+
+
+@end

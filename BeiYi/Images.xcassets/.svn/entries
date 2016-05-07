@@ -1,0 +1,196 @@
+10
+
+dir
+453
+http://liushuang@192.168.1.200/svn/project/bestdoctor/source/ios/BeiYi/BeiYi/Images.xcassets
+http://liushuang@192.168.1.200/svn
+
+
+
+2016-03-14T22:42:19.000609Z
+450
+liushuang
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+809ed987-2aca-417b-8c18-5512446147ac
+
+NavigationBar
+dir
+
+bg.imageset
+dir
+
+appicon.imageset
+dir
+
+Common
+dir
+
+Home
+dir
+
+LaunchImage.launchimage
+dir
+
+
+
+add
+
+DianPing
+dir
+
+Tabs
+dir
+
+
+
+delete
+
+tabBar
+dir
+
+AppIcon.appiconset
+dir
+
+
+
+add
+
+Grabs
+dir
+
+segmentBackGround.imageset
+dir
+
+Profile
+dir
+
+btnGetCode.png
+file
+
+
+
+
+2016-03-02T05:38:00.000000Z
+8ff0b48d9b08c2f11668f1a4f554b624
+2016-01-22T23:11:11.101012Z
+373
+liushuang
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1294
+
+Guahao
+dir
+
+Newfeature
+dir
+
+Contents.json
+file
+
+
+
+
+2016-03-02T05:38:00.000000Z
+31cc68f34934a99c0b0c1bebde56309c
+2016-01-27T16:13:42.398445Z
+387
+liushuang
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+62
+
+default_loading_image.png
+file
+
+
+
+
+2016-03-02T05:38:00.000000Z
+672da24f7e7fd043690ae96fb1ba2f2e
+2016-01-22T23:11:11.101012Z
+373
+liushuang
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+16158
+
+order
+dir
+
+Setting
+dir
+
+Avatar
+dir
+

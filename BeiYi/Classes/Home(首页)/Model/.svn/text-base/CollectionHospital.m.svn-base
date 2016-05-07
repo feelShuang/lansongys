@@ -1,0 +1,26 @@
+//
+//  CollectionHospital.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/24.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "CollectionHospital.h"
+#import "Common.h"
+
+@implementation CollectionHospital
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"hos_id": @"id",
+             @"imageStr": @"image"
+             };
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end

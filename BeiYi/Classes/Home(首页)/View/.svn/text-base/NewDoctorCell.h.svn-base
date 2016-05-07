@@ -1,0 +1,23 @@
+//
+//  NewDoctorCell.h
+//  BeiYi
+//
+//  Created by Joe on 15/8/7.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class NewDoctor;
+
+/**
+ *  UITableViewCell 医生列表cell
+ */
+@interface NewDoctorCell : UITableViewCell
+
++ (instancetype)cellWithTableView:(UITableView *)tableView;
+/**
+ *  医生模型
+ */
+@property (nonatomic, strong) NewDoctor *doctor;
+
+@end

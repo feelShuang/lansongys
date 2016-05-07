@@ -1,0 +1,60 @@
+//
+//  WKWebViewController.m
+//  BeiYi
+//
+//  Created by LiuShuang on 16/2/26.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "WKWebViewController.h"
+#import <WebKit/WebKit.h>
+#import "Common.h"
+#import "IMYWebView.h"
+
+@interface WKWebViewController ()
+
+@property (nonatomic, strong) IMYWebView *wkWebView;
+
+@end
+
+@implementation WKWebViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.wkWebView = [[IMYWebView alloc] initWithFrame:self.view.bounds];
+    self.wkWebView.backgroundColor = ZZBackgroundColor;
+    
+    self.view = self.wkWebView;
+    
+    NSURL *baseUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
+    
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+        
+        if (self.num == 2) {
+            // 常见问题
+            [self.wkWebView loadHTMLString:[self loadHtmlFileWithFileName:@"ask"] baseURL:baseUrl];
+        }
+        else {
+            // 服务协议
+            [self.wkWebView loadHTMLString:[self loadHtmlFileWithFileName:@"agreement"] baseURL:baseUrl];
+        }
+    }
+}
+
+- (NSString *)loadHtmlFileWithFileName:(NSString *)fileName {
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:fileName ofType:@"html"];
+    NSString *html = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    
+    return html;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

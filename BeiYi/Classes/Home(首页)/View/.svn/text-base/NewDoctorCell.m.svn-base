@@ -1,0 +1,166 @@
+//
+//  NewDoctorCell.m
+//  BeiYi
+//
+//  Created by Joe on 15/8/7.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "NewDoctorCell.h"
+#import "NewDoctor.h"
+#import "UIImageView+WebCache.h"
+#import "Common.h"
+
+@interface NewDoctorCell()
+/**
+ *  医生头像
+ */
+@property (nonatomic, strong) UIImageView *icon;
+/**
+ *  UILabel 医生姓名
+ */
+@property (nonatomic, strong) UILabel *lblName;
+/**
+ *  UILabel 医生级别
+ */
+@property (nonatomic, strong) UILabel *lblLeval;
+/**
+ *  UILabel 医院名称
+ */
+@property (nonatomic, strong) UILabel *lblHosName;
+/**
+ *  UILabel 科室名称
+ */
+@property (nonatomic, strong) UILabel *lblDepartName;
+/**
+ *  UILabel 医生简介
+ */
+@property (nonatomic, strong) UILabel *lblDoctorInfo;
+
+@end
+
+
+@implementation NewDoctorCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        
+        self.icon = [[UIImageView alloc] init];
+        self.icon.layer.cornerRadius = 20.0;
+        self.icon.layer.masksToBounds = YES;
+        [self.contentView addSubview:self.icon];
+        
+        self.lblName = [[UILabel alloc] init];
+        self.lblName.font = [UIFont systemFontOfSize:16];
+        [self.contentView addSubview:self.lblName];
+        
+        self.lblLeval = [[UILabel alloc] init];
+        self.lblLeval.font = [UIFont systemFontOfSize:16];
+        self.lblLeval.textColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:self.lblLeval];
+
+        self.lblHosName = [[UILabel alloc] init];
+        self.lblHosName.font = [UIFont systemFontOfSize:13];
+        [self.contentView addSubview:self.lblHosName];
+        
+        self.lblDepartName = [[UILabel alloc] init];
+        self.lblDepartName.font = [UIFont systemFontOfSize:13];
+        [self.contentView addSubview:self.lblDepartName];
+        
+        self.lblDoctorInfo = [[UILabel alloc] init];
+        self.lblDoctorInfo.font = [UIFont systemFontOfSize:11];
+        self.lblDoctorInfo.textColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:self.lblDoctorInfo];
+    }
+    return self;
+}
+
++ (instancetype)cellWithTableView:(UITableView *)tableView {
+    static NSString *ID = @"NewDoctorCell";
+    
+    NewDoctorCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (cell == nil) {
+        cell = [[NewDoctorCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    return cell;
+}
+
+- (void)setDoctor:(NewDoctor *)doctor {
+    _doctor = doctor;
+    
+    NSURL *url = [NSURL URLWithString:doctor.avator];
+    [self.icon sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"doctor_head_default"]];
+    
+    self.lblName.text = doctor.name;
+    /**  医生级别（1-医师2-主治医师3-副主任医师4-主任医师）*/
+    NSString *level;
+    switch ([doctor.level intValue]) {
+        case 1:
+            level = @"医师";
+            break;
+        case 2:
+            level = @"主治医师";
+            break;
+        case 3:
+            level = @"副主任医师";
+            break;
+        case 4:
+            level = @"主任医师";
+            break;
+        default:
+            break;
+    }
+    self.lblLeval.text = [NSString stringWithFormat:@"[%@]",level];
+    
+    self.lblHosName.text = doctor.hospital_name;
+
+    self.lblDepartName.text = doctor.dept_name;
+
+    if ([doctor.good_at isEqual:[NSNull null]]) {
+        self.lblDoctorInfo.text = @"暂无简介";
+    }else {
+        self.lblDoctorInfo.text = doctor.good_at;
+    }
+
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    CGFloat margin = 5;
+
+    self.icon.frame = CGRectMake(margin, margin +3, 40, 40);
+    
+    CGFloat lblNameX = CGRectGetMaxX(self.icon.frame) +margin;// 医生姓名label的X
+    
+    CGSize maxSizeOfName = CGSizeMake(CGFLOAT_MAX, 20);
+    CGSize lblNameSize = [self sizeWithText:self.lblName.text maxSize:maxSizeOfName font:[UIFont systemFontOfSize:16]];
+    self.lblName.frame = CGRectMake(lblNameX, margin, lblNameSize.width, lblNameSize.height);
+    
+    
+    CGSize maxSizeOfLeval = CGSizeMake(CGFLOAT_MAX, 20);
+    CGSize lblLevalSize = [self sizeWithText:self.lblLeval.text maxSize:maxSizeOfLeval font:[UIFont systemFontOfSize:16]];
+    self.lblLeval.frame = CGRectMake(CGRectGetMaxX(self.lblName.frame), margin, lblLevalSize.width, lblLevalSize.height);
+    
+    
+    CGSize maxSizeOfHos= CGSizeMake(CGFLOAT_MAX, 15);
+    CGSize lblHosSize = [self sizeWithText:self.lblHosName.text maxSize:maxSizeOfHos font:[UIFont systemFontOfSize:13]];
+    self.lblHosName.frame = CGRectMake(lblNameX, CGRectGetMaxY(self.lblName.frame) +margin, lblHosSize.width, lblHosSize.height);
+    
+    CGSize maxSizeOfDepart= CGSizeMake(CGFLOAT_MAX, 15);
+    CGSize lblDepartSize = [self sizeWithText:self.lblDepartName.text maxSize:maxSizeOfDepart font:[UIFont systemFontOfSize:13]];
+    self.lblDepartName.frame = CGRectMake(CGRectGetMaxX(self.lblHosName.frame) +margin *3, CGRectGetMaxY(self.lblName.frame) +margin, lblDepartSize.width, lblDepartSize.height);
+    
+    CGFloat lblDoctorInfoWidth = self.contentView.frame.size.width -40;
+    self.lblDoctorInfo.frame = CGRectMake(lblNameX, CGRectGetMaxY(self.lblHosName.frame),  lblDoctorInfoWidth, 13);
+    
+}
+
+/** 根据文本内容计算size*/
+- (CGSize)sizeWithText:(NSString *)text maxSize:(CGSize)maxSize font:(UIFont *)font {
+    
+    return [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : font} context:nil].size;
+}
+
+@end

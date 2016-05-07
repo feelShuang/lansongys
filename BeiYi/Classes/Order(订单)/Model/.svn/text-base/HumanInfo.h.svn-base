@@ -1,0 +1,33 @@
+//
+//  HumanInfo.h
+//  BeiYi
+//
+//  Created by Joe on 15/12/28.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface HumanInfo : NSObject
+
+/** NSString 地址*/
+@property (nonatomic, copy) NSString *address;
+/** NSString 身份证*/
+@property (nonatomic, copy) NSString *id_card;
+/** NSString 电话*/
+@property (nonatomic, copy) NSString *mobile;
+/** NSString 年龄*/
+@property (nonatomic, copy) NSString *age;
+/** NSString link_name？*/
+@property (nonatomic, copy) NSString *link_name;
+/** NSString link_mobile？*/
+@property (nonatomic, copy) NSString *link_mobile;
+/** NSInteger sex (1:男；2:女人)*/
+@property (nonatomic, assign) NSInteger sex;
+/** NSString 姓名*/
+@property (nonatomic, copy) NSString *name;
+
++ (instancetype)humanInfoWithDict:(NSDictionary *)dict;
+- (instancetype)initWithDict:(NSDictionary *)dict;
+
+@end

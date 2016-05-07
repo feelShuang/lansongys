@@ -1,0 +1,30 @@
+//
+//  CollectionHospital.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/24.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface CollectionHospital : NSObject
+
+// 地址
+@property (nonatomic, copy) NSString *address;
+// 等级
+@property (nonatomic, copy) NSString *level_str;
+// 区域
+@property (nonatomic, copy) NSString *county_name;
+// 医院id
+@property (nonatomic, copy) NSString *hos_id;
+// 图片
+@property (nonatomic, copy) NSString *imageStr;
+// 医院简称
+@property (nonatomic, copy) NSString *short_name;
+// 省
+@property (nonatomic, copy) NSString *province_name;
+// 城市名
+@property (nonatomic, copy) NSString *city_name;
+
+@end

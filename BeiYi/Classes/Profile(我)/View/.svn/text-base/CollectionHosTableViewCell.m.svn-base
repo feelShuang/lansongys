@@ -1,0 +1,47 @@
+//
+//  CollectionHosTableViewCell.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/23.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "CollectionHosTableViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "CollectionDoctor.h"
+#import "CollectionHospital.h"
+
+
+@implementation CollectionHosTableViewCell
+
+- (void)setHospital:(CollectionHospital *)hospital {
+    
+    _hospital = hospital;
+    
+    [self.avatorImageView sd_setImageWithURL:[NSURL URLWithString:hospital.imageStr] placeholderImage:[UIImage imageNamed:@"hos_list_default"]];
+    self.HospitalNameLabel.text = hospital.short_name;
+    self.addressNameLabel.text = [NSString stringWithFormat:@"%@%@%@%@",hospital.province_name,hospital.city_name,hospital.county_name,hospital.address];
+    self.hospitalLevelLabel.text = hospital.level_str;
+}
+
+- (void)setDoctor:(CollectionDoctor *)doctor {
+    
+    _doctor = doctor;
+    
+    [self.avatorImageView sd_setImageWithURL:[NSURL URLWithString:doctor.avator] placeholderImage:[UIImage imageNamed:@"hos_list_default"]];
+    self.HospitalNameLabel.text = [NSString stringWithFormat:@"%@[%@]",doctor.name,doctor.level_str];
+    self.addressNameLabel.text = [NSString stringWithFormat:@"%@  |  [%@]",doctor.hospital_name,doctor.department_name];
+    self.hospitalLevelLabel.text = doctor.good_at;
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

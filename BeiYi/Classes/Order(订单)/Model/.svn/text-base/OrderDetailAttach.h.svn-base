@@ -1,0 +1,40 @@
+//
+//  OrderDetailAttach.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface OrderDetailAttach : NSObject
+
+// 就诊医院地址
+@property (nonatomic, copy) NSString *visit_address;
+// attach_id
+@property (nonatomic, copy) NSString *attach_id;    //
+// 初始差旅费
+@property (nonatomic, assign) NSInteger init_travel_price;
+// 初始服务费
+@property (nonatomic, assign) NSInteger init_service_price;
+// over_visit_day
+@property (nonatomic, copy) NSString *over_visit_day;
+// 就诊医院名称
+@property (nonatomic, copy) NSString *visit_hospital;
+// 订单id
+@property (nonatomic, copy) NSString *order_id;
+// 结束就诊时间
+@property (nonatomic, copy) NSString *over_visit_time;
+// 就诊类型
+@property (nonatomic, copy) NSString *visit_type;
+// 就诊科室
+@property (nonatomic, copy) NSString *visit_department;
+// bunk_num
+@property (nonatomic, copy) NSString *bunk_num;
+// travel_price
+@property (nonatomic, copy) NSString *travel_price;
+// service_price
+@property (nonatomic, copy) NSString *service_price;
+
+@end

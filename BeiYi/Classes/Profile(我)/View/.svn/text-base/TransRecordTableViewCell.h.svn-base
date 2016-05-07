@@ -1,0 +1,27 @@
+//
+//  TransRecordTableViewCell.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/17.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class Record;
+
+@interface TransRecordTableViewCell : UITableViewCell
+
+// date1
+@property (weak, nonatomic) IBOutlet UILabel *date1Label;
+// date2
+@property (weak, nonatomic) IBOutlet UILabel *date2Label;
+// 价格
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+// 交易描述
+@property (weak, nonatomic) IBOutlet UILabel *recordMemoLabel;
+// 交易号
+@property (weak, nonatomic) IBOutlet UILabel *recordCodeLabel;
+
+@property (nonatomic, strong) Record *record;
+
+@end

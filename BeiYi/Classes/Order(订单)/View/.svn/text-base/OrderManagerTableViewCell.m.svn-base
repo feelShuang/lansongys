@@ -1,0 +1,88 @@
+//
+//  OrderManagerTableViewCell.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderManagerTableViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "Common.h"
+
+@implementation OrderManagerTableViewCell
+
+- (void)setMyOrder:(MyOrder *)myOrder {
+    
+    _myOrder = myOrder;
+    
+    if ([myOrder.order_status isEqualToString:@"1"]) {
+        self.OrderStateLabel.text = @"预约中";
+    }
+    else if ([myOrder.order_status isEqualToString:@"2"]) {
+        self.OrderStateLabel.text = @"待付款";
+    }
+    else if ([myOrder.order_status isEqualToString:@"3"]) {
+        self.OrderStateLabel.text = @"待出号";
+    }
+    else if ([myOrder.order_status isEqualToString:@"4"]) {
+        self.OrderStateLabel.text = @"申请退单中";
+    }
+    else if ([myOrder.order_status isEqualToString:@"5"]) {
+        
+        if ([myOrder.over_over.over_status isEqualToString:@"1"]) {
+            self.OrderStateLabel.text = @"待确定";
+        }
+        if ([myOrder.over_over.over_status isEqualToString:@"3"]) {
+            self.OrderStateLabel.text = @"凭证无效";
+        }
+        
+    }
+    else if ([myOrder.order_status isEqualToString:@"6"]) {
+        self.OrderStateLabel.text = @"订单完成";
+    }
+    else if ([myOrder.order_status isEqualToString:@"7"]) {
+        self.OrderStateLabel.text = @"凭证已提交";
+    }
+    else if ([myOrder.order_status isEqualToString:@"8"]) {
+        self.OrderStateLabel.text = @"凭证被拒绝";
+    }
+    else if ([myOrder.order_status isEqualToString:@"9"]) {
+        self.OrderStateLabel.text = @"交易关闭";
+    }
+    else if ([myOrder.order_status isEqualToString:@"10"]) {
+        self.OrderStateLabel.text = @"交易关闭";
+    }
+    else {
+        self.OrderStateLabel.text = @"未评价";
+    }
+    
+    self.OrderTypeLabel.text = myOrder.order_type;
+    self.DoctorHeaderImage.contentMode = UIViewContentModeScaleToFill;
+    [self.DoctorHeaderImage sd_setImageWithURL:[NSURL URLWithString:myOrder.doctor_avator] placeholderImage:[UIImage imageNamed:@"doctor_head_default"]];
+    self.DoctorNameLabel.text = myOrder.doctor_name;
+    self.HospitalNameLabel.text = [NSString stringWithFormat:@"%@[%@]",myOrder.hospital_name,myOrder.department_name];
+    self.AppointmentTimeLabel.text = [NSString stringWithFormat:@"%@~%@",myOrder.start_time,myOrder.end_time];
+    
+    if ([myOrder.order_status isEqualToString:@"1"]) {
+        self.ServicePriceLabel.text = [NSString stringWithFormat:@"￥%@",myOrder.price_init];
+    }else {
+        self.ServicePriceLabel.text = [NSString stringWithFormat:@"￥%@",myOrder.price];
+    }
+    
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+    
+    self.DoctorHeaderImage.layer.cornerRadius = 20;
+    self.DoctorHeaderImage.layer.masksToBounds = YES;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

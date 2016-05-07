@@ -1,0 +1,185 @@
+//
+//  OrderManagerVC.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderManagerVC.h"
+#import "OrderManagerTableViewController.h"
+#import "RabOrderManagerTableViewController.h"
+#import "SCNavTabBarController.h"
+#import "Common.h"
+#import "OrderInfoViewController.h"
+#import "OrderStatistic.h"
+
+@interface OrderManagerVC ()
+
+@property (nonatomic, strong) NSMutableArray *order_statistic;
+
+@property (nonatomic, strong) SCNavTabBarController *navTabBarController;
+
+@end
+
+@implementation OrderManagerVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.view.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 44);
+    
+    // 添加子视图控制器
+    [self addSubViewController];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    // 请求订单状态统计
+    [self loadOrderStatisticData];
+}
+
+- (void)addSubViewController {
+    
+    // 普通模式的title和下标
+    NSArray *orderArray = @[@"预约中",@"待付款",@"待出号",@"退单中",@"待确定",@"全部"];
+    NSArray *orderindexArray = @[@"1",@"2",@"3",@"4",@"5",@"-1"];
+    
+    // 经纪人模式的title和下标
+    NSArray *rabOrderArray = @[@"待报价",@"待出号",@"退单中",@"全部"];
+    NSArray *rabOrderIndexArray = @[@"1",@"3",@"4",@"-1"];
+    
+    _navTabBarController = [[SCNavTabBarController alloc] init];
+    
+    NSMutableArray *subViewControllers = [NSMutableArray array];
+    if (ROLESTYLE) {
+        for (int i = 0; i < 4; i ++) {
+            RabOrderManagerTableViewController *orderManagerTVC = [[RabOrderManagerTableViewController alloc] initWithRabOrder_statu:rabOrderIndexArray[i]];
+            
+            orderManagerTVC.title = rabOrderArray[i];
+            
+            [subViewControllers addObject:orderManagerTVC];
+        }
+    }
+    else {
+        for (int i = 0; i < 6; i ++) {
+            OrderManagerTableViewController *orderManagerTVC = [[OrderManagerTableViewController alloc] initWithorder_statu:orderindexArray[i]];
+            
+            orderManagerTVC.title = orderArray[i];
+            self.tabBarController.delegate = (id)orderManagerTVC;
+            
+            [subViewControllers addObject:orderManagerTVC];
+        }
+    }
+
+    _navTabBarController.subViewControllers = [NSArray arrayWithArray:subViewControllers];
+    
+    _navTabBarController.scrollAnimation = YES;
+    [_navTabBarController addParentController:self];
+    _navTabBarController.navTabBarColor = ZZBaseColor;
+    
+    
+    
+}
+     
+- (void)loadOrderStatisticData {
+
+    // 1. 准备请求接口
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/order_statistic",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:ROLESTYLE?@1:@2 forKey:@"flag"];
+    ZZLog(@"%@",params);
+    
+    // 3.网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        
+        
+        NSMutableArray *temp = [OrderStatistic mj_objectArrayWithKeyValuesArray:responseObj[@"result"]];
+        ZZLog(@"ahahahaaaa = %@",temp);
+        OrderStatistic *orderStatiStic = [OrderStatistic new];
+        OrderStatistic *allOrderType = [OrderStatistic new];
+        if (ROLESTYLE) { // 经纪人
+            for (orderStatiStic in temp) {
+            
+                if ([orderStatiStic.type isEqualToString:@"2"]) {
+                    [temp removeObject:orderStatiStic];
+                    break;
+                }
+                
+            }
+            for (orderStatiStic in temp) {
+                
+                if ([orderStatiStic.type isEqualToString:@"-1"]) {
+                    allOrderType = orderStatiStic;
+                    // 全部分类从数组中移除
+                    [temp removeObject:orderStatiStic];
+                    // 解决一个bug找到全部类型后删除数组，数组元素少了一个，崩溃。找到之后直接跳出循环解决问题
+                    break;
+                }
+            }
+
+        } else { // 普通用户
+            
+            for (orderStatiStic in temp) {
+                
+                if ([orderStatiStic.type isEqualToString:@"-1"]) {
+                    allOrderType = orderStatiStic;
+                    // 全部分类从数组中移除
+                    [temp removeObject:orderStatiStic];
+                    // 解决一个bug找到全部类型后删除数组，数组元素少了一个，崩溃。找到之后直接跳出循环解决问题
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < temp.count - 1; i ++) {
+            for (int j = 0; j < temp.count - 1 - i; j ++) {
+                // 新建两个OrderStatistic对象
+                OrderStatistic *orderStatiStic_j = temp[j];
+                OrderStatistic *orderStaticStic_k = temp[j + 1];
+                if ([orderStatiStic_j.type integerValue] > [orderStaticStic_k.type integerValue]) {
+                    [temp exchangeObjectAtIndex:j withObjectAtIndex:j + 1];
+                }
+                
+            }
+        }
+        
+        [temp addObject:allOrderType];
+        [self.order_statistic removeAllObjects];
+        // 把订单统计数量放进数组
+        for (int i = 0; i < temp.count; i ++) {
+            OrderStatistic *orders = temp[i];
+            [self.order_statistic addObject:orders.count];
+            
+        }
+        
+        [self.navTabBarController setBadgeValueWithValueArray:self.order_statistic];
+        
+    } failure:^(NSError *error) {
+        
+    }];
+
+}
+
+- (NSMutableArray *)order_statistic {
+    
+    if (_order_statistic == nil) {
+        self.order_statistic = [NSMutableArray array];
+    }
+    return _order_statistic;
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

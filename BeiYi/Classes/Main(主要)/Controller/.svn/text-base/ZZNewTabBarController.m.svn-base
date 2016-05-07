@@ -1,0 +1,82 @@
+//
+//  ZZNewTabBarController.m
+//  BeiYi
+//
+//  Created by Joe on 15/11/19.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import "ZZNewTabBarController.h"
+#import "ZZNavigationController.h"
+#import "HomeController.h"
+#import "OrderController.h"
+#import "ProfileController.h"
+#import "Common.h"
+#import "LoginController.h"
+#import "ManageOrderVc.h"
+#import "ManageDoctorsVc.h"
+#import "OrderManagerVC.h"
+#import "CheckLoginViewController.h"
+
+@interface ZZNewTabBarController ()
+
+@end
+
+@implementation ZZNewTabBarController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //  UITabBar 设置背景色
+    UITabBar *appearance = [UITabBar appearance];
+    appearance.tintColor = ZZBaseColor;
+    [appearance setBackgroundImage:[UIImage imageNamed:@"tabBarBg"]];
+    
+    // 添加四个选项卡
+    OrderController *orderVc = [[OrderController alloc] init];
+    [self addChildViewController:orderVc title:@"抢单" imageName:@"foot01" selectedImageName:@"foot01_clicked"];
+    
+    // 订单
+    if (myAccount) {
+        OrderManagerVC *myOrderVc = [[OrderManagerVC alloc] init];
+        [self addChildViewController:myOrderVc title:@"订单" imageName:@"foot02" selectedImageName:@"foot02_clicked"];
+    }
+    else {
+        CheckLoginViewController *checkLoginVC = [[CheckLoginViewController alloc] init];
+        [self addChildViewController:checkLoginVC title:@"订单" imageName:@"foot02" selectedImageName:@"foot02_clicked"];
+    }
+    
+    // 管医生
+    if (myAccount) {
+        ManageDoctorsVc *manageDocVc = [[ManageDoctorsVc alloc] init];
+        [self addChildViewController:manageDocVc title:@"管医生" imageName:@"foot02" selectedImageName:@"foot02_clicked"];
+    }
+    else {
+        CheckLoginViewController *checkLoginVC = [[CheckLoginViewController alloc] init];
+        [self addChildViewController:checkLoginVC title:@"订单" imageName:@"foot02" selectedImageName:@"foot02_clicked"];
+    }
+    
+    // 用户登陆
+    ProfileController *profileVc = [[ProfileController alloc] init];
+    [self addChildViewController:profileVc title:@"个人" imageName:@"foot03" selectedImageName:@"foot03_clicked"];
+    
+}
+
+/**
+ *  添加一个选项卡
+ *
+ *  @param childController   添加的选项卡 控制器
+ *  @param title             选项卡 标题
+ *  @param imageName         选项卡 图标
+ *  @param selectedImageName 选项卡 选中时的图标
+ */
+- (void)addChildViewController:(UIViewController *)childController title:(NSString *)title imageName:(NSString *)imageName selectedImageName:(NSString *)selectedImageName {
+    
+    childController.title = title;
+    childController.tabBarItem.image = [UIImage imageNamed:imageName];
+    childController.tabBarItem.selectedImage = [UIImage imageNamed:selectedImageName];
+    ZZNavigationController *navVc = [[ZZNavigationController alloc] initWithRootViewController:childController];;
+    [self addChildViewController:navVc];
+}
+
+@end

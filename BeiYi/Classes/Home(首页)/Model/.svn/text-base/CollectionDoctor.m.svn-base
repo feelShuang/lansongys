@@ -1,0 +1,21 @@
+//
+//  CollectionDoctor.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/24.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "CollectionDoctor.h"
+#import "Common.h"
+
+@implementation CollectionDoctor
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"doc_id": @"id"
+             };
+}
+
+@end

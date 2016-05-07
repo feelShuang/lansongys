@@ -1,0 +1,246 @@
+//
+//  SettingDocPriceVc.m
+//  BeiYi
+//
+//  Created by Joe on 15/12/30.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import "SettingDocPriceVc.h"
+#import "Common.h"
+#import "OrderInfo.h"
+#import "DoctorDetail2Vc.h"
+#import "RegisteOfferController.h"
+
+@interface SettingDocPriceVc ()
+
+// 第一行的textField
+@property (nonatomic, strong) UITextField *txPrice1;
+
+// 第二行的textField
+@property (nonatomic, strong) UITextField *txPrice2;
+
+// 服务数组
+@property (nonatomic, strong) NSMutableArray *serviceArray;
+
+@end
+
+@implementation SettingDocPriceVc
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = ZZBackgroundColor;
+    self.title = @"设置价格";
+    
+    // 设置界面UI
+    [self setUpUI];
+    
+}
+
+- (void)setUpUI {
+    
+    // 2.设置导航栏右侧按钮
+    UIButton *btnSave = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnSave.frame = CGRectMake(270, 0, 60, 40);
+    [btnSave setTitle:@"保存" forState:UIControlStateNormal];
+    btnSave.titleLabel.font = [UIFont systemFontOfSize:15];
+    [btnSave setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnSave setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    [btnSave addTarget:self action:@selector(save) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btnSave];
+    
+    if ([self.typeNum isEqualToString:@"1"]) {
+        [self addPriceUIWithRect:CGRectMake(0, 64 +20, SCREEN_WIDTH, ZZBtnHeight) text:self.price1 title:@"基本价格"];
+        [self addPriceUIWithRect:CGRectMake(0, 64 + 25 + ZZBtnHeight, SCREEN_WIDTH, ZZBtnHeight) text:self.price2 title:@"优质服务价格"];
+    }
+    else if ([self.typeNum isEqualToString:@"2"] || [self.typeNum isEqualToString:@"3"]) {
+        [self addPriceUIWithRect:CGRectMake(0, 64 +20, SCREEN_WIDTH, ZZBtnHeight) text:self.price1 title:@"基本价格"];
+        [self addPriceUIWithRect:CGRectMake(0, 64 + 25 + ZZBtnHeight, SCREEN_WIDTH, ZZBtnHeight) text:self.price2 title:@"每日差旅费"];
+    }
+    else if ([self.typeNum isEqualToString:@"4"]) {
+        [self addPriceUIWithRect:CGRectMake(0, 64 +20, SCREEN_WIDTH, ZZBtnHeight) text:self.price1 title:@"基本价格"];
+    }
+    else {
+        [self addPriceUIWithRect:CGRectMake(0, 64 +20, SCREEN_WIDTH, ZZBtnHeight) text:self.price1 title:@"每月服务费"];
+    }
+    
+    
+}
+
+- (void)addPriceUIWithRect:(CGRect)rect text:(NSString *)text title:(NSString *)title {
+    
+    // 2.1 背景-UIView
+    UIView *bgView = [ZZUITool viewWithframe:rect backGroundColor:[UIColor whiteColor] superView:self.view];
+    
+    
+    // 2.2 提示图片-UIImageView
+    CGFloat iconX = 10;
+    CGFloat iconY = iconX;
+    CGFloat iconH = ZZBtnHeight -iconY*2;
+    UIImageView *icon = [ZZUITool imageViewWithframe:CGRectMake(iconX, iconY, iconH, iconH) imageName:@"guahao04" highlightImageName:nil superView:bgView];
+    
+    // 2.3 提示文字-UILabel
+    UILabel *lblTips = [ZZUITool labelWithframe:CGRectMake(CGRectGetMaxX(icon.frame) +ZZMarins, iconY, SCREEN_WIDTH/3, iconH) Text:title textColor:[UIColor blackColor] fontSize:15 superView:bgView];
+    
+    // 2.4 输入金额-UITextField
+    CGFloat txPriceX = CGRectGetMaxX(lblTips.frame)+ZZMarins;
+    CGFloat txPriceW = SCREEN_WIDTH - txPriceX -ZZMarins;
+    UITextField *txPrice = [ZZUITool textFieldWithframe:CGRectMake(txPriceX, iconY, txPriceW, iconH) text:text fontSize:15 placeholder:@"请输入金额" backgroundColor:[UIColor whiteColor] superView:bgView];
+    txPrice.keyboardType = UIKeyboardTypeNumberPad;
+    txPrice.textAlignment = NSTextAlignmentRight;
+    if ([title isEqualToString:@"基本价格"]) {
+        self.txPrice1 = txPrice;
+    }
+    else {
+        self.txPrice2 = txPrice;
+    }
+}
+
+#pragma mark - 监听右侧保存按钮点击
+- (void)save {
+    ZZLog(@"---%@",self.txPrice1.text);
+    
+    // 1.判断输入的字符是不是数字，如果不是，弹框提示
+    if (!self.txPrice1.text.length) {
+        [MBProgressHUD showError:@"请输入价格!"];
+        
+    } // 不用判断是否为纯数字，以为键盘格式只能输入纯数字
+    else if ([self.txPrice1.text floatValue] == 0.f){// 输入价格为0
+        ZZLog(@"--纯数字！--输入价格为0");
+        [MBProgressHUD showError:@"价格必须大于0"];
+        
+    }
+    else {
+        ZZLog(@"--纯数字！--%@",self.txPrice1.text);
+        if (_controllerID == 10) {
+            [self loadHospitalHttpRequest];
+        }
+        else {
+            [self loadHTTPRequest];
+        }
+    }
+    
+    
+}
+
+- (void)loadHTTPRequest {
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/offer/set_doctor",BASEURL];
+    
+    NSMutableDictionary *servicesDict1 = [NSMutableDictionary dictionary];
+    NSMutableDictionary *servicesDict2 = [NSMutableDictionary dictionary];
+    
+    [self.serviceArray removeAllObjects];
+    
+    if (!self.txPrice2.text.length) {
+        self.txPrice2.text = @"0";
+    }
+    
+    if ([self.typeNum isEqualToString:@"1"]) {
+        [servicesDict1 setObject:self.typeNum forKey:@"type"];
+        [servicesDict1 setObject:self.txPrice1.text forKey:@"price"];
+        [self.serviceArray addObject:servicesDict1];
+        
+        [servicesDict2 setObject:@"6" forKey:@"type"];
+        [servicesDict2 setObject:self.txPrice2.text forKey:@"price"];
+        [self.serviceArray addObject:servicesDict2];
+    }
+    else if ([self.typeNum isEqualToString:@"2"] || [self.typeNum isEqualToString:@"3"]) {
+        [servicesDict1 setObject:self.typeNum forKey:@"type"];
+        [servicesDict1 setObject:self.txPrice1.text forKey:@"price"];
+        [self.serviceArray addObject:servicesDict1];
+        
+        [servicesDict2 setObject:@"7" forKey:@"type"];
+        [servicesDict2 setObject:self.txPrice2.text forKey:@"price"];
+        [self.serviceArray addObject:servicesDict2];
+    }
+    else {
+        [servicesDict1 setObject:self.typeNum forKey:@"type"];
+        [servicesDict1 setObject:self.txPrice1.text forKey:@"price"];
+    }
+    
+    
+    NSMutableDictionary *params  = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:[OrderInfo shareInstance].hospital_id forKey:@"hospital_id"]; // 医院ID
+    [params setObject:[OrderInfo shareInstance].department_id forKey:@"department_id"]; // 科室ID
+    [params setObject:[OrderInfo shareInstance].doctor_id forKey:@"doctor_id"]; // 医生ID
+    [params setObject:self.serviceArray forKey:@"services"];
+    
+    ZZLog(@"---params = %@",params);
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~~responseObj = %@~~~",responseObj);
+        
+        [OrderInfo shareInstance].isUpLoading = YES;
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {// 如果操作成功
+            
+            [weakSelf.navigationController popViewControllerAnimated:YES];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            });
+            
+        }else {
+            [MBProgressHUD showError:@"发生未知错误."];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"~~~error = %@~~~",error);
+        
+    }];
+}
+
+#pragma mark - 设置医院价格
+- (void)loadHospitalHttpRequest {
+    
+    // 1. 准备请求接口
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/offer/set_hospital",BASEURL];
+    
+    // 2. 准备请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:self.hospital_id forKey:@"hospital_id"];
+    [params setObject:self.txPrice1.text forKey:@"price"];
+    
+    // 3. 网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"responseObj = %@",responseObj);
+        
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
+        }
+        
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+#pragma mark - 判断是不是纯数字
+/**
+ *  判断是不是纯数字
+ */
+- (BOOL)isPureInt:(NSString*)string{
+    
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    
+    int val;
+    
+    return[scan scanInt:&val] && [scan isAtEnd];
+    
+}
+
+#pragma mark - 懒加载
+- (NSMutableArray *)serviceArray {
+    if (_serviceArray == nil) {
+        self.serviceArray = [NSMutableArray array];
+    }
+    return _serviceArray;
+}
+
+@end

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="80" id="KGk-i7-Jjw" customClass="OfferHospitalTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="79"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hos_list_default" translatesAutoresizingMaskIntoConstraints="NO" id="Fkm-bb-hw2">
+                        <rect key="frame" x="10" y="10" width="59" height="59"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="Fkm-bb-hw2" secondAttribute="height" id="mPp-mV-chd"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="医院名称" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fw2-RX-BFX">
+                        <rect key="frame" x="79" y="10" width="64" height="20"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="地址" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="njf-gT-xzF">
+                        <rect key="frame" x="79" y="32" width="218" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="级别" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5gL-td-jhw">
+                        <rect key="frame" x="79" y="53" width="26" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zQ7-6D-Q63">
+                        <rect key="frame" x="320" y="31" width="47" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="1" green="0.019258032177884132" blue="0.064720075554783985" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="njf-gT-xzF" firstAttribute="centerY" secondItem="Fkm-bb-hw2" secondAttribute="centerY" id="1wU-M7-eH1"/>
+                    <constraint firstItem="fw2-RX-BFX" firstAttribute="top" secondItem="Fkm-bb-hw2" secondAttribute="top" id="2dA-94-ngu"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="njf-gT-xzF" secondAttribute="trailing" constant="70" id="4c7-Kf-Nmb"/>
+                    <constraint firstItem="Fkm-bb-hw2" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="2" id="MO1-vi-mhn"/>
+                    <constraint firstItem="zQ7-6D-Q63" firstAttribute="centerY" secondItem="njf-gT-xzF" secondAttribute="centerY" id="PGu-M1-aQ7"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="zQ7-6D-Q63" secondAttribute="trailing" id="QHj-f5-3Ek"/>
+                    <constraint firstItem="njf-gT-xzF" firstAttribute="leading" secondItem="Fkm-bb-hw2" secondAttribute="trailing" constant="10" id="cfn-GS-cCE"/>
+                    <constraint firstItem="Fkm-bb-hw2" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="eZB-g9-7rm"/>
+                    <constraint firstItem="5gL-td-jhw" firstAttribute="leading" secondItem="Fkm-bb-hw2" secondAttribute="trailing" constant="10" id="hKI-r9-XYe"/>
+                    <constraint firstItem="fw2-RX-BFX" firstAttribute="leading" secondItem="Fkm-bb-hw2" secondAttribute="trailing" constant="10" id="qOu-qD-2ta"/>
+                    <constraint firstItem="Fkm-bb-hw2" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" constant="-20" id="sNU-Px-g8X"/>
+                    <constraint firstItem="5gL-td-jhw" firstAttribute="bottom" secondItem="Fkm-bb-hw2" secondAttribute="bottom" id="wF9-F2-LUg"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="hospitalAddressLabel" destination="njf-gT-xzF" id="Lzc-TI-UXj"/>
+                <outlet property="hospitalImageView" destination="Fkm-bb-hw2" id="qzj-FS-geB"/>
+                <outlet property="hospitalLevelLabel" destination="5gL-td-jhw" id="ZPh-J4-euq"/>
+                <outlet property="hospitalNameLabel" destination="fw2-RX-BFX" id="oSM-Dr-RFH"/>
+                <outlet property="hospitalSerPriceLabel" destination="zQ7-6D-Q63" id="Tqn-KW-u82"/>
+            </connections>
+            <point key="canvasLocation" x="248.5" y="313"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="hos_list_default" width="55" height="55"/>
+    </resources>
+</document>

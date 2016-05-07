@@ -1,0 +1,472 @@
+//
+//  OrderManagerTableViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderManagerTableViewController.h"
+#import "OrderManagerTableViewCell.h"
+#import "MJRefresh.h"
+#import "Common.h"
+#import "MyOrder.h"
+#import "OrderInfoViewController.h"
+#import "OrderInfo.h"
+#import "OrderStatistic.h"
+#import "SCNavTabBarController.h"
+#import "NoNetWorkViewController.h"
+
+@interface OrderManagerTableViewController ()<UITabBarControllerDelegate>
+
+// 订单数组
+@property (nonatomic, strong) NSMutableArray *orders;
+//
+@property (nonatomic, strong) NSMutableArray *order_statistic;
+
+@property (nonatomic, strong) SCNavTabBarController *navTabBarVC;
+
+@end
+
+@implementation OrderManagerTableViewController
+
+static NSString *const reuseIdentifier = @"OrderManager";
+
+// 重写初始化方法
+- (instancetype)initWithorder_statu:(NSString *)order_status {
+    
+    if (self = [super init]) {
+        _order_statu = order_status;
+    }
+    return self;
+    
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 设置界面UI
+    [self setUI];
+    
+    // 添加长按手势
+    [self addGestureRecognizer];
+    
+    // 注册Cell
+    [self.tableView registerNib:[UINib nibWithNibName:@"OrderManagerTableViewCell" bundle:nil] forCellReuseIdentifier:reuseIdentifier];
+    
+    // 普通Header刷新
+    [self addHeaderRefresh];
+
+    // 普通Footer刷新
+    [self addFooterRefresh];
+    
+    // 请求订单状态统计
+    [self loadOrderStatisticData];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    // 检测网络连接状态
+    [self checkNetworkStatus];
+    
+    // 使用单例帮助传值
+    if ([OrderInfo shareInstance].isUpLoading) {
+        [self.tableView.mj_header beginRefreshing];
+    }
+}
+
+#pragma mark - UITabBarControllerDelegate
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+    
+    if (tabBarController.selectedIndex == 1) {
+        [OrderInfo shareInstance].isUpLoading = YES;
+        [self viewWillAppear:YES];
+
+    }
+    
+}
+
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return self.orders.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    OrderManagerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
+
+    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.myOrder = self.orders[indexPath.row];
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    OrderInfoViewController *orderInfoVC = [[OrderInfoViewController alloc] init];
+    
+    
+    MyOrder *order = self.orders[indexPath.row];
+    orderInfoVC.order_code = order.order_code;
+    orderInfoVC.title = @"预约详情";
+
+    [self.navigationController pushViewController:orderInfoVC animated:YES];
+    
+}
+
+// cell高度
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 220;
+}
+
+#pragma mark - 设置UI
+- (void)setUI {
+    
+    // 设置tableView背景
+    self.tableView.backgroundColor = ZZBackgroundColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+}
+
+#pragma mark - 添加长按手势
+- (void)addGestureRecognizer {
+    
+    UILongPressGestureRecognizer *longPressGR = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGRAction:)];
+    
+    longPressGR.minimumPressDuration = 1.0; // 设置最短长按的时间
+    [self.tableView addGestureRecognizer:longPressGR];
+}
+
+#pragma mark - 响应长按事件
+- (void)longPressGRAction:(UILongPressGestureRecognizer *)sender {
+    
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        CGPoint pressPoint = [sender locationInView:self.tableView];
+        NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:pressPoint];
+        
+        if (indexPath == nil) {
+            return;
+        }
+        
+        UIAlertController *alertViewController = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否删除订单" preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"是" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            ZZLog(@"indexPath.row = %ld",indexPath.row);
+            
+            // 删除定单网络请求
+            [self deleteOrderHttpRequestWithIndexPath:indexPath];
+        }];
+        UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:@"否" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        
+        [alertViewController addAction:okAction];
+        [alertViewController addAction:cancleAction];
+        
+        [self presentViewController:alertViewController animated:YES completion:nil];
+    }
+}
+
+#pragma mark - 删除订单
+- (void)deleteOrderHttpRequestWithIndexPath:(NSIndexPath *)indexPath {
+    
+    MyOrder *order = self.orders[indexPath.row];
+    
+    // 1. 创建请求网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/delete",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:order.order_code forKey:@"order_code"];
+    ZZLog(@"--params = %@",params);
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            // 提示
+            [MBProgressHUD showSuccess:responseObj[@"message"]];
+            // 删除数据对应的数据源
+            [self.orders removeObjectAtIndex:indexPath.row];
+            // 删除行
+            NSArray *pathArray = [NSArray arrayWithObject:indexPath];
+            [self.tableView deleteRowsAtIndexPaths:pathArray withRowAnimation:UITableViewRowAnimationFade];
+        }
+        else {
+            
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+        }
+    } failure:^(NSError *error) {
+        ZZLog(@"--error = %@",error);
+    }];
+}
+
+#pragma mark - 普通Header刷新
+- (void)addHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.orders removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadHeadHttpRequest];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_header endRefreshing];
+    }];
+    
+    // 4.首次进入页面马上进入刷新状态
+    [self.tableView.mj_header beginRefreshing];
+}
+
+#pragma mark - 普通Footer刷新
+- (void)addFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.加载网络请求
+        [weakSelf loadFooterHttpRequest];
+        
+        // 2.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_footer endRefreshing];
+    }];
+    
+}
+
+#pragma mark - 下拉刷新网络请求
+- (void)loadHeadHttpRequest {
+
+     
+     NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order",BASEURL];
+     
+     NSMutableDictionary *paras = [NSMutableDictionary dictionary];
+     [paras setObject:myAccount.token forKey:@"token"];
+     [paras setObject:@1 forKey:@"pn"]; // 页码
+     [paras setObject:self.order_statu forKey:@"order_statu"];// 订单状态
+     
+     __weak typeof(self)wSelf = self;
+     
+     [ZZHTTPTool post:urlStr params:paras success:^(NSDictionary *responseObj) {
+        ZZLog(@"%@",paras);
+        ZZLog(@"订单-responseObj--%@",responseObj);
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+        
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+            [wSelf.orders removeAllObjects];
+            [wSelf.tableView reloadData];
+            [MBProgressHUD showError:@"还没有订单" toView:wSelf.view];
+        }else {
+            NSMutableArray *tempArr = [NSMutableArray array];
+            
+            tempArr = [MyOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            wSelf.orders = tempArr;
+            
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+            [wSelf.tableView reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:wSelf.view];
+    }];
+     
+     }
+
+#pragma mark - 上拉加载网络请求
+- (void)loadFooterHttpRequest {
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.发送网络请求
+    // 2.1准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录传token
+    
+    /** 当前页码 */
+    NSUInteger currentPage = 0;
+    ZZLog(@"%ld",self.orders.count);
+    if (self.orders.count <10) {// 当首页显示的数量少于10就说明数据已经取光，直接让current的数值超过1
+        currentPage = 2;
+        
+    }else {
+
+        if ((((CGFloat)(self.orders.count) / (CGFloat)10)) - (self.orders.count / 10) == 0) {
+            currentPage = self.orders.count / 10 + 1;
+            ZZLog(@"%lu",currentPage);
+        }
+        if ((((CGFloat)(self.orders.count) / (CGFloat)10)) - (self.orders.count / 10) > 0) {
+            currentPage = self.orders.count/10 +1;
+            ZZLog(@"%lu",currentPage);
+        }
+        
+    }
+    
+    [params setObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage] forKey:@"pn"];// 页码
+    [params setObject:self.order_statu forKey:@"order_statu"];
+
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.2发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"%@",params);
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"没有更多订单了哦" toView:weakSelf.view];
+        }else {
+            
+            NSMutableArray *tempArr = [NSMutableArray array];
+            
+            tempArr = [MyOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            [weakSelf.orders addObjectsFromArray:tempArr];
+
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [weakSelf.tableView reloadData];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+- (void)loadOrderStatisticData {
+    
+    // 1. 准备请求网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/order_statistic",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:ROLESTYLE?@1:@2 forKey:@"flag"];
+    
+    // 3.网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+
+        
+        NSMutableArray *temp = [OrderStatistic mj_objectArrayWithKeyValuesArray:responseObj[@"result"]];
+        ZZLog(@"ahahahaaaa = %@",temp);
+        OrderStatistic *orderStatiStic = [OrderStatistic new];
+        OrderStatistic *allOrderType = [OrderStatistic new];
+        for (orderStatiStic in temp) {
+            if ([orderStatiStic.type isEqualToString:@"-1"]) {
+                allOrderType = orderStatiStic;
+                // 全部分类从数组中移除
+                [temp removeObject:orderStatiStic];
+                // 解决一个bug找到全部类型后删除数组，数组元素少了一个，崩溃。找到之后直接跳出循环解决问题
+                break;
+            }
+        }
+        for (int i = 0; i < temp.count - 1; i ++) {
+            for (int j = 0; j < temp.count - 1 - i; j ++) {
+                // 新建两个OrderStatistic对象
+                OrderStatistic *orderStatiStic_j = temp[j];
+                OrderStatistic *orderStaticStic_k = temp[j + 1];
+                if ([orderStatiStic_j.type integerValue] > [orderStaticStic_k.type integerValue]) {
+                    [temp exchangeObjectAtIndex:j withObjectAtIndex:j + 1];
+                }
+                
+            }
+        }
+        
+        [temp addObject:allOrderType];
+        // 把订单统计数量放进数组
+        for (int i = 0; i < temp.count; i ++) {
+            OrderStatistic *orders = temp[i];
+            [self.order_statistic addObject:orders.count];
+        
+        }
+        
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+- (void)checkNetworkStatus {
+    // 检测网络连接状态
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+    // 连接状态回调处理
+    /* AFNetworking的Block内使用self须改为weakSelf, 避免循环强引用, 无法释放 */
+    __weak typeof(self) weakSelf = self;
+    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status)
+     {
+         /**
+          * AFNetworkReachabilityStatusUnknown	未知
+          * AFNetworkReachabilityStatusNotReachable	无网络连接
+          * AFNetworkReachabilityStatusReachableViaWWAN	手机自带网络
+          * AFNetworkReachabilityStatusReachableViaWiFi	WIFI
+          */
+         if (status == AFNetworkReachabilityStatusUnknown) {
+             
+         }
+         else if (status == AFNetworkReachabilityStatusNotReachable) {
+
+             UIView *noNetWorkView = [[UIView alloc] initWithFrame:weakSelf.tableView.frame];
+             noNetWorkView.backgroundColor = [UIColor orangeColor];
+             [weakSelf.tableView addSubview:noNetWorkView];
+         }
+         else if (status == AFNetworkReachabilityStatusReachableViaWWAN) {
+             // 有网络请求数据
+             [weakSelf loadHeadHttpRequest];
+         }
+         else {
+             // 有网络请求数据
+             [weakSelf loadHeadHttpRequest];
+         }
+         
+     }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma 懒加载
+- (NSMutableArray *)orders {
+    
+    if (_orders == nil) {
+        self.orders = [NSMutableArray array];
+    }
+    return _orders;
+    
+}
+
+- (NSArray *)orderstatistic {
+    
+    return self.order_statistic;
+}
+
+@end

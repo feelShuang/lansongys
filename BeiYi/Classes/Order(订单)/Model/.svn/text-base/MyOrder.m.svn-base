@@ -1,0 +1,40 @@
+//
+//  MyOrder.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "MyOrder.h"
+
+@implementation MyOrder
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+        return @{
+                 @"myorder_id": @"id",
+                 @"price_init": @"init_price"
+                 };
+    
+}
+
++ (NSDictionary *)mj_objectClassInArray {
+    
+    return @{
+             
+             @"attach": @"OrderAttach",
+             @"refund_info": @"RefundInfo",
+             @"over_over": @"Over_Over"
+             
+             };
+    
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+    self.order_type = @"order_type";
+    
+}
+
+@end

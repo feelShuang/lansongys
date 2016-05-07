@@ -1,0 +1,75 @@
+//
+//  ZZTabBarController.m
+//  BeiYi
+//
+//  Created by Joe on 15/4/13.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "ZZTabBarController.h"
+#import "ZZNavigationController.h"
+#import "HomeController.h"
+#import "OrderManagerVC.h"
+#import "ProfileController.h"
+#import "Common.h"
+#import "LoginController.h"
+#import "CheckLoginViewController.h"
+
+@interface ZZTabBarController ()
+
+@end
+
+@implementation ZZTabBarController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //  UITabBar 设置背景色
+    UITabBar *appearance = [UITabBar appearance];
+//    appearance.tintColor = ZZColor(0, 153, 255, 1);
+    [appearance setBackgroundImage:[UIImage imageNamed:@"tabBarBg"]];
+    
+    
+
+    // 添加三个选项卡
+    // 贝医
+    HomeController *homeVc = [[HomeController alloc] init];
+    [self addChildViewController:homeVc title:@"贝医" imageName:@"iocn－home" selectedImageName:@"iocn－homeSelect"];
+    
+    // 订单
+    if (myAccount) {
+        OrderManagerVC *orderVc = [[OrderManagerVC alloc] init];
+        [self addChildViewController:orderVc title:@"订单" imageName:@"iocn－order" selectedImageName:@"iocn－orderSelect"];
+    }
+    else {
+        CheckLoginViewController *checkLoginVC = [[CheckLoginViewController alloc] init];
+        [self addChildViewController:checkLoginVC title:@"订单" imageName:@"iocn－order" selectedImageName:@"iocn－orderSelect"];
+    }
+    
+    // 个人
+    ProfileController *profileVc = [[ProfileController alloc] init];
+    [self addChildViewController:profileVc title:@"个人" imageName:@"iocn－profile" selectedImageName:@"iocn－profileSelect"];
+    
+
+}
+
+/**
+ *  添加一个选项卡
+ *
+ *  @param childController   添加的选项卡 控制器
+ *  @param title             选项卡 标题
+ *  @param imageName         选项卡 图标
+ *  @param selectedImageName 选项卡 选中时的图标
+ */
+- (void)addChildViewController:(UIViewController *)childController title:(NSString *)title imageName:(NSString *)imageName selectedImageName:(NSString *)selectedImageName {
+    
+    childController.title = title;
+    childController.tabBarItem.image = [UIImage imageNamed:imageName];
+    UIImage *img = [UIImage imageNamed:selectedImageName];
+    img = [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    childController.tabBarItem.selectedImage = img;
+    ZZNavigationController *navVc = [[ZZNavigationController alloc] initWithRootViewController:childController];;
+    [self addChildViewController:navVc];
+}
+
+@end

@@ -1,0 +1,50 @@
+//
+//  OrderInfo.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/20.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+/**
+ *  订单单例（存储订单信息）
+ */
+@interface OrderInfo : NSObject
+
+// 服务类型
+@property (nonatomic, assign) NSInteger service_type;
+
+// 医院id
+@property (nonatomic, copy) NSString *hospital_id;
+
+// 科室id
+@property (nonatomic, copy) NSString *department_id;
+
+// 医院名称
+@property (nonatomic, copy) NSString *hospital_name;
+
+// 科室名称
+@property (nonatomic, copy) NSString *department_name;
+
+// 医生id
+@property (nonatomic, copy) NSString *doctor_id;
+
+// 医生姓名
+@property (nonatomic, copy) NSString *doctor_name;
+
+// 就诊人id
+@property (nonatomic, copy) NSString *patient_id;
+
+// 主刀医生服务就诊人的在院状态
+@property (nonatomic, copy) NSString *visit_type;
+
+// 是否优质服务
+@property (nonatomic, assign) BOOL assure_flag;
+
+// 不是订单的内容，只是帮助订单详情页面不做更改返回时不刷新操作
+@property (nonatomic, assign) BOOL isUpLoading;
+
++ (OrderInfo *)shareInstance;
+
+@end

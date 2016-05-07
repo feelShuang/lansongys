@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="80" id="KGk-i7-Jjw" customClass="CollectionHosTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="79"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hos_list_default" translatesAutoresizingMaskIntoConstraints="NO" id="Wyu-G5-cLd">
+                        <rect key="frame" x="10" y="10" width="59" height="59"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="Wyu-G5-cLd" secondAttribute="height" multiplier="1:1" id="0Iw-aw-RvE"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="30"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="浙江省肿瘤医院" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vtL-Bn-zeL">
+                        <rect key="frame" x="84" y="10" width="112" height="20"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="浙江省杭州市" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jLh-ZA-aq2">
+                        <rect key="frame" x="84" y="32" width="78" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="三级甲等" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rIz-IT-f4x">
+                        <rect key="frame" x="84" y="53" width="273" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="rIz-IT-f4x" firstAttribute="bottom" secondItem="Wyu-G5-cLd" secondAttribute="bottom" id="3Mb-rA-rHZ"/>
+                    <constraint firstItem="vtL-Bn-zeL" firstAttribute="leading" secondItem="Wyu-G5-cLd" secondAttribute="trailing" constant="15" id="5XN-C2-2Hz"/>
+                    <constraint firstItem="jLh-ZA-aq2" firstAttribute="leading" secondItem="vtL-Bn-zeL" secondAttribute="leading" id="6M1-3r-5hH"/>
+                    <constraint firstItem="Wyu-G5-cLd" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="6gF-K6-TBC"/>
+                    <constraint firstItem="vtL-Bn-zeL" firstAttribute="top" secondItem="Wyu-G5-cLd" secondAttribute="top" id="D7U-eV-4i2"/>
+                    <constraint firstItem="Wyu-G5-cLd" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="DDb-Is-9US"/>
+                    <constraint firstItem="rIz-IT-f4x" firstAttribute="top" secondItem="jLh-ZA-aq2" secondAttribute="bottom" id="H5l-tZ-vSV"/>
+                    <constraint firstItem="Wyu-G5-cLd" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="10" id="Udm-7i-nGN"/>
+                    <constraint firstAttribute="bottom" secondItem="Wyu-G5-cLd" secondAttribute="bottom" constant="10" id="V5Q-98-7fl"/>
+                    <constraint firstItem="jLh-ZA-aq2" firstAttribute="top" secondItem="vtL-Bn-zeL" secondAttribute="bottom" constant="-2" id="Wox-ve-5Hs"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="Wyu-G5-cLd" secondAttribute="bottom" constant="10" id="abL-hO-epT"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="rIz-IT-f4x" secondAttribute="trailing" constant="10" id="fBl-M6-5fD"/>
+                    <constraint firstItem="Wyu-G5-cLd" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="10" id="mBa-ic-7ti"/>
+                    <constraint firstItem="jLh-ZA-aq2" firstAttribute="centerY" secondItem="Wyu-G5-cLd" secondAttribute="centerY" id="tQd-OE-RHF"/>
+                    <constraint firstItem="rIz-IT-f4x" firstAttribute="leading" secondItem="jLh-ZA-aq2" secondAttribute="leading" id="vb8-qy-xWa"/>
+                </constraints>
+                <variation key="default">
+                    <mask key="constraints">
+                        <exclude reference="Udm-7i-nGN"/>
+                        <exclude reference="abL-hO-epT"/>
+                        <exclude reference="mBa-ic-7ti"/>
+                        <exclude reference="Wox-ve-5Hs"/>
+                        <exclude reference="H5l-tZ-vSV"/>
+                    </mask>
+                </variation>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="HospitalNameLabel" destination="vtL-Bn-zeL" id="4nC-fe-OEv"/>
+                <outlet property="addressNameLabel" destination="jLh-ZA-aq2" id="aBE-G2-M2C"/>
+                <outlet property="avatorImageView" destination="Wyu-G5-cLd" id="YvW-B4-l7Q"/>
+                <outlet property="hospitalLevelLabel" destination="rIz-IT-f4x" id="OJP-QY-U3S"/>
+            </connections>
+            <point key="canvasLocation" x="384.5" y="246"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="hos_list_default" width="55" height="55"/>
+    </resources>
+</document>

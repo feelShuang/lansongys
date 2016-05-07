@@ -1,0 +1,300 @@
+//
+//  ManageOrderCell.m
+//  BeiYi
+//
+//  Created by Joe on 15/12/28.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import "ManageOrderCell.h"
+#import "Common.h"
+#import "ManageOrder.h"
+#import "HumanInfo.h"
+
+@interface ManageOrderCell()
+/** UIImageView 小图标 */
+@property (strong, nonatomic) UIImageView *icon;
+
+/** UILabel 医生名称 */
+@property (strong, nonatomic) UILabel *lblDoctorName;
+
+/** UILabel 医院名称、科室名称 */
+@property (strong, nonatomic) UILabel *lblHosName;
+
+/** UILabel 服务类型Text */
+@property (strong, nonatomic) UILabel *lblTypeText;
+
+/** UILabel 就诊时间 */
+@property (strong, nonatomic) UILabel *lblTime;
+
+/** UILabel 个人信息（姓名+电话） */
+@property (strong, nonatomic) UILabel *lblInfo;
+
+/** UILabel 价格 */
+@property (strong, nonatomic) UILabel *lblPrice;
+
+/** UILabel 价格Text */
+@property (strong, nonatomic) UILabel *lblPriceText;
+
+/** UILabel 订单状态 */
+@property (strong, nonatomic) UILabel *lblStatuse;
+
+/** UILabel 是否存在凭证 */
+@property (strong, nonatomic) UILabel *lblProof;
+
+/** UIButton 删除按钮 */
+@property (strong, nonatomic) UIButton *btnDelete;
+
+/** UIView 分割线 */
+@property (strong, nonatomic) UIView *line1;
+@property (strong, nonatomic) UIView *line2;
+@property (strong, nonatomic) UIView *line3;
+@property (strong, nonatomic) UIView *line4;
+
+@end
+
+@implementation ManageOrderCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        // 1.小图标
+        self.icon = [[UIImageView alloc] init];
+        [self.contentView addSubview:self.icon];
+        self.icon.image = [UIImage imageNamed:@"grab_icon01"];
+        
+        // 2.医生名称
+        self.lblDoctorName = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblDoctorName];
+        self.lblDoctorName.font = [UIFont systemFontOfSize:14];
+        self.lblDoctorName.textColor = ZZColor(51, 51, 51, 1);
+        self.lblDoctorName.textAlignment = NSTextAlignmentLeft;
+
+        // 3.订单状态
+        self.lblStatuse = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblStatuse];
+        self.lblStatuse.font = [UIFont systemFontOfSize:14];
+        self.lblStatuse.textColor = ZZButtonClickedColor;
+        self.lblStatuse.textAlignment = NSTextAlignmentRight;
+        
+        // 4.医院、科室名称
+        self.lblHosName = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblHosName];
+        self.lblHosName.font = [UIFont systemFontOfSize:12];
+        self.lblHosName.textColor = ZZColor(51, 51, 51, 1);
+        
+        // 5.服务类型Text
+        self.lblTypeText = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblTypeText];
+        self.lblTypeText.font = [UIFont systemFontOfSize:13];
+        self.lblTypeText.textColor = ZZBaseColor;
+        self.lblTypeText.textAlignment = NSTextAlignmentLeft;
+        
+        // 6.就诊时间
+        self.lblTime = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblTime];
+        self.lblTime.font = [UIFont systemFontOfSize:12];
+        self.lblTime.textColor = ZZColor(51, 51, 51, 1);
+        self.lblTime.textAlignment = NSTextAlignmentLeft;
+
+        // 7.个人信息
+        self.lblInfo = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblInfo];
+        self.lblInfo.font = [UIFont systemFontOfSize:12];
+        self.lblInfo.textColor = ZZColor(51, 51, 51, 1);
+        self.lblInfo.textAlignment = NSTextAlignmentLeft;
+        
+        // 7.价格
+        self.lblPrice = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblPrice];
+        self.lblPrice.font = [UIFont systemFontOfSize:12];
+        self.lblPrice.textColor = ZZButtonClickedColor;
+        self.lblPrice.textAlignment = NSTextAlignmentLeft;
+        
+        // 8.价格Text
+        self.lblPriceText = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblPriceText];
+        self.lblPriceText.font = [UIFont systemFontOfSize:12];
+        self.lblPriceText.textColor = ZZColor(51, 51, 51, 1);
+        self.lblPriceText.textAlignment = NSTextAlignmentLeft;
+        
+        // 8.价格Text
+        self.lblProof = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblProof];
+        self.lblProof.font = [UIFont systemFontOfSize:12];
+        self.lblProof.textColor = ZZColor(51, 51, 51, 1);
+        self.lblProof.textAlignment = NSTextAlignmentLeft;
+        
+        // 10.删除按钮
+        self.btnDelete = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.contentView addSubview:self.btnDelete];
+        self.btnDelete.layer.cornerRadius = 2.0f;
+        self.btnDelete.layer.borderWidth = 1.0f;
+        self.btnDelete.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        self.btnDelete.titleLabel.font = [UIFont systemFontOfSize:12];
+        [self.btnDelete setTitleColor:ZZBaseColor forState:UIControlStateNormal];
+        [self.btnDelete setTitle:@"删除订单" forState:UIControlStateNormal];
+        [self.btnDelete addTarget:self action:@selector(btnDeleteClicked:) forControlEvents:UIControlEventTouchUpInside];
+        
+        // 11.分割线三条
+        self.line1 = [[UIView alloc] init];
+        self.line1.backgroundColor = ZZColor(230, 230, 230, 1);
+        [self.contentView addSubview:self.line1];
+        
+        self.line2 = [[UIView alloc] init];
+        self.line2.backgroundColor = ZZColor(230, 230, 230, 1);
+        [self.contentView addSubview:self.line2];
+        
+        self.line3 = [[UIView alloc] init];
+        self.line3.backgroundColor = ZZColor(230, 230, 230, 1);
+        [self.contentView addSubview:self.line3];
+        
+        self.line4 = [[UIView alloc] init];
+        self.line4.backgroundColor = ZZColor(230, 230, 230, 1);
+        [self.contentView addSubview:self.line4];
+        
+    }
+    return self;
+}
+
+#pragma mark  - 删除按钮监听
+- (void)btnDeleteClicked:(UIButton *)btn {
+    if ([self.delegate respondsToSelector:@selector(manageOrderCell:didClickedDeleteButton:)]) {
+        [self.delegate manageOrderCell:self didClickedDeleteButton:btn];
+    }
+}
+
++ (instancetype)cellWithTableView:(UITableView *)tableView {
+    static NSString *ID = @"ManageOrderCell";
+    ManageOrderCell * cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (cell == nil) {
+        cell = [[ManageOrderCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    return cell;
+}
+
+- (void)setOrder:(ManageOrder *)order {
+    _order = order;
+    
+    // 2.医生名称
+    self.lblDoctorName.text = [NSString stringWithFormat:@"%@",order.doctor_name];
+    
+    // 3.医院、科室名称
+    self.lblHosName.text = [NSString stringWithFormat:@"%@ [%@]",order.hospital_name,order.department_name];
+    
+    // 4.服务类型
+    self.lblTypeText.text = order.order_type;
+
+    // 5.就诊时间
+    self.lblTime.text = [NSString stringWithFormat:@"%@ ~ %@",order.start_time,order.end_time];
+    
+    // 6.个人信息
+    HumanInfo *humanInfo = order.humanInfo;
+    self.lblInfo.text = [NSString stringWithFormat:@"%@:%@",humanInfo.name,humanInfo.mobile];
+    
+    // 7.价格
+    self.lblPriceText.text = @"价格￥";
+    
+    // 8.价格Text
+    self.lblPrice.text = [NSString stringWithFormat:@" %.2f",order.price.floatValue];
+    
+    // 9.取号凭证
+    self.lblProof.text = @"取号凭证";
+    
+    // 10.订单状态
+    self.lblStatuse.text = order.order_status_str;
+    
+}
+
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    self.selectionStyle = UITableViewCellSelectionStyleNone;// 取消选中状态
+    
+    CGFloat w = self.contentView.frame.size.width;
+    
+    CGFloat margin = 10;
+    // 0.小图标
+    self.icon.frame = CGRectMake(margin, margin, 25, 25);
+    
+    // 1.医生名称
+    CGSize doctorSize = [self sizeWithText:self.lblDoctorName.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:14]];
+    CGFloat doctorNameX = CGRectGetMaxX(self.icon.frame)+margin;
+    CGFloat doctorNameY = margin + (self.icon.frame.size.height - doctorSize.height)*0.5;
+    self.lblDoctorName.frame = CGRectMake(doctorNameX, doctorNameY, doctorSize.width, doctorSize.height);
+    
+    // 2.医院、科室名称
+    CGSize hosSize = [self sizeWithText:self.lblHosName.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat hosNameX = self.icon.frame.origin.x;
+    CGFloat hosNameY = CGRectGetMaxY(self.icon.frame) +margin *1.5;
+    self.lblHosName.frame = CGRectMake(hosNameX, hosNameY, hosSize.width, hosSize.height);
+    
+    // 3.服务类型Text
+    CGSize typeTextSize = [self sizeWithText:self.lblTypeText.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:13]];
+    CGFloat typeX = hosNameX;
+    CGFloat typeY = CGRectGetMaxY(self.lblHosName.frame) +margin *0.5;
+    self.lblTypeText.frame = CGRectMake(typeX, typeY, typeTextSize.width, typeTextSize.height);
+    
+    // 4.就诊时间
+    CGSize timeSize = [self sizeWithText:self.lblTime.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat timeX = typeX;
+    CGFloat timeY = CGRectGetMaxY(self.lblTypeText.frame) +margin *0.5;
+    self.lblTime.frame = CGRectMake(timeX, timeY, timeSize.width, timeSize.height);
+    
+    // 5.就诊人信息
+    CGSize infoSize = [self sizeWithText:self.lblInfo.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat infoX = w*0.6 +margin;
+    CGFloat infoY = hosNameY;
+    self.lblInfo.frame = CGRectMake(infoX, infoY, infoSize.width, infoSize.height);
+    
+    // 6.价格Text
+    CGSize priceTextSize = [self sizeWithText:self.lblPriceText.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat priceTextX = infoX;
+    CGFloat priceTextY = typeY;
+    self.lblPriceText.frame = CGRectMake(priceTextX, priceTextY, priceTextSize.width, priceTextSize.height);
+    
+    // 7.价格
+    CGSize priceSize = [self sizeWithText:self.lblPrice.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat priceX = CGRectGetMaxX(self.lblPriceText.frame);
+    CGFloat priceY = typeY;
+    self.lblPrice.frame = CGRectMake(priceX, priceY, priceSize.width, priceSize.height);
+    
+    // 8.取号凭证
+    CGSize proofSize = [self sizeWithText:self.lblProof.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:12]];
+    CGFloat proofX = infoX;
+    CGFloat proofY = timeY;
+    self.lblProof.frame = CGRectMake(proofX, proofY, proofSize.width, proofSize.height);
+    
+    // 9.状态
+    CGSize statuseSize = [self sizeWithText:self.lblStatuse.text maxSize:CGSizeMake(CGFLOAT_MAX, 15) font:[UIFont systemFontOfSize:14]];
+    CGFloat statuseX = w -margin - statuseSize.width;
+    CGFloat statuseY = doctorNameY;
+    self.lblStatuse.frame = CGRectMake(statuseX, statuseY, statuseSize.width, statuseSize.height);
+    
+    // 10.删除按钮
+    CGSize btnDeleteSize = [self sizeWithText:@" 删除订单 " maxSize:CGSizeMake(CGFLOAT_MAX, 20) font:[UIFont systemFontOfSize:12]];
+    CGFloat btnDeleteX = w - btnDeleteSize.width -margin;
+    CGFloat btnDeleteY = CGRectGetMaxY(self.lblProof.frame) +margin;
+    self.btnDelete.frame = CGRectMake(btnDeleteX, btnDeleteY, btnDeleteSize.width, 20);
+    
+    // 11.分割线
+    self.line1.frame = CGRectMake(margin, CGRectGetMaxY(self.icon.frame)+margin*0.5, w - margin*2, 1);
+    self.line2.frame = CGRectMake(margin, CGRectGetMaxY(self.lblProof.frame)+margin*0.5, w - margin*2, 1);
+    
+    CGFloat line3X = w *0.6;
+    CGFloat line3Y = self.line1.frame.origin.y +margin*0.5;
+    CGFloat line3W = 1;
+    CGFloat line3H = self.line2.frame.origin.y - margin*0.5 - line3Y;
+    self.line3.frame = CGRectMake(line3X, line3Y, line3W, line3H);
+    self.line4.frame = CGRectMake(0, 1, w, 1);
+
+}
+
+
+/** 根据文本内容计算size*/
+- (CGSize)sizeWithText:(NSString *)text maxSize:(CGSize)maxSize font:(UIFont *)font {
+    
+    return [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : font} context:nil].size;
+}
+
+@end

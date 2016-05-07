@@ -1,0 +1,224 @@
+//
+//  PatientCell.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "PatientCell.h"
+#import "Patient.h"
+#import "Common.h"
+
+@interface PatientCell()
+
+/** UILabel 小图标*/
+@property (nonatomic, strong) UIImageView *icon;
+
+/** UILabel 就诊人姓名*/
+@property (strong, nonatomic) UILabel *lblName;
+
+/** UILabel 就诊人性别*/
+@property (strong, nonatomic) UILabel *lblSex;
+
+/** UILabel 就诊人身份证号码 */
+@property (strong, nonatomic) UILabel *lblIDCard;
+
+/** UILabel 就诊人联系电话 */
+@property (strong, nonatomic) UILabel *lblPhone;
+
+/** UILabel 就诊人联系电话Num */
+@property (strong, nonatomic) UILabel *lblPhoneNum;
+
+/** UIButton 编辑按钮 */
+@property (strong, nonatomic) UIButton *btnEdit;
+
+/** UIButton 删除按钮 */
+@property (strong, nonatomic) UIButton *btnDelete;
+
+@end
+
+@implementation PatientCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        
+        self.icon.image = [UIImage imageNamed:@"addPatient"];
+        
+        self.lblName.font = [UIFont systemFontOfSize:15];
+        self.lblName.textColor = ZZColor(51, 51, 51, 1);
+
+        self.lblSex.font = [UIFont systemFontOfSize:15];
+        self.lblSex.textColor = ZZColor(153, 153, 153, 1);
+        
+        self.lblIDCard.font = [UIFont systemFontOfSize:13];
+        
+        self.lblPhone.font = [UIFont systemFontOfSize:13];
+        
+        self.lblPhoneNum.font = [UIFont systemFontOfSize:15];
+        self.lblPhoneNum.textColor = ZZBaseColor;
+        
+        [self.btnEdit setTitle:@"编辑" forState:UIControlStateNormal];
+        [self.btnEdit setTitleColor:ZZColor(153, 153, 153, 1) forState:UIControlStateNormal];
+        self.btnEdit.layer.borderWidth = 1.0f;
+        self.btnEdit.layer.borderColor = ZZColor(153, 153, 153, 1).CGColor;
+        [self.btnEdit setTitleColor:ZZBaseColor forState:UIControlStateHighlighted];
+        self.btnEdit.titleLabel.font = [UIFont systemFontOfSize:12.5];
+        [self.btnEdit addTarget:self action:@selector(btnEditClicked:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [self.btnDelete setTitle:@"删除" forState:UIControlStateNormal];
+        [self.btnDelete setTitleColor:ZZColor(153, 153, 153, 1) forState:UIControlStateNormal];
+        self.btnDelete.layer.borderWidth = 1.0f;
+        self.btnDelete.layer.borderColor = ZZColor(153, 153, 153, 1).CGColor;
+        [self.btnDelete setTitleColor:ZZBaseColor forState:UIControlStateHighlighted];
+        self.btnDelete.titleLabel.font = [UIFont systemFontOfSize:12.5];
+        [self.btnDelete addTarget:self action:@selector(btnDeleteClicked:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return self;
+}
+
+#pragma mark  - 编辑按钮监听
+- (void)btnEditClicked:(UIButton *)btn {
+    if ([self.delegate respondsToSelector:@selector(patientCell:btnEditDidClicked:)]) {
+        [self.delegate patientCell:self btnEditDidClicked:btn];
+    }
+}
+
+#pragma mark  - 删除按钮监听
+- (void)btnDeleteClicked:(UIButton *)btn {
+    if ([self.delegate respondsToSelector:@selector(patientCell:btnDeleteDidClicked:)]) {
+        [self.delegate patientCell:self btnDeleteDidClicked:btn];
+    }
+}
+
++ (instancetype)cellWithTableView:(UITableView *)tableView {
+    static NSString *ID = @"cellIdentify";
+    PatientCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (cell == nil) {
+        cell = [[PatientCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    return cell;
+}
+
+- (UIImageView *)icon  {
+    if (!_icon) {
+        self.icon = [[UIImageView alloc] init];
+        [self.contentView addSubview:self.icon];
+    }
+    return _icon;
+}
+
+- (UILabel *)lblName {
+    if (_lblName == nil) {
+        self.lblName = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblName];
+    }
+    return _lblName;
+}
+
+- (UILabel *)lblSex {
+    if (_lblSex == nil) {
+        self.lblSex = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblSex];
+    }
+    return _lblSex;
+}
+
+- (UILabel *)lblIDCard {
+    if (_lblIDCard== nil) {
+        self.lblIDCard = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblIDCard];
+    }
+    return _lblIDCard;
+}
+
+- (UILabel *)lblPhone {
+    if (_lblPhone== nil) {
+        self.lblPhone = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblPhone];
+    }
+    return _lblPhone;
+}
+
+- (UILabel *)lblPhoneNum {
+    if (_lblPhoneNum== nil) {
+        self.lblPhoneNum = [[UILabel alloc] init];
+        [self.contentView addSubview:self.lblPhoneNum];
+    }
+    return _lblPhoneNum;
+}
+
+- (UIButton *)btnEdit {
+    if (_btnEdit == nil) {
+        self.btnEdit = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.btnEdit.layer.borderColor = (__bridge CGColorRef)([UIColor lightGrayColor]);
+        self.btnEdit.layer.borderWidth = 1.0;
+        [self.contentView addSubview:self.btnEdit];
+    }
+    return _btnEdit;
+}
+
+- (UIButton *)btnDelete {
+    if (_btnDelete == nil) {
+        self.btnDelete = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.btnDelete.layer.borderColor = (__bridge CGColorRef)([UIColor lightGrayColor]);
+        self.btnDelete.layer.borderWidth = 1.0;
+        [self.contentView addSubview:self.btnDelete];
+    }
+    return _btnDelete;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    CGFloat w = self.contentView.frame.size.width;
+    CGFloat h = self.contentView.frame.size.height;
+    
+    
+    CGFloat margin = 10;
+    
+    self.icon.frame = CGRectMake(margin, margin, 20, 20);
+    
+    CGSize lblNameSize = [self.lblName.text sizeWithFont:[UIFont systemFontOfSize:15]];
+    self.lblName.frame = CGRectMake(35, margin/2, lblNameSize.width, h/3);
+    
+    self.lblSex.frame = CGRectMake(CGRectGetMaxX(self.lblName.frame)+margin/2, margin/2, w/4, h/3);
+    
+    self.lblIDCard.frame = CGRectMake(self.lblName.frame.origin.x, CGRectGetMaxY(self.lblName.frame), w/3*2, h/3);
+    
+    CGSize lblPhoneSize = [self.lblPhone.text sizeWithFont:[UIFont systemFontOfSize:13]];
+    self.lblPhone.frame = CGRectMake(self.lblName.frame.origin.x, CGRectGetMaxY(self.lblIDCard.frame)-margin/2, lblPhoneSize.width, h/3);
+    
+    self.lblPhoneNum.frame = CGRectMake(CGRectGetMaxX(self.lblPhone.frame), CGRectGetMaxY(self.lblIDCard.frame)-margin/2, w/3, h/3);
+    
+    self.btnEdit.frame = CGRectMake(w-90, CGRectGetMaxY(self.lblIDCard.frame) -margin/2, 40, 20);
+    self.btnDelete.frame = CGRectMake(CGRectGetMaxX(self.btnEdit.frame)+margin, CGRectGetMaxY(self.lblIDCard.frame) -margin/2, 40, 20);
+}
+
+- (void)setPatient:(Patient *)patient {
+    _patient = patient;
+    
+    // 1.就诊人姓名
+    self.lblName.text = patient.name;
+    
+    // 2.就诊人性别 和 年龄
+    NSString *sexStr;
+    if ([patient.sex  isEqual: @1]) {
+        sexStr = @"男";
+    }else {
+        sexStr = @"女";
+    }
+    self.lblSex.text = [NSString stringWithFormat:@"[%@]",sexStr];
+    
+    // 3.就诊人身份证号码
+    self.lblIDCard.text = [NSString stringWithFormat:@"身份证: %@",patient.id_card];
+    
+    // 4.就诊人联系电话
+    self.lblPhone.text = [NSString stringWithFormat:@"手机号: "];
+    
+    // 5.就诊人联系电话Num
+    self.lblPhoneNum.text = [NSString stringWithFormat:@"%@",patient.mobile];
+}
+
+@end

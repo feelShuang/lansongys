@@ -1,0 +1,39 @@
+//
+//  OrderDetailInfo.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderDetailInfo.h"
+
+@implementation OrderDetailInfo
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"order_id": @"id",
+             };
+    
+}
+
++ (NSDictionary *)mj_objectClassInArray {
+    
+    return @{
+             
+             @"attach": @"OrderDetailAttach",
+             @"human": @"Human",
+             @"publish": @"Publish",
+             @"over_over": @"Over_Over",
+             @"offer": @"Offer"
+             
+             };
+    
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end

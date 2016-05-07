@@ -1,0 +1,472 @@
+//
+//  DoctorDetailController.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/19.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "DoctorDetailController.h"
+#import "Common.h"
+#import "DoctorView.h"
+#import "OrderInfo.h"
+#import "UIImageView+WebCache.h"
+#import "HosDetailViewController.h"
+#import "OperationSelectViewController.h"
+
+
+@interface DoctorDetailController ()
+
+@property (nonatomic, strong) UIScrollView *scrollView;
+
+/** UILabel 医生头像 */
+@property (strong, nonatomic) UIImageView *iconView;
+/** UILabel 医生姓名 */
+@property (strong, nonatomic) UILabel *lblName;
+/** UILabel 科室名称 */
+@property (strong, nonatomic) UILabel *lblDepart;
+/** UILabel 医院名称 */
+@property (nonatomic, strong) UIButton *hospitalButton;
+/** UILabel 介绍 */
+@property (strong, nonatomic) UILabel *lblDetail;
+/** UITextView 医生擅长 */
+@property (nonatomic, strong) UITextView *txViewGoodAt;
+/** UITextView 医生详情 */
+@property (nonatomic, strong) UITextView *txViewDetail;
+/** UIButton 选择医生 */
+@property (nonatomic, strong) UIButton *btn;
+
+/** textView点击重复计数 */
+@property (nonatomic, assign) int clickedNum;
+@property (nonatomic, assign) int clickedNum2;
+
+/** 医生擅长textView的size */
+@property (nonatomic, assign) CGSize size1;
+/** 医生介绍textView的size */
+@property (nonatomic, assign) CGSize size2;
+/** 医生擅长textView的Y */
+@property (nonatomic, assign) CGFloat textViewY1;
+/** 医生介绍textView的Y */
+@property (nonatomic, assign) CGFloat textViewY2;
+/** NSString 医生介绍 */
+//@property (nonatomic, copy) NSString *doctorDesc;
+
+// 关注
+@property (nonatomic, strong) UIButton *attentionButton;
+@property (nonatomic, strong) UILabel *attentionLabel;
+
+// 医生详情
+@property (nonatomic, strong) NSMutableDictionary *dictResult;
+// 服务类型数组
+@property (nonatomic, strong) NSMutableArray *serviceTypeArray;
+
+@end
+
+@implementation DoctorDetailController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 1.界面布局
+    [self setupUI];
+    
+    // 2.加载网络请求
+    [self loadHttpRequest];
+    
+    NSLog(@"viewControllers = %@",self.navigationController.viewControllers);
+}
+
+- (void)setupUI {
+    self.title = @"医生详情";
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    // 1.0 滚动视图
+    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+    [self.view addSubview:self.scrollView];
+    
+    // 1.1 背景
+    UIImageView *imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"doctor_detail_bg"]];
+    imgView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT*0.3);
+    imgView.userInteractionEnabled = YES;
+    [self.scrollView addSubview:imgView];
+
+    CGFloat iconR = imgView.bounds.size.height*0.2;
+    CGFloat iconX = SCREEN_WIDTH/2-iconR;
+
+    // 1.2 分割线
+    [ZZUITool lineVerticalWithPosition:CGPointMake(SCREEN_WIDTH/2, CGRectGetMaxY(imgView.frame) -ZZMarins*1.7) height:ZZMarins backGroundColor:ZZBaseColor superView:imgView];
+    
+    // 1.3 医院名称
+    UIButton *lblHospital = [UIButton buttonWithType:UIButtonTypeCustom];
+    lblHospital.frame = CGRectMake(0, CGRectGetMaxY(imgView.frame) -ZZMarins*1.7,  SCREEN_WIDTH/2-ZZMarins, ZZMarins);
+    lblHospital.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [lblHospital setTitleColor:ZZBaseColor forState:UIControlStateNormal];
+    [lblHospital addTarget:self action:@selector(hospitalButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.hospitalButton = lblHospital;
+    [imgView addSubview:lblHospital];
+    
+    // 1.4 科室名称
+    UILabel *lblDepart = [[UILabel alloc] initWithFrame:CGRectMake(SCREEN_WIDTH/2 +ZZMarins, CGRectGetMaxY(imgView.frame) -ZZMarins*1.7, SCREEN_WIDTH/2-ZZMarins, ZZMarins)];
+    lblDepart.textAlignment = NSTextAlignmentLeft;
+    lblDepart.textColor = ZZBaseColor;
+    [imgView addSubview:lblDepart];
+    self.lblDepart = lblDepart;
+    
+    // 1.5医生姓名
+    UILabel *lblName = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMinY(self.lblDepart.frame) -ZZMarins *1.7, SCREEN_WIDTH, ZZMarins)];
+    lblName.textAlignment = NSTextAlignmentCenter;
+    [imgView addSubview:lblName];
+    self.lblName = lblName;
+    
+    // 1.2医生头像
+    UIImageView *iconView = [[UIImageView alloc] initWithFrame:CGRectMake(iconX, imgView.frame.size.height/2 -iconR *1.3, iconR*2, iconR*2)];
+    iconView.layer.cornerRadius = iconR;
+    iconView.layer.masksToBounds = YES;
+    [imgView addSubview:iconView];
+    self.iconView = iconView;
+    
+    // 1.6 关注Button
+    UIButton *attentionButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    attentionButton.frame = CGRectMake(CGRectGetMaxX(self.iconView.frame) + iconR*0.5, CGRectGetMaxY(self.iconView.frame) - iconR * 1.8, iconR*0.8, iconR*0.8);
+    [attentionButton setImage:[UIImage imageNamed:@"doctorDetail-07"] forState:UIControlStateNormal];
+    [attentionButton addTarget:self action:@selector(btnClicked) forControlEvents:UIControlEventTouchUpInside];
+    
+    [imgView addSubview:attentionButton];
+    self.attentionButton = attentionButton;
+    
+    // 1.7 关注Label
+    UILabel *attentionLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(self.attentionButton.frame) - CGRectGetWidth(self.attentionButton.frame), CGRectGetMaxY(self.attentionButton.frame), 60, 30)];
+    attentionLabel.text = @"关注";
+    attentionLabel.textColor = [UIColor whiteColor];
+    [imgView addSubview:attentionLabel];
+    self.attentionLabel = attentionLabel;
+    
+    // 2.1分割线
+    UIView *line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(imgView.frame), SCREEN_WIDTH, 1)];
+    line1.backgroundColor = ZZColor(220, 220, 223, 1);
+    [self.scrollView addSubview:line1];
+    
+    // 2.2 擅长
+    UILabel *lblGood = [[UILabel alloc] init];
+    lblGood.frame = CGRectMake(10, CGRectGetMaxY(line1.frame)+5, SCREEN_WIDTH-20, 30);
+    lblGood.font = [UIFont systemFontOfSize:17];
+    lblGood.text = @"擅长";
+    [self.scrollView addSubview:lblGood];
+    
+    self.textViewY1 = CGRectGetMaxY(lblGood.frame)+5;
+    
+    // 2.3 医生擅长
+    UITextView *txView1 = [[UITextView alloc] initWithFrame:CGRectMake(0, self.textViewY1, SCREEN_WIDTH, 30)];
+    
+    txView1.scrollEnabled = NO;
+    txView1.font = [UIFont systemFontOfSize:13];
+    txView1.editable = NO;
+    txView1.layer.masksToBounds = YES;
+    txView1.layer.borderColor = [UIColor darkGrayColor].CGColor;
+    txView1.layer.borderColor = ZZColor(220, 220, 223, 1).CGColor;
+    txView1.layer.borderWidth = 1.0;
+    [self.scrollView addSubview:txView1];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(txViewGoodAtSetFrame)];
+    [txView1 addGestureRecognizer:tapGesture];
+    
+    self.txViewGoodAt = txView1;
+    
+    // 3.1 添加 Laabel介绍
+    [self addDescLabel];
+    
+    self.textViewY2 = CGRectGetMaxY(self.lblDetail.frame)+5;
+
+    // 3.2医生介绍
+    [self addDetailTextVeiw];
+    
+    // 4.添加选择医生按钮
+    [self addSelectedDoctorBtn];
+}
+
+#pragma mark - 添加 介绍 Label
+- (void)addDescLabel {
+    UILabel *lblDetail = [[UILabel alloc] init];
+    lblDetail.frame = CGRectMake(10, CGRectGetMaxY(self.txViewGoodAt.frame)+5, SCREEN_WIDTH-20, 30);
+    lblDetail.font = [UIFont systemFontOfSize:17];
+    lblDetail.text = @"介绍";
+    [self.scrollView addSubview:lblDetail];
+    self.lblDetail = lblDetail;
+}
+
+#pragma mark - 添加 医生介绍 textVeiw
+- (void)addDetailTextVeiw {
+    [self loadHttpRequest];
+    
+    UITextView *txView2 = [[UITextView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.lblDetail.frame)+5, SCREEN_WIDTH, 60)];
+    
+    txView2.scrollEnabled = NO;
+    txView2.font = [UIFont systemFontOfSize:13];
+    txView2.editable = NO;
+    txView2.layer.masksToBounds = YES;
+    txView2.layer.borderColor = [UIColor darkGrayColor].CGColor;
+    txView2.layer.borderColor = ZZColor(220, 220, 223, 1).CGColor;
+    txView2.layer.borderWidth = 1.0;
+    [self.scrollView addSubview:txView2];
+    
+    UITapGestureRecognizer *tapGesture2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(txViewDetailSetFrame)];
+    [txView2 addGestureRecognizer:tapGesture2];
+    
+    self.txViewDetail = txView2;
+}
+
+#pragma mark - 添加 选择医生 按钮
+- (void)addSelectedDoctorBtn {
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    btn.frame = CGRectMake(ZZMarins, CGRectGetMaxY(self.txViewDetail.frame)+ZZMarins, SCREEN_WIDTH -2*ZZMarins, 40);
+    btn.backgroundColor = ZZBaseColor;
+    [btn setTitle:@"选择医生" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(selectDoctor) forControlEvents:UIControlEventTouchUpInside];
+    btn.layer.cornerRadius = 3.f;
+    [self.scrollView addSubview:btn];
+    
+    self.btn = btn;
+}
+
+#pragma mark - 收藏按钮网络请求
+- (void)btnClicked {
+    
+    // 1. 准备请求网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/favorite/create",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"]; // 登陆标记
+    [params setObject:@2 forKey:@"obj_type"]; // 收藏类型 1.医院 2.医生
+    [params setObject:[OrderInfo shareInstance].doctor_id forKey:@"obj_id"]; // 收藏对象ID
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        
+        if ([responseObj[@"message"] isEqualToString:@"该医生你已经收藏过了！"]) {
+            // 取消收藏
+            [weakSelf cancleAttention];
+        }
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            [self.attentionButton setImage:[UIImage imageNamed:@"doctorDetail_favorise_select"] forState:UIControlStateNormal];
+            [MBProgressHUD showSuccess:@"收藏成功" toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"--error = %@",error);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+    
+}
+
+#pragma mark - 取消收藏
+- (void)cancleAttention {
+    
+    // 1. 准备网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/favorite/cancel",BASEURL];
+    
+    // 2. 创建请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:@2 forKey:@"obj_type"];
+    [params setObject:[OrderInfo shareInstance].doctor_id forKey:@"obj_id"];
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {
+            ZZLog(@"取消收藏");
+            [self.attentionButton setImage:[UIImage imageNamed:@"doctorDetail-07"] forState:UIControlStateNormal];
+            [MBProgressHUD showSuccess:@"取消收藏" toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"--error = %@",error);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 医院名称按钮事件
+- (void)hospitalButtonAction:(UIButton *)sender {
+    
+    HosDetailViewController *hospitalDetailVC = [HosDetailViewController new];
+    hospitalDetailVC.title = [OrderInfo shareInstance].hospital_name;
+    hospitalDetailVC.hospital_id = [OrderInfo shareInstance].hospital_id;
+    [self.navigationController pushViewController:hospitalDetailVC animated:YES];
+}
+
+#pragma mark - 监听按钮点击
+- (void)selectDoctor {
+//    NSString *name = [NSString stringWithFormat:@"%@ / %@ / %@",self.lblName.text,self.lblDepart.text,self.lblHospital.text];
+    
+    ZZLog(@"%@",[self.dictResult objectForKey:@"services"]);
+    for (NSDictionary *dict in [self.dictResult objectForKey:@"services"]) {
+        // 判断是否提供15分钟的优质服务
+        NSInteger service_type = [[dict objectForKey:@"service_type"] integerValue];
+        NSInteger open_flag = [[dict objectForKey:@"open_flag"] integerValue];
+        if(service_type == 1 && open_flag == 3 && [OrderInfo shareInstance].service_type == 1) {
+            [self addAlertView];
+        }
+    }
+    
+    NSString *name = [NSString stringWithFormat:@"%@",self.lblName.text];
+    // 单例传值
+    [OrderInfo shareInstance].doctor_name = name;
+    [OrderInfo shareInstance].assure_flag = NO;
+    if ([[self.navigationController.viewControllers objectAtIndex:1] isKindOfClass:[OperationSelectViewController class]]) {
+        [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:2] animated:YES];
+    }
+    else {
+        [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
+    }
+}
+
+#pragma mark - 添加是否选择15分钟优质服务的提醒
+- (void)addAlertView {
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"保证提供15分钟的优质服务" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"是" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *name = [NSString stringWithFormat:@"%@",self.lblName.text];
+        // 单例传值
+        [OrderInfo shareInstance].doctor_name = name;
+        [OrderInfo shareInstance].assure_flag = YES;
+        
+        [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
+        ZZLog(@"点击了是按钮");
+    }];
+    UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:@"否" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        NSString *name = [NSString stringWithFormat:@"%@",self.lblName.text];
+        // 单例传值
+        [OrderInfo shareInstance].doctor_name = name;
+        [OrderInfo shareInstance].assure_flag = NO;
+
+        [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
+        ZZLog(@"点击了否按钮");
+    }];
+    [alert addAction:okAction];
+    [alert addAction:cancleAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+#pragma mark - 擅长 textView 点击缩放
+- (void)txViewGoodAtSetFrame {
+    // 1.点击缩放textView
+    if (self.clickedNum %2 == 0) {
+        self.txViewGoodAt.frame = CGRectMake(0, self.textViewY1, SCREEN_WIDTH, self.size1.height+10);
+    }else {
+        
+        self.txViewGoodAt.frame = CGRectMake(0, self.textViewY1, SCREEN_WIDTH, 30);
+    }
+    // 2.重置Label 介绍
+    [self.lblDetail removeFromSuperview];
+    [self addDescLabel];
+    
+    // 3.重置txViewDetail
+    [self.txViewDetail removeFromSuperview];
+    [self addDetailTextVeiw];
+    
+    // 4.重置选择按钮
+    [self.btn removeFromSuperview];
+    [self addSelectedDoctorBtn];
+    
+    // 5.计数+1
+    self.clickedNum ++;
+}
+
+#pragma mark - 医生介绍 textView 点击缩放
+- (void)txViewDetailSetFrame {
+    // 1.点击缩放textView
+    if (self.clickedNum2 %2 == 0) {
+        self.txViewDetail.frame = CGRectMake(0, CGRectGetMaxY(self.lblDetail.frame)+5, SCREEN_WIDTH, self.size2.height+10);
+        
+    }else {
+        self.txViewDetail.frame = CGRectMake(0, CGRectGetMaxY(self.lblDetail.frame)+5, SCREEN_WIDTH, 60);
+    }
+    
+    // 2.重置选择按钮
+    [self.btn removeFromSuperview];
+    [self addSelectedDoctorBtn];
+    
+    // 3.设置scrollView的滚动范围
+    self.scrollView.contentSize = CGSizeMake(1, CGRectGetMaxY(self.btn.frame));
+    self.scrollView.contentInset = UIEdgeInsetsMake(64, 0, ZZMarins, 0);
+    
+    // 4.计数+1
+    self.clickedNum2 ++;
+}
+
+#pragma mark - 加载网络请求
+- (void)loadHttpRequest {
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/doctor_detail",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:_doctorID forKey:@"doctor_id"];
+    [params setObject:myAccount.token forKey:@"token"];
+    ZZLog(@"%@",params);
+    
+    __weak typeof(self) weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@">>>>>>>医生详情<<<<<<%@",responseObj);
+
+        _dictResult = responseObj[@"result"];
+        // 关注button图片
+        if ([_dictResult[@"favorite_flag"] isEqualToNumber:@1]) {
+            [weakSelf.attentionButton setImage:[UIImage imageNamed:@"doctorDetail_favorise_select"] forState:UIControlStateNormal];
+        }
+        // 1.设置医生头像
+        [weakSelf.iconView sd_setImageWithURL:[NSURL URLWithString:_dictResult[@"avator"]] placeholderImage:[UIImage imageNamed:@"icon08"]];
+        // 2.设置医生姓名
+        weakSelf.lblName.text = _dictResult[@"name"];
+        // 3.设置科室名称
+        weakSelf.lblDepart.text = _dictResult[@"department_name"];
+        // 4.设置医院名称
+        [weakSelf.hospitalButton setTitle:_dictResult[@"hospital_name"] forState:UIControlStateNormal];
+        // 5.设置医生擅长
+        if ([_dictResult[@"good_at"] isEqual:[NSNull null]]) {// 无内容
+            weakSelf.txViewGoodAt.text = nil;
+        } else {
+            weakSelf.txViewGoodAt.text = _dictResult[@"good_at"];
+        }
+        
+        // 5.1根据字体计算textView的高度
+        if ([_dictResult[@"good_at"] isEqual:[NSNull null]]) {// 无内容
+            weakSelf.size1 = CGSizeMake(SCREEN_WIDTH, 30);
+        } else {
+            weakSelf.size1 = [_dictResult[@"good_at"] boundingRectWithSize:CGSizeMake(SCREEN_WIDTH, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:13]} context:nil].size;
+        }
+
+        // 6.设置医生介绍
+        if ([_dictResult[@"memo"] isEqual:[NSNull null]]) {// 无内容
+            weakSelf.txViewDetail.text = nil;
+        } else {
+            weakSelf.txViewDetail.text = _dictResult[@"memo"];
+        }
+        
+        // 6.1根据字体计算textView的高度
+        if ([_dictResult[@"memo"] isEqual:[NSNull null]]) {// 无内容
+            weakSelf.size2 = CGSizeMake(SCREEN_WIDTH, 30);
+        } else {
+            weakSelf.size2 = [_dictResult[@"memo"] boundingRectWithSize:CGSizeMake(SCREEN_WIDTH, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:13]} context:nil].size;
+        }
+        
+        [OrderInfo shareInstance].hospital_id = _dictResult[@"hospital_id"];
+        [OrderInfo shareInstance].department_id = _dictResult[@"department_id"];
+        [OrderInfo shareInstance].doctor_id = _dictResult[@"id"];
+        [OrderInfo shareInstance].hospital_name = _dictResult[@"hospital_name"];
+        [OrderInfo shareInstance].department_name = _dictResult[@"department_name"];
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"%@",error);
+    }];
+}
+
+@end

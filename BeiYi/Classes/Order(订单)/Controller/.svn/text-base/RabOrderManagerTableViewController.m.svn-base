@@ -1,0 +1,276 @@
+//
+//  RabOrderManagerTableViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "RabOrderManagerTableViewController.h"
+#import "RabOrderManagerTableViewCell.h"
+#import "MJRefresh.h"
+#import "Common.h"
+#import "MyOrder.h"
+#import "RabOrderInfoViewController.h"
+#import "OrderInfo.h"
+
+@interface RabOrderManagerTableViewController ()<UITabBarControllerDelegate>
+
+@property (nonatomic, strong) NSMutableArray *rabOrders;
+
+@end
+
+@implementation RabOrderManagerTableViewController
+
+static NSString *const reuseIdentifity = @"rabOrderManager";
+
+// 重写初始化方法
+- (instancetype)initWithRabOrder_statu:(NSString *)rabOrder_status {
+    
+    if (self = [super init]) {
+        _rabOrder_statu = rabOrder_status;
+    }
+    return self;
+    
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 注册Cell
+    [self.tableView registerNib:[UINib nibWithNibName:@"RabOrderManagerTableViewCell" bundle:nil] forCellReuseIdentifier:reuseIdentifity];
+    
+    // 普通Header刷新
+    [self addHeaderRefresh];
+    
+    // 普通Footer刷新
+    [self addFooterRefresh];
+    
+    // 设置背景
+    self.tableView.backgroundColor = ZZBackgroundColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
+    // 开启刷新标识
+    [OrderInfo shareInstance].isUpLoading = YES;
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    // 使用单例帮助传值
+    if ([OrderInfo shareInstance].isUpLoading) {
+        [self.tableView.mj_header beginRefreshing];
+    }
+    
+}
+
+#pragma mark - UITabBarControllerDelegate
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+    
+    if (tabBarController.selectedIndex == 1) {
+        [OrderInfo shareInstance].isUpLoading = YES;
+        [self viewWillAppear:YES];
+    }
+    
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return self.rabOrders.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    RabOrderManagerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifity forIndexPath:indexPath];
+
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.myOrder = self.rabOrders[indexPath.row];
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    MyOrder *myorder = self.rabOrders[indexPath.row];
+    
+    RabOrderInfoViewController *rabOrderInfoVC = [[RabOrderInfoViewController alloc] init];
+    rabOrderInfoVC.order_code = myorder.order_code;
+    
+    [self.navigationController pushViewController:rabOrderInfoVC animated:YES];
+    
+}
+
+// cell高度
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 220;
+}
+
+#pragma mark - 普通Header刷新
+- (void)addHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.rabOrders removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadHeadHttpRequest];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_header endRefreshing];
+    }];
+    
+    // 4.首次进入页面马上进入刷新状态
+    [self.tableView.mj_header beginRefreshing];
+}
+
+#pragma mark - 普通Footer刷新
+- (void)addFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.加载网络请求
+        [weakSelf loadFooterHttpRequest];
+        
+        // 2.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_footer endRefreshing];
+    }];
+    
+}
+
+#pragma mark - 下拉刷新网络请求
+- (void)loadHeadHttpRequest {
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/grab_list",BASEURL];
+    
+    NSMutableDictionary *paras = [NSMutableDictionary dictionary];
+    [paras setObject:myAccount.token forKey:@"token"];
+    [paras setObject:@1 forKey:@"pn"]; // 页码
+    [paras setObject:self.rabOrder_statu forKey:@"order_statu"];// 订单状态
+    
+    __weak typeof(self) wSelf = self;
+    
+    [ZZHTTPTool post:urlStr params:paras success:^(NSDictionary *responseObj) {
+        ZZLog(@"抢单-responseObj--%@",responseObj);
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+        
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+            [wSelf.rabOrders removeAllObjects];
+            [wSelf.tableView reloadData];
+            [MBProgressHUD showError:@"没有订单" toView:wSelf.view];
+        }else {
+            NSMutableArray *tempArr = [NSMutableArray array];
+            
+            tempArr = [MyOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            wSelf.rabOrders = tempArr;
+            
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+            [wSelf.tableView reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:wSelf.view];
+    }];
+}
+
+#pragma mark - 上拉加载网络请求
+- (void)loadFooterHttpRequest {
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.发送网络请求
+    // 2.1准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/grab_list",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录传token
+    
+    /** 当前页码 */
+    NSUInteger currentPage = 0;
+    ZZLog(@"%ld",self.rabOrders.count);
+    if (self.rabOrders.count <10) {// 当首页显示的数量少于10就说明数据已经取光，直接让current的数值超过1
+        currentPage = 2;
+        
+    }else {
+        
+        if ((((CGFloat)(self.rabOrders.count) / (CGFloat)10)) - (self.rabOrders.count / 10) == 0) {
+            currentPage = self.rabOrders.count / 10 + 1;
+            ZZLog(@"%lu",currentPage);
+        }
+        if ((((CGFloat)(self.rabOrders.count) / (CGFloat)10)) - (self.rabOrders.count / 10) > 0) {
+            currentPage = self.rabOrders.count/10 +1;
+            ZZLog(@"%lu",currentPage);
+        }
+        
+    }
+    
+    [params setObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage] forKey:@"pn"];// 页码
+    [params setObject:self.rabOrder_statu forKey:@"order_statu"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.2发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"%@",params);
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+        
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"没有更多订单了哦" toView:weakSelf.view];
+        }else {
+            
+            NSMutableArray *tempArr = [NSMutableArray array];
+            
+            tempArr = [MyOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            [weakSelf.rabOrders addObjectsFromArray:tempArr];
+            
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [weakSelf.tableView reloadData];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma 懒加载
+- (NSMutableArray *)rabOrders {
+    
+    if (_rabOrders == nil) {
+        self.rabOrders = [NSMutableArray array];
+    }
+    return _rabOrders;
+    
+}
+
+
+@end

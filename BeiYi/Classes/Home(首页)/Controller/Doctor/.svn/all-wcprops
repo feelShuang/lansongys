@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor
+END
+DoctorLevels.plist
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/DoctorLevels.plist
+END
+HosDetailViewController.h
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/svn/!svn/ver/431/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/HosDetailViewController.h
+END
+DoctorDetail2Vc.m
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/!svn/ver/456/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/DoctorDetail2Vc.m
+END
+HosDetailViewController.m
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/svn/!svn/ver/431/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/HosDetailViewController.m
+END
+DoctorDetailController.h
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/DoctorDetailController.h
+END
+SelectDoctorVc.h
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/!svn/ver/427/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/SelectDoctorVc.h
+END
+DoctorDetailController.m
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/svn/!svn/ver/436/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/DoctorDetailController.m
+END
+HosDetailViewController.xib
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/svn/!svn/ver/431/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/HosDetailViewController.xib
+END
+DoctorDetail2Vc.h
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/DoctorDetail2Vc.h
+END
+SelectDoctorVc.m
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/!svn/ver/433/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Controller/Doctor/SelectDoctorVc.m
+END

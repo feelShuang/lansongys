@@ -1,0 +1,32 @@
+//
+//  RabOrderManagerTableViewCell.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/18.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyOrder.h"
+
+@interface RabOrderManagerTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *rabOrderStateLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *rabOrderTypeLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *doctorAvatarImageView;
+
+@property (weak, nonatomic) IBOutlet UILabel *doctorNameLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *hospitalNameLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *appointmentTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (nonatomic, strong) MyOrder *myOrder;
+
+//
+@property (nonatomic, copy) NSString *over_status;
+
+@end

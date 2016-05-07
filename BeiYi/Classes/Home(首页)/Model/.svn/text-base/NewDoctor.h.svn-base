@@ -1,0 +1,44 @@
+//
+//  Doctor.h
+//  JSDropDownMenuDemo
+//
+//  Created by Joe on 15/7/29.
+//  Copyright (c) 2015年 jsfu. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NewDoctor : NSObject
+
+/** 头像 */
+@property (nonatomic, copy) NSString *avator;
+
+/** 医院名称 */
+@property (nonatomic, copy) NSString *hospital_name;
+
+/** 医生id */
+@property (nonatomic, copy) NSString *doctor_id;
+
+/** 医生等级 */
+@property (nonatomic, copy) NSString *level;
+
+/** 医生擅长*/
+@property (nonatomic, copy) NSString *good_at;
+
+/** 科室id */
+@property (nonatomic, copy) NSString *department_id;
+
+/** 科室名称 */
+@property (nonatomic, copy) NSString *dept_name;
+
+/** 医院id */
+@property (nonatomic, copy) NSString *hospital_id;
+
+/** 医生姓名 */
+@property (nonatomic, copy) NSString *name;
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
+
++ (instancetype)newDoctorWithDict:(NSDictionary *)dict;
+
+@end

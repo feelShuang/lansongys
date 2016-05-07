@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AboutUSViewController">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="Xw2-8x-M3B">
+                    <rect key="frame" x="244" y="184" width="113" height="125"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="125" id="CgA-qP-x1v"/>
+                        <constraint firstAttribute="width" secondItem="Xw2-8x-M3B" secondAttribute="height" multiplier="226:250" id="KVb-F5-PTg"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="微信公众号：lansongys" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EEW-jg-pCW">
+                    <rect key="frame" x="241" y="496" width="119" height="14"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="网址：www.lansongys.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pAr-rA-KZF">
+                    <rect key="frame" x="231" y="474" width="140" height="14"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="客服电话：400-113-1150" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dnA-lT-ptK">
+                    <rect key="frame" x="237" y="452" width="129" height="14"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="版本号：V 1.0.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sdj-zf-PQl">
+                    <rect key="frame" x="252" y="405" width="99" height="17"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="EEW-jg-pCW" firstAttribute="top" secondItem="pAr-rA-KZF" secondAttribute="bottom" constant="8" id="0zA-3i-lv9"/>
+                <constraint firstItem="pAr-rA-KZF" firstAttribute="centerX" secondItem="EEW-jg-pCW" secondAttribute="centerX" id="1Z1-qI-2my"/>
+                <constraint firstAttribute="bottom" secondItem="EEW-jg-pCW" secondAttribute="bottom" constant="90" id="228-iw-nfi"/>
+                <constraint firstItem="pAr-rA-KZF" firstAttribute="top" secondItem="dnA-lT-ptK" secondAttribute="bottom" constant="8" id="3MW-7t-5sF"/>
+                <constraint firstItem="dnA-lT-ptK" firstAttribute="top" secondItem="Sdj-zf-PQl" secondAttribute="bottom" constant="30" id="4ur-Pt-617"/>
+                <constraint firstItem="EEW-jg-pCW" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="5fu-HJ-jGe"/>
+                <constraint firstItem="Sdj-zf-PQl" firstAttribute="centerX" secondItem="dnA-lT-ptK" secondAttribute="centerX" id="J9k-WE-sKo"/>
+                <constraint firstItem="Xw2-8x-M3B" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="a95-qD-PdW"/>
+                <constraint firstItem="Xw2-8x-M3B" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="184" id="ajm-D5-5D3"/>
+                <constraint firstItem="dnA-lT-ptK" firstAttribute="centerX" secondItem="pAr-rA-KZF" secondAttribute="centerX" id="prr-qK-lue"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="logo" width="113" height="125"/>
+    </resources>
+</document>

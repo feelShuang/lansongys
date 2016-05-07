@@ -1,0 +1,655 @@
+//
+//  SelectDoctorVc.m
+//  BeiYi
+//
+//  Created by Joe on 15/8/5.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#define SelectedTableViewHeight 44 *5
+
+#import "SelectDoctorVc.h"
+#import "Common.h"
+#import "NewDoctor.h"
+#import "Hospital.h"
+#import "NewDoctorCell.h"
+#import "DoctorDetailController.h"
+#import "Department.h"
+#import "ChildDepartment.h"
+#import "HomeController.h"
+#import "DoctorDetail2Vc.h"
+
+@interface DoctorLevels : NSObject
+/**
+ *  医生级别名称
+ */
+@property (nonatomic, copy) NSString *level_name;
+/**
+ *  医生级别id
+ */
+@property (nonatomic, copy) NSString *level_id;
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
++ (instancetype)levelWithDict:(NSDictionary *)dict;
+
+@end
+
+@implementation DoctorLevels
+
+- (instancetype)initWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        [self setValuesForKeysWithDictionary:dict];
+    }
+    return self;
+}
+
++ (instancetype)levelWithDict:(NSDictionary *)dict {
+    return [[self alloc] initWithDict:dict];
+}
+
+@end
+
+@interface SelectDoctorVc ()
+<UITableViewDataSource,UITableViewDelegate>
+/** UITableView 显示医生 */
+@property (nonatomic, strong) UITableView *tableView;
+
+/** UIView 背景遮盖 */
+@property (nonatomic, strong) UIView *tableBgView;
+
+/** UIButton 选择医院-按钮 */
+@property (nonatomic, strong) UIButton *btnHospital;
+/** int 记录 选择医院-按钮 点击次数*/
+@property (nonatomic, assign) int countHostital;
+/** UITableView 显示医院 */
+@property (nonatomic, strong) UITableView *tableHospital;
+
+/** UIButton 选择科室-按钮 */
+@property (nonatomic, strong) UIButton *btnDepart;
+/** int 记录 选择科室-按钮 点击次数*/
+@property (nonatomic, assign) int countDepart;
+/** UITableView 显示科室 */
+@property (nonatomic, strong) UITableView *tableDepart;
+/** UITableView 显示子科室 */
+@property (nonatomic, strong) UITableView *tableChildDepart;
+
+/** UIButton 选择医生级别-按钮 */
+@property (nonatomic, strong) UIButton *btnLevel;
+/** int 记录 选择医生级别-按钮 点击次数 */
+@property (nonatomic, assign) int countLevel;
+/** UITableView 显示医生级别 */
+@property (nonatomic, strong) UITableView *tableLevel;
+
+/** NSArray 医院名字 */
+@property (nonatomic, strong) NSArray *hos_name;
+/** NSArray 医院id */
+@property (nonatomic, strong) NSArray *hos_ids;
+
+/** NSArray 科室 */
+@property (nonatomic, strong) NSArray *departments;
+/** NSArray 子科室 */
+@property (nonatomic, strong) NSArray *childDepartments;
+/** NSArray 里面存放着若干个子科室的数据 */
+@property (nonatomic, strong) NSArray *anyChildDepartments;
+
+/** NSArray 医生级别 */
+@property (nonatomic, strong) NSArray *levels;
+
+/** NSArray 医生 */
+@property (nonatomic, strong) NSArray *doctors;
+
+@end
+
+@implementation SelectDoctorVc
+
+#pragma mark - 加载数据（医生等级）
+- (NSArray *)levels {
+    if (_levels == nil) {
+        NSArray *array = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"DoctorLevels" ofType:@"plist"]];
+        
+        NSMutableArray *temp = [NSMutableArray array];
+        for (NSDictionary *dict in array) {
+            DoctorLevels *level = [DoctorLevels levelWithDict:dict];
+            [temp addObject:level];
+        }
+        self.levels = temp;
+    }
+    return _levels;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 1.UI设置
+    self.title = @"请选择医生";
+    self.view.backgroundColor = ZZBackgroundColor;
+
+    // 2.tableView-Doctor添加
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64 + 44, SCREEN_WIDTH, SCREEN_HEIGHT - 64 - 44) style:UITableViewStylePlain];
+    self.tableView.tableFooterView = [[UIView alloc] init];
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    self.tableView.contentInset = UIEdgeInsetsMake(-64, 0, 0, 0);
+    [self.view addSubview:self.tableView];
+    
+    ZZLog(@"---DoctorLevels---%@",self.levels);
+    
+    [self addSelectButtons];
+    
+    // 3.根据下单类型加载网络请求，获取该类型下的全部医生
+    [self loadHTTPForDoctorWithOrderType:self.order_type HosID:@"0" Leval:@"0"];
+    
+    [self loadHTTPForHospital];
+
+    [self loadHTTPForDepartWithHosID:@"4"];
+}
+
+#pragma mark -
+#pragma mark 添加选择按钮
+- (void)addSelectButtons {
+    // 1.选择医院按钮
+    self.btnHospital = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.btnHospital.frame = CGRectMake(0, 64, SCREEN_WIDTH/3 -1, 44);
+    self.btnHospital.titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.btnHospital setTitle:@"全部医院" forState:UIControlStateNormal];
+    [self.btnHospital setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.btnHospital addTarget:self action:@selector(btnHospitalClicked) forControlEvents:UIControlEventTouchUpInside];
+    self.btnHospital.tag = 0;
+    [self.view addSubview:self.btnHospital];
+    
+    [ZZUITool lineVerticalWithPosition:CGPointMake(SCREEN_WIDTH/3, 64 +12) height:20 backGroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] superView:self.view];
+    
+    // 2.选择科室按钮
+    self.btnDepart = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.btnDepart.frame = CGRectMake(SCREEN_WIDTH/3, 64, SCREEN_WIDTH/3 -1, 44);
+    self.btnDepart.titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.btnDepart setTitle:@"全部科室" forState:UIControlStateNormal];
+    [self.btnDepart setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.btnDepart addTarget:self action:@selector(btnDepartClicked) forControlEvents:UIControlEventTouchUpInside];
+    self.btnHospital.tag = 0;
+    [self.view addSubview:self.btnDepart];
+    
+    [ZZUITool lineVerticalWithPosition:CGPointMake(SCREEN_WIDTH/3*2 -1, 64 +12) height:20 backGroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] superView:self.view];
+    
+    // 3.选择医生级别按钮
+    self.btnLevel = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.btnLevel.frame = CGRectMake(SCREEN_WIDTH/3*2, 64, SCREEN_WIDTH/3, 44);
+    self.btnLevel.titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.btnLevel setTitle:@"筛选" forState:UIControlStateNormal];
+    [self.btnLevel setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.btnLevel addTarget:self action:@selector(btnLevelClicked) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.btnLevel];
+}
+
+#pragma mark 监听 选择医院按钮 点击事件
+- (void)btnHospitalClicked {
+    
+    [self removeBgView];
+    
+    _countHostital ++;
+
+    if (_countHostital%2) {
+        [self addBgView];// 添加遮盖
+        // 添加医院 tableView
+        self.tableHospital = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SelectedTableViewHeight) style:UITableViewStylePlain];
+        self.tableHospital.delegate = self;
+        self.tableHospital.dataSource = self;
+        [self.tableBgView addSubview:self.tableHospital];
+        
+    }else {
+        [self removeBgView];// 移除遮盖
+    }
+    
+}
+
+#pragma mark 监听 选择科室按钮 点击事件
+- (void)btnDepartClicked {
+    ZZLog(@"--_countDepart--%d",_countDepart);
+    
+    [self removeBgView];
+
+    if (self.btnHospital.tag == 0) {
+        [MBProgressHUD showError:@"请先选择医院"];
+    
+    }else if (self.anyChildDepartments.count == 0) {
+        [MBProgressHUD showError:@"该医院缺少医生数据"];
+    
+    }else {
+        _countDepart ++;
+        
+        if (_countDepart%2) {
+            [self addBgView];// 添加遮盖
+            // 添加科室 tableview
+            self.tableDepart = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH*0.4, SelectedTableViewHeight) style:UITableViewStylePlain];
+            self.tableDepart.tableFooterView = [[UIView alloc] init];
+            self.tableDepart.delegate = self;
+            self.tableDepart.dataSource = self;
+            self.tableDepart.separatorStyle = UITableViewCellSeparatorStyleNone;
+            [self.tableBgView addSubview:self.tableDepart];
+            
+            // 添加子科室 tableview
+            self.tableChildDepart= [[UITableView alloc] initWithFrame:CGRectMake(SCREEN_WIDTH*0.4 +1, 0, SCREEN_WIDTH*0.6-1, SCREEN_HEIGHT/3) style:UITableViewStylePlain];
+            self.tableChildDepart.delegate = self;
+            self.tableChildDepart.dataSource = self;
+            self.tableChildDepart.tableFooterView = [[UIView alloc] init];
+            self.tableChildDepart.separatorStyle = UITableViewCellSeparatorStyleNone;
+            [self.tableBgView addSubview:self.tableChildDepart];
+            
+            // 添加分割线
+            [ZZUITool lineVerticalWithPosition:CGPointMake(SCREEN_WIDTH*0.4, 0) height:self.tableDepart.contentSize.height backGroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.05] superView:self.tableBgView];
+            
+        }else {
+            [self removeBgView];// 移除遮盖
+        }
+    }
+}
+
+#pragma mark 监听 选择医生级别按钮 点击事件
+- (void)btnLevelClicked {
+    [self removeBgView];
+
+    _countLevel ++;
+    
+    if (_countLevel%2) {
+        [self addBgView];// 添加遮盖
+        // 添加医院 tableView
+        self.tableLevel = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SelectedTableViewHeight) style:UITableViewStylePlain];
+        self.tableLevel.delegate = self;
+        self.tableLevel.dataSource = self;
+        [self.tableBgView addSubview:self.tableLevel];
+        
+    }else {
+        [self removeBgView];// 移除遮盖
+    }
+}
+
+#pragma mark 添加遮盖
+/** 添加遮盖（遮盖上添加tableView）*/
+- (void)addBgView {
+    self.tableBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 64 +44, SCREEN_WIDTH, SCREEN_HEIGHT)];
+    _tableBgView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+    
+    UIView *clickedHiddenView = [ZZUITool viewWithframe:CGRectMake(0, SelectedTableViewHeight, SCREEN_WIDTH, SCREEN_HEIGHT -SelectedTableViewHeight) backGroundColor:self.tableBgView.backgroundColor superView:self.tableBgView];
+    
+    [clickedHiddenView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(removeBgView)]];
+    
+    [self.view addSubview:_tableBgView];
+}
+
+#pragma mark 移除遮盖
+/** 移除遮盖 */
+- (void)removeBgView {
+    [self.tableBgView removeFromSuperview];
+    self.tableBgView = nil;
+    
+    self.countHostital = 0;
+    self.countDepart = 0;
+    self.countLevel = 0;
+
+}
+
+#pragma mark -
+#pragma mark 加载网络请求获取医院
+- (void)loadHTTPForHospital {
+    // 1.添加遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/hospitals",BASEURL];
+    
+    __weak typeof(self) weakSelf = self;
+
+    [ZZHTTPTool get:urlStr params:nil success:^(id responseObj) {
+        // 1.隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view];
+//        ZZLog(@"---%@",responseObj);
+    
+        // 2.加载医院列表
+        NSMutableArray *array = [NSMutableArray array];
+        for (NSDictionary *dict in responseObj[@"result"]) {
+            Hospital *hospital = [Hospital hospitalWithDict:dict];
+            [array addObject:hospital];
+        }
+        
+        NSMutableArray *tempHos = [NSMutableArray array];// 医院名称
+        [tempHos addObject:@"全部医院"];
+        for (Hospital *hos in array) {
+            [tempHos addObject:hos.short_name];
+        }
+        // 刷新tableView
+        weakSelf.hos_name = tempHos;
+        [weakSelf.tableHospital reloadData];
+        
+        NSMutableArray *tempHos_ids = [NSMutableArray array];// 医院id
+        [tempHos_ids addObject:@"0"];// 全部医院
+        for (Hospital *hos in array) {
+            [tempHos_ids addObject:hos.hospital_id];
+        }
+        // 赋值
+        weakSelf.hos_ids = tempHos_ids;
+
+
+    } failure:^(NSError *error) {
+        [MBProgressHUD showError:@"请检查您的网络" toView:weakSelf.view];
+        ZZLog(@"---%@",error);
+        
+    }];
+}
+
+#pragma mark 加载网络请求获取科室（根据医院id）
+- (void)loadHTTPForDepartWithHosID:(NSString *)hos_id {
+    // 准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/departments",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setValue:hos_id forKey:@"hospital_id"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"---%@",responseObj);
+        
+        // 1.准备数据，刷新科室列表
+        NSMutableArray *arrDeptname= [NSMutableArray array]; // 存储科室名称 的数组
+        NSMutableArray *arrChildList = [NSMutableArray array]; // 存储子科室模型数组 的数组
+        
+        for (NSDictionary *dict in responseObj[@"result"]) {
+            Department *depart = [Department departWithDict:dict];
+            [arrDeptname addObject:depart.dept_name];
+            [arrChildList addObject:depart.childList];
+        }
+        weakSelf.departments = arrDeptname;
+        [weakSelf.tableDepart reloadData];
+        
+        weakSelf.anyChildDepartments = arrChildList;
+        
+        ZZLog(@"---科室名称---%@",arrDeptname);
+        ZZLog(@"---子科室名称---%@",arrChildList);
+        ZZLog(@"---子科室名称个数---%lu",(unsigned long)arrChildList.count);
+
+        
+    } failure:^(NSError *error) {
+        [MBProgressHUD showError:@"请检查您的网络" toView:self.view];
+        ZZLog(@"---%@",error);
+        
+    }];
+    
+}
+
+#pragma mark 根据下单类型加载网络请求，获取该类型下的全部医生（根据医院id 和 医生等级level）
+- (void)loadHTTPForDoctorWithOrderType:(NSString *)orderType HosID:(NSString *)hos_id Leval:(NSString *)level {
+    // 1.添加遮盖
+//    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/doctor_list",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setValue:hos_id forKey:@"hospital_id"]; // 1.医院ID
+    [params setValue:@"0" forKey:@"department_id"]; // 2.科室ID
+    [params setValue:level forKey:@"level"]; // 3.等级筛选
+    [params setValue:@"1" forKey:@"pn"]; // 4.页码
+    [params setValue:self.filterIDs forKey:@"filter_doctor_id"];// 过滤的医生ID
+    [params setObject:orderType forKey:@"order_type"];
+
+    __weak typeof(self) weakSelf = self;
+
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"---%@",responseObj);
+        
+        // 1.隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view];
+        
+        // 2.加载医生列表
+        if ([responseObj[@"code"] isEqualToString:@"0000"]) {// 数据加载成功
+            NSArray *arr = responseObj[@"result"][@"dataList"];
+            
+            if (arr.count == 0) {// 数组数量为0
+                [MBProgressHUD showError:@"该医院未添加医生"];
+                
+            }
+            NSMutableArray *temp = [NSMutableArray array];
+            for (NSDictionary *dict in arr) {
+                NewDoctor *doctor = [NewDoctor newDoctorWithDict:dict];
+                [temp addObject:doctor];
+            }
+            
+            weakSelf.doctors = temp;
+            ZZLog(@"---doctors---%@",weakSelf.doctors);
+            
+            [weakSelf.tableView reloadData];
+
+        }else {// 数据加载失败
+        // 1.隐藏遮盖
+//            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:responseObj[@"message"]];
+        }
+
+    } failure:^(NSError *error) {
+        [MBProgressHUD showError:@"请检查您的网络" toView:self.view];
+        ZZLog(@"---%@",error);
+
+    }];
+}
+
+#pragma mark 加载网络请求获取医生（根据医院id和子科室id）
+- (void)loadHTTPForDoctorWithHosID:(NSString *)hos_id DepartID:(NSString *)dept_id Leval:(NSString *)level{
+    //    [MBProgressHUD showMessage:@"加载中..."];
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/resource/doctor_list",BASEURL];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    [dict setObject:hos_id forKey:@"hospital_id"];
+    [dict setObject:dept_id forKey:@"department_id"];
+    [dict setValue:level forKey:@"level"];
+    [dict setValue:@"1" forKey:@"pn"];
+    [dict setValue:self.filterIDs forKey:@"filter_doctor_id"];// 过滤的医生ID
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:dict success:^(NSDictionary *responseDict) {
+        ZZLog(@"----responseDict---%@", responseDict);
+        
+        // 加载医生列表
+        if ([responseDict[@"code"] isEqualToString:@"0000"]) {// 数据加载成功
+            NSArray *arr = responseDict[@"result"][@"dataList"];
+            
+            if (arr.count == 0) {// 数组数量为0
+                [MBProgressHUD showError:@"该科室缺乏对应的医生"];
+                
+            }
+            NSMutableArray *temp = [NSMutableArray array];
+            for (NSDictionary *dict in arr) {
+                NewDoctor *doctor = [NewDoctor newDoctorWithDict:dict];
+                [temp addObject:doctor];
+            }
+            
+            weakSelf.doctors = temp;
+            ZZLog(@"---doctors---%@",weakSelf.doctors);
+            
+            [weakSelf.tableView reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"%@",error);
+        
+        // 1.隐藏遮盖
+        [MBProgressHUD hideHUD];
+        [MBProgressHUD showError:@"请检查您的网络"];
+    }];
+}
+
+#pragma mark - TableViewDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (tableView == self.tableHospital) {
+        return self.hos_name.count;
+    
+    }else if (tableView == self.tableDepart) {
+        return self.departments.count;
+    
+    }else if (tableView == self.tableChildDepart) {
+        return self.childDepartments.count;
+    
+    }else if (tableView == self.tableLevel) {
+        return self.levels.count;
+    
+    }else {
+        return self.doctors.count;
+
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (tableView == self.tableHospital) {
+        static NSString *ID = @"hosNameCell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+        if (cell == nil) {
+            cell
+            = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        }
+        cell.textLabel.text = self.hos_name[indexPath.row];
+        cell.textLabel.font = [UIFont systemFontOfSize:14]
+        ;
+        return cell;
+        
+    }else if (tableView == self.tableDepart) {
+        static NSString *ID = @"departNameCell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+        if (cell == nil) {
+            cell
+            = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        }
+        UIView *backLine = [[UIView alloc] initWithFrame:CGRectMake(0, cell.frame.size.height -1, cell.frame.size.width, 1)];
+        backLine.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+        [cell.contentView addSubview:backLine];
+        
+        cell.textLabel.text = self.departments[indexPath.row];
+        cell.textLabel.font = [UIFont systemFontOfSize:14]
+        ;
+        return cell;
+        
+    }else if (tableView == self.tableChildDepart) {
+        ChildDepartment *childDepart = self.childDepartments[indexPath.row];
+        
+        static NSString *ID = @"childDepartNameCell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+        if (cell == nil) {
+            cell
+            = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        }
+        UIView *backLine = [[UIView alloc] initWithFrame:CGRectMake(0, cell.frame.size.height -1, cell.frame.size.width, 1)];
+        backLine.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+        [cell.contentView addSubview:backLine];
+        cell.textLabel.text = childDepart.dept_name;
+        cell.textLabel.font = [UIFont systemFontOfSize:14]
+        ;
+        return cell;
+        
+    }else if (tableView == self.tableLevel) {
+        DoctorLevels *level = self.levels[indexPath.row];
+        static NSString *ID = @"levelsCell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+        if (cell == nil) {
+            cell
+            = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        }
+        cell.textLabel.text = level.level_name;
+        cell.textLabel.font = [UIFont systemFontOfSize:14]
+        ;
+        return cell;
+        
+    }else {
+        NewDoctorCell *cell = [NewDoctorCell cellWithTableView:tableView];
+        cell.doctor = self.doctors[indexPath.row];
+        return cell;
+    }
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (tableView == self.tableView) {
+        return 63;
+        
+    }else {
+        return 44;
+        
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (tableView == self.tableHospital) {  // 医院
+        // 0.更改科室内容
+        [self.btnDepart setTitle:@"全部科室" forState:UIControlStateNormal];
+        
+        // 1.更改按钮标题/更改按钮tag值
+        [self.btnHospital setTitle:self.hos_name[indexPath.row] forState:UIControlStateNormal];
+        self.btnHospital.tag = [self.hos_ids[indexPath.row] integerValue];
+        
+        // 2.移除遮盖
+        [self removeBgView];
+        
+        // 3.筛选医生(根据医院id),刷新主tableView
+        [self loadHTTPForDoctorWithOrderType:self.order_type HosID:self.hos_ids[indexPath.row] Leval:@"0"]; // leval == 0 代表全部等级
+        
+        [self.tableView reloadData];
+        
+        // 4.加载科室列表
+        [self loadHTTPForDepartWithHosID:self.hos_ids[indexPath.row]];
+        
+    }else if (tableView == self.tableDepart) { // 科室
+        if (self.anyChildDepartments.count) {
+            self.childDepartments = self.anyChildDepartments[indexPath.row];
+            [self.tableChildDepart reloadData];
+        
+        }else {
+            [MBProgressHUD showError:@"缺少数据"];
+            
+        }
+        
+    }else if (tableView == self.tableChildDepart) { // 子科室
+        ChildDepartment *childDepart = self.childDepartments[indexPath.row];
+        
+        // 1.更改按钮标题
+        [self.btnDepart setTitle:childDepart.dept_name forState:UIControlStateNormal];
+        self.btnDepart.tag = childDepart.childList_id;
+        
+        // 2.移除遮盖
+        [self removeBgView];
+        
+        // 3.筛选医生(根据医院id和子科室id),刷新主tableView
+        [self loadHTTPForDoctorWithHosID:[NSString stringWithFormat:@"%ld",(long)self.btnHospital.tag] DepartID:[NSString stringWithFormat:@"%d",childDepart.childList_id] Leval:@"0"];
+    
+    }else if (tableView == self.tableLevel) { // 级别
+        DoctorLevels *level = self.levels[indexPath.row];
+        
+        // 1.更改按钮标题
+        [self.btnLevel setTitle:level.level_name forState:UIControlStateNormal];
+        
+        // 2.移除遮盖
+        [self removeBgView];
+        
+        // 3.筛选医生(根据医生级别),刷新主tableView
+        [self loadHTTPForDoctorWithHosID:[NSString stringWithFormat:@"%lu",self.btnHospital.tag] DepartID:[NSString stringWithFormat:@"%lu",self.btnDepart.tag] Leval:level.level_id];
+        
+    }else {
+        // 取消选中状态
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        NewDoctor *doctor = self.doctors[indexPath.row];
+        
+        if ([[self.navigationController.viewControllers objectAtIndex:0] isKindOfClass:[HomeController class]]) {// 进入的是不同的界面（医生详情界面有差异）
+            
+            //跳转到医生详情界面
+            DoctorDetailController *doctorVc = [[DoctorDetailController alloc] init];
+            doctorVc.doctorID = doctor.doctor_id;
+            [self.navigationController pushViewController:doctorVc animated:YES];
+            
+        }else {
+            DoctorDetail2Vc *doctorDetail2Vc = [[DoctorDetail2Vc alloc] init];
+            doctorDetail2Vc.doctorID = doctor.doctor_id;
+            [self.navigationController pushViewController:doctorDetail2Vc animated:YES];
+        }
+
+    }
+}
+
+@end

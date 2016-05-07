@@ -1,0 +1,35 @@
+//
+//  PatientCell.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class Patient,PatientCell;
+
+/** PatientCell代理 */
+@protocol PatientCellDelegate <NSObject>
+
+@optional
+/** 监听 编辑按钮 点击 */
+- (void)patientCell:(PatientCell *)patientCell btnEditDidClicked:(UIButton *)btn;
+
+/** 监听 删除按钮 点击 */
+- (void)patientCell:(PatientCell *)patientCell btnDeleteDidClicked:(UIButton *)btn;
+@end
+
+/** 自定义 就诊人Cell */
+@interface PatientCell : UITableViewCell
+
+/** 通过一个tableView来创建一个cell */
++ (instancetype)cellWithTableView:(UITableView *)tableView;
+
+/**  就诊人 模型 */
+@property (nonatomic, strong) Patient *patient;
+
+/**  代理 */
+@property (nonatomic, weak) id<PatientCellDelegate> delegate;
+
+@end

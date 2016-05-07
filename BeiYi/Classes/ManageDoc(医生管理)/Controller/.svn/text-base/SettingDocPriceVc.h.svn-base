@@ -1,0 +1,30 @@
+//
+//  SettingDocPriceVc.h
+//  BeiYi
+//
+//  Created by Joe on 15/12/30.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SettingDocPriceVc : UIViewController
+/**
+ *  NSString 服务类型 设置UI
+ */
+@property (nonatomic, copy) NSString *typeNum;
+
+@property (nonatomic, copy) NSString *price1;
+
+@property (nonatomic, copy) NSString *price2;
+
+// 医院ID
+@property (nonatomic, copy) NSString *hospital_id;
+// 科室ID
+@property (nonatomic, copy) NSString *department_id;
+// 医生ID
+@property (nonatomic, copy) NSString *doctor_id;
+// 用来区别设置医院还是设置医生
+@property (nonatomic, assign) NSInteger controllerID;
+
+@end

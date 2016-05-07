@@ -1,0 +1,20 @@
+//
+//  DoctorDetailController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/19.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  医生详情界面
+ */
+@interface DoctorDetailController : UIViewController
+/**
+ *  医生ID(NSString)
+ */
+@property (nonatomic, copy) NSString *doctorID;
+
+
+@end

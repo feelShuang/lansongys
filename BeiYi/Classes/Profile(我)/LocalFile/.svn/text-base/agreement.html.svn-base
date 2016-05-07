@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"></meta>
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>服务协议</title>
+    <style>
+        .p-about {
+        font-size: .6rem;
+        padding: .5rem .5rem;
+        color: #394659;
+        }
+
+        .p-about .my-head {
+        padding: .5rem 0;
+        font-size: .65rem;
+        font-weight: bold;
+        text-align: center;
+        }
+
+        .p-about .content1 {
+        text-indent: 2em;
+        }
+    </style>
+    <link rel="stylesheet" href="content.css"/>
+</head>
+
+<body>
+<div class="p-about">
+    <div class="content1">
+    </div>
+    <div class="content1"> 蓝松医生是基于互联网，以包含蓝松医生平台网站、客户端等在内的各种形态（包括未来技术发展出现的新的服务形态）向您提供的各项服务。</div>
+    <div class="content1">
+        蓝松医生平台招募并培训专业工作人员成为蓝松医生平台经纪人，登记备案并点击确认选项确认签订本协议，经纪人即为服务方。平台方基于先进的信息集散技术，构建了用户服务信息收集、推送、反馈的医患资源对接平台，并根据用户的指令，将求医服务需求信息有偿提供给服务方，最终撮合服务方与用户之间订立求医服务合同。
+    </div>
+    <div class="content1"> 服务方愿有偿使用平台方提供的信息服务并向用户提供安排符合其要求的医生诊疗的服务。</div>
+    <div class="content1"> 服务方应当按订单内容为用户提供安排医生诊疗的服务。如果在服务过程中出现服务问题、中途取消服务等情况，平台方有权扣除相关费用，并对用户作出一定补偿。
+        平台方应当积极地为用户和服务方提供信息服务，促使服务合同的达成。
+    </div>
+    <div class="content1">服务方的权利义务： 服务方保证其为用户服务过程中遵守以下规定：</div>
+    <div class="content1"> a.不得在服务过程中侵犯用户的人身、财产安全。</div>
+    <div class="content1"> b.不得从事违法犯罪活动。</div>
+    <div class="content1"> c.电话沟通中文明礼貌，不使用脏话，规范服务。</div>
+    <div class="content1"> d.接受平台方不定期的培训与服务规范制度。</div>
+</div>
+</body>
+
+</html>

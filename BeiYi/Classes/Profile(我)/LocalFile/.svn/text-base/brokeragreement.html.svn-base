@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"></meta>
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>服务协议</title>
+    <style>
+        .default-load-area {
+        position: absolute;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        font-size: 0.7rem;
+        left: 0;
+        top: 0;
+        }
+
+        .default-load-area div {
+        width: 100%;
+        margin-top: -2rem;
+        }
+
+        .default-load-area div p {
+        padding-top: 0.6rem;
+        }
+    </style>
+    <style>
+        .p-about {
+        font-size: .6rem;
+        padding: 0 .8rem;
+        color: #394659;
+        }
+
+        .p-about .my-head {
+        padding: .5rem 0;
+        font-size: .65rem;
+        font-weight: bold;
+        text-align: center;
+        }
+
+        .p-about .content1 {
+        text-indent: 2em;
+        }
+    </style>
+    <link rel="stylesheet" href="xcontent.css"/>
+</head>
+
+<body>
+<div class="p-about">
+    <div class="my-head">服务协议</div>
+    <div class="content1">蓝松医生：域名为www.lansongys.com的网站及客户端，是蓝松医生的单称或合称，指杭州贝医科技有限公司旗下所有服务内容。
+    </div>
+    <div class="content1">
+        蓝松医生是基于互联网，以包含蓝松医生平台网站、客户端等在内的各种形态（包括未来技术发展出现的新的服务形态）向您提供的各项服务。蓝松医生本身并不进行实际诊疗，收取的费用不包含医院所需的任何费用。
+    </div>
+    <div class="content1">【账户获得】当您按照注册页面提示填写信息、阅读并同意本协议且完成全部注册程序后，您可获得蓝松医生账户并成为蓝松医生用户。</div>
+    <div class="content1">
+        【账户使用】您有权使用您设置或确认的蓝松医生会员名、邮箱、手机号码（以下简称“账户名称”）及您设置的密码（账户名称及密码合称“账户”）登录壹宝。您有权使用您的蓝松医生账户登录蓝松医生而无需另行设置账户。
+    </div>
+    <div class="content1">【账户转让】您的账户不得以任何方式转让，否则由此产生的一切责任均由您承担。</div>
+    <div class="content1">【
+        账户回收】如您的账户严重违反蓝松医生的相关规则（规则见平台方各类公告），则蓝松医生平台可回收您的账户，您的账户将不能再登录蓝松医生，相应服务同时终止。
+        不同的医生和不同的医疗服务品种会有价格浮动，用户同意，具体服务费用以根据上述收费标准算得并告知用户的最终报价为准。
+    </div>
+    <div class="content1">
+        用户使用现金或通过蓝松医生指定的第三方电子支付系统向平台支付服务费用，平台招募并培训专业工作人员成为平台经纪人（即：服务方），平台方与服务方根据其双方之间另行签订的合作协议相关约定分别从中扣划或收取平台运营管理费用和服务费等项目。
+    </div>
+    <div class="content1"> 请尊重医生的服务，务必按约定的服务内容包括但不局限于时间与地点就诊。</div>
+</div>
+</body>
+
+</html>

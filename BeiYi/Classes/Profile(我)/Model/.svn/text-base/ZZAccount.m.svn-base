@@ -1,0 +1,57 @@
+//
+//  ZZAccount.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/20.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "ZZAccount.h"
+
+@implementation ZZAccount
+
++ (instancetype)accountWithDict:(NSDictionary *)dict {
+    ZZAccount *account = [[self alloc] init];
+//    account.nickName = dict[@"nickName"];
+    account.mobile = dict[@"mobile"];
+    account.userId = dict[@"userId"];
+    account.loginName = dict[@"loginName"];
+    account.token = dict[@"token"];
+    account.offer = [dict[@"offer"] boolValue];
+    account.hospitalList = dict[@"hospitalList"];
+
+    return account;
+}
+
+/**
+ *  当从文件中解析出一个对象的时候调用
+ *  在这个方法中写清楚：怎么解析文件中的数据
+ */
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super init]) {
+//        self.nickName = [aDecoder decodeObjectForKey:@"nickName"];
+        self.mobile = [aDecoder decodeObjectForKey:@"mobile"];
+        self.userId = [aDecoder decodeObjectForKey:@"userId"];
+        self.loginName = [aDecoder decodeObjectForKey:@"loginName"];
+        self.token = [aDecoder decodeObjectForKey:@"token"];
+        self.offer = [aDecoder decodeBoolForKey:@"offer"];
+        self.hospitalList = [aDecoder decodeObjectForKey:@"hospitalList"];
+    }
+    return self;
+}
+
+/**
+ *  将对象写入文件的时候调用
+ *  在这个方法中写清楚：要存储哪些对象的哪些属性，以及怎样存储属性
+ */
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+//    [aCoder encodeObject:self.nickName forKey:@"nickName"];
+    [aCoder encodeObject:self.mobile forKey:@"mobile"];
+    [aCoder encodeObject:self.userId forKey:@"userId"];
+    [aCoder encodeObject:self.loginName forKey:@"loginName"];
+    [aCoder encodeObject:self.token forKey:@"token"];
+    [aCoder encodeBool:self.offer forKey:@"offer"];
+    [aCoder encodeObject:self.hospitalList forKey:@"hospitalList"];
+}
+
+@end

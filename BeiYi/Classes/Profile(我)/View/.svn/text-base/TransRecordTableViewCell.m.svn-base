@@ -1,0 +1,40 @@
+//
+//  TransRecordTableViewCell.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/17.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "TransRecordTableViewCell.h"
+#import "Record.h"
+
+@implementation TransRecordTableViewCell
+
+- (void)setRecord:(Record *)record {
+    _record = record;
+    
+    self.date1Label.text = record.date1;
+    self.date2Label.text = record.date2;
+    if ([record.flow_type isEqualToString:@"1"]) {
+        self.priceLabel.text = [NSString stringWithFormat:@"+%@.00",record.price];
+    }
+    else {
+        self.priceLabel.text = [NSString stringWithFormat:@"-%@.00",record.price];
+    }
+    self.recordMemoLabel.text = record.flow_memo;
+    self.recordCodeLabel.text = [NSString stringWithFormat:@"交易号:%@",record.trader_code];
+    
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

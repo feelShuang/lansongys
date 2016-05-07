@@ -1,0 +1,20 @@
+//
+//  RabOrderManagerTableViewController.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RabOrderManagerTableViewController : UITableViewController
+
+// 订单状态
+@property (nonatomic, copy) NSString *rabOrder_statu;
+
+
+// 重写初始化方法
+- (instancetype)initWithRabOrder_statu:(NSString *)rabOrder_status;
+
+@end

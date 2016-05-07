@@ -1,0 +1,312 @@
+//
+//  LoginController.m
+//  BeiYi
+//
+//  Created by Joe on 15/4/20.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "LoginController.h"
+#import "Common.h"
+#import "UIBarButtonItem+Extension.h"
+#import "RegisteController.h"
+#import "ForgetController.h"
+#import "ZZTabBarController.h"
+#import "ProfileController.h"
+#import "Md5Coder.h"
+#import <AdSupport/ASIdentifierManager.h>
+#import "Avatar.h"
+#import "APService.h"
+#import "UIImageView+WebCache.h"
+
+@interface LoginController()<UITextFieldDelegate>
+@property (nonatomic, strong) UITextField *textPhone;
+@property (nonatomic, strong) UITextField *textPwd;
+
+@end
+@implementation LoginController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    // 1.设置导航栏右侧按钮
+    [self setRightButton];
+    
+    // 2.设置剩下的UI
+    [self setUpLeftUI];
+    
+}
+
+#pragma mark - 设置导航栏右侧按钮
+- (void)setRightButton {
+    // 1.设置基本信息
+    self.view .backgroundColor = ZZBackgroundColor;
+    self.title = @"用户登录";
+    
+    // 2.设置导航栏右侧按钮
+    UIButton *btnRegister = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnRegister.frame = CGRectMake(270, 0, 60, 40);
+    [btnRegister setTitle:@"注册" forState:UIControlStateNormal];
+    btnRegister.titleLabel.font = [UIFont systemFontOfSize:15];
+    [btnRegister setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnRegister setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    [btnRegister addTarget:self action:@selector(gotoRegist) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btnRegister];
+}
+
+#pragma mark - 监听按钮点击---跳转到注册界面
+- (void)gotoRegist {
+    RegisteController *registeVc = [[RegisteController alloc] init];
+    [self.navigationController pushViewController:registeVc animated:YES];
+}
+
+#pragma mark - 设置余下的UI
+- (void)setUpLeftUI {
+    
+    // 1.主视图
+    CGFloat loginViewY = 64;
+    CGFloat loginViewWidth = SCREEN_WIDTH;
+    CGFloat loginViewHeight = SCREEN_HEIGHT/6;
+    UIView *loginView = [[UIView alloc] initWithFrame:CGRectMake(0, loginViewY, loginViewWidth, loginViewHeight)];
+    loginView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:loginView];
+    
+    
+    // 2.图标
+    CGFloat marinX = ZZMarins *0.8;
+    CGFloat marinY = ZZMarins *0.8;
+    CGFloat imgWidth = ZZMarins *0.85;
+    CGFloat imgHeight = loginViewHeight/2-marinY *2;
+    UIImageView *img1 = [[UIImageView alloc] initWithFrame:CGRectMake(marinX, marinY, imgWidth, imgHeight)];
+    UIImageView *img2 = [[UIImageView alloc] initWithFrame:CGRectMake(marinX, loginViewHeight/2 +marinY, imgWidth, imgHeight)];
+    img1.image = [UIImage imageNamed:@"login01"];
+    img2.image = [UIImage imageNamed:@"login02"];
+    [loginView addSubview:img1];
+    [loginView addSubview:img2];
+    
+    // 3.分割线
+    CGFloat lineX = imgWidth +2*marinX;
+    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(lineX, (loginViewHeight-1)/2 +1, loginViewWidth-lineX*1.5, 0.7)];
+    lineView.backgroundColor = [UIColor lightGrayColor];
+    [loginView addSubview:lineView];
+    
+    // 4.textField:输入号码，密码
+    UITextField *textPhone = [[UITextField alloc] initWithFrame:CGRectMake(lineX, ZZMarins/1.5 + 3, loginView.frame.size.width - lineX, imgHeight)];
+    textPhone.delegate = self;
+    textPhone.font = [UIFont systemFontOfSize:15];
+    textPhone.placeholder = @"请输入手机号";
+    textPhone.clearButtonMode = UITextFieldViewModeWhileEditing;
+    textPhone.keyboardType = UIKeyboardTypeNumberPad;
+    [loginView addSubview:textPhone];
+    self.textPhone = textPhone;
+    
+    UITextField *textPwd = [[UITextField alloc] initWithFrame:CGRectMake(lineX, loginViewHeight/2+ZZMarins/1.5 + 3, loginView.frame.size.width - lineX, imgHeight)];
+    textPwd.font = [UIFont systemFontOfSize:15];
+    textPwd.placeholder = @"请输入密码";
+    textPwd.secureTextEntry = YES; // 密文显示
+    textPwd.clearsOnBeginEditing = YES;// 再次编辑就清空
+    textPwd.clearButtonMode = UITextFieldViewModeWhileEditing;
+    textPwd.keyboardType = UIKeyboardTypeTwitter;
+    [loginView addSubview:textPwd];
+    self.textPwd = textPwd;
+    
+    
+    // 5.登录按钮
+    UIButton *btnLogin = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btnLogin.frame = CGRectMake(ZZMarins,  CGRectGetMaxY(loginView.frame) +ZZMarins, SCREEN_WIDTH -2*ZZMarins, ZZBtnHeight);
+    btnLogin.backgroundColor = ZZButtonColor;
+    [btnLogin addTarget:self action:@selector(login) forControlEvents:UIControlEventTouchUpInside];
+    [btnLogin setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnLogin setTitle:@"登  录" forState:UIControlStateNormal];
+    btnLogin.layer.cornerRadius = 3.0f;
+    [self.view addSubview:btnLogin];
+    
+    
+    // 7 忘记密码按钮
+    UIButton *btnForget = [UIButton buttonWithType:UIButtonTypeCustom];
+    CGFloat btnForgetW=ZZMarins *4;
+    CGFloat btnForgetX=SCREEN_WIDTH -btnForgetW -ZZMarins/2;
+    CGFloat btnForgetY=CGRectGetMaxY(btnLogin.frame) +ZZMarins*0.7;
+    CGFloat btnForgetH=ZZMarins;
+    btnForget.frame = CGRectMake(btnForgetX, btnForgetY, btnForgetW, btnForgetH);
+    [btnForget addTarget:self action:@selector(forgetPassWord) forControlEvents:UIControlEventTouchUpInside];
+    btnForget.titleLabel.textAlignment = NSTextAlignmentRight;// 按钮文字右对齐
+    [btnForget setTitle:@"忘记密码" forState:UIControlStateNormal];
+    [btnForget setTitleColor:ZZColor(198, 198, 198, 1) forState:UIControlStateNormal];
+    btnForget.titleLabel.font = [UIFont systemFontOfSize:13];
+    [self.view addSubview:btnForget];
+}
+
+#pragma mark - 监听登录按钮点击
+- (void)login {
+    [self.view endEditing:YES];
+    
+    // 1.获取输入的手机号码和密码
+    NSString *phoneNum = self.textPhone.text;
+    NSString *passWord = self.textPwd.text;
+    NSString *md5Pwd = [Md5Coder md5:passWord];// md5加密后的密码
+    
+    // 2.判断是否输入||输入的手机号码是否正确
+    if (phoneNum.length == 0) {
+        [MBProgressHUD showError:@"请输入正确的电话号码" toView:self.view];
+        return;
+    }else if(passWord.length == 0) {
+        [MBProgressHUD showError:@"请输入密码" toView:self.view];
+        return;
+    }
+    
+    // 3.添加遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 4.发送网络请求
+    // 4.1准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/login",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:phoneNum forKey:@"mobile"];// 手机号码(必填)
+    [params setObject:md5Pwd forKey:@"password"];// 登录密码(必填)
+    [params setObject:@1 forKey:@"terminal_type"];// 终端类型(必填)1-ios 2-android 3-windows
+    
+    // 终端唯一标识(必填) / iOS7以上
+    NSString *adid = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+    ZZLog(@"---终端唯一标识adid---%@",adid);
+    
+    [params setObject:adid forKey:@"terminal_code"];
+    
+    __weak typeof(self) wSelf = self;
+    // 4.2发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseDict) {
+        ZZLog(@"%@",responseDict);
+
+        // 4.3隐藏遮盖
+        [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+        
+        // 4.4判断账号密码是否正确
+        if ([responseDict[@"code"] isEqualToString:@"0000"]) {// 输入正确，成功登录并保存用户信息
+            [MBProgressHUD showSuccess:@"登录成功" ];
+            
+            // 4.5存储账号信息
+            ZZAccount *account = [ZZAccount accountWithDict:responseDict[@"result"]];
+            [ZZAccountTool save:account];
+            
+            // 极光推送
+            NSArray *offerHospitals = responseDict[@"result"][@"hospitalList"];
+
+            ZZLog(@"---极光推送---%@",offerHospitals);
+
+            NSMutableSet *tagsSet = [NSMutableSet set];
+            
+            if ([offerHospitals isEqual:[NSNull null]]) {
+                tagsSet = nil;
+
+            }else {
+                for (NSDictionary *dict in offerHospitals) {
+                    NSString *tags = [NSString stringWithFormat:@"%@%@",JPushTag,dict[@"id"]];
+                    [tagsSet addObject:tags];
+                    
+                }
+            }
+
+            ZZLog(@"---set---%@",tagsSet);
+            
+            [APService  setTags:tagsSet alias:myAccount.token callbackSelector:@selector(tagsAliasCallback:tags:alias:) target:wSelf];
+            
+            
+            // 4.6跳转回到首页
+            [self.navigationController popViewControllerAnimated:YES];
+            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+            ZZTabBarController *tabBarController = [[ZZTabBarController alloc] init];
+            tabBarController.selectedIndex = 2;
+            window.rootViewController = tabBarController;
+
+            
+            
+            // 4.7读取账号信息（为了保存头像路径）
+            [wSelf getAccount];
+            
+        }else
+            [MBProgressHUD showError:responseDict[@"message"] toView:wSelf.view];
+        
+    } failure:^(NSError *error) {
+        [MBProgressHUD hideHUDForView:wSelf.view animated:YES];
+        ZZLog(@"%@",error);
+    }];
+}
+
+- (void)getAccount {
+    if (myAccount) {
+        // 1.准备参数
+        NSString *urlStr = [NSString stringWithFormat:@"%@/uc/my",BASEURL] ;
+        NSMutableDictionary *params = [NSMutableDictionary dictionary];
+        [params setObject:myAccount.token forKey:@"token"];
+
+        __weak typeof(self) wSelf = self;
+        [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseDict) {
+            ZZLog(@"%@",responseDict);
+            if ([responseDict[@"code"] isEqual:@"0000"]) {
+                
+                // 把头像地址保存到单例
+                [Avatar sharedInstance].avator = responseDict[@"result"][@"avator"];
+                
+                UIImageView *icon = [[UIImageView alloc] init];
+                [icon sd_setImageWithURL:responseDict[@"result"][@"avator"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                    
+                }];
+                
+            }else { //账号不存在
+                // 1.显示提示信息
+                [MBProgressHUD showSuccess:@"读取账号信息失败" toView:wSelf.view];
+                
+                // 2.删除本地缓存
+                [ZZAccountTool deleteAccount];
+                
+                // 3.跳转回到首页
+                UIWindow *window = [UIApplication sharedApplication].keyWindow;
+                window.rootViewController = [[ZZTabBarController alloc] init];
+            }
+
+        } failure:^(NSError *error) {
+            ZZLog(@"%@",error);
+        }];
+    }
+}
+#pragma mark -  判断电话号码是否存在
+//- (BOOL)checkTel:(NSString *)str{
+//}
+
+#pragma mark -  监听忘记密码按钮点击
+- (void)forgetPassWord {
+    ForgetController *forgetVc = [[ForgetController alloc] init];
+    [self.navigationController pushViewController:forgetVc animated:YES];
+}
+
+#pragma mark -  UITextFieldDelegate(限定号码只能输入11位)
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
+{
+    if ([string isEqualToString:@"\n"])
+    {
+        return YES;
+    }
+    NSString * toBeString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    
+    if (self.textPhone == textField)
+    {
+        if ([toBeString length] > 11) {
+            textField.text = [toBeString substringToIndex:11];
+            return NO;
+        }
+    }
+    return YES;
+}
+
+#pragma mark - 退出键盘
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self.view endEditing:YES];
+}
+
+
+- (void)tagsAliasCallback:(int)iResCode tags:(NSSet*)tags alias:(NSString*)alias {
+    ZZLog(@"----回调方法----rescode: %d, \ntags: %@, \nalias: %@\n", iResCode, tags , alias);
+}
+
+@end

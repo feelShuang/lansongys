@@ -1,0 +1,19 @@
+//
+//  DoctorDetail2Vc.h
+//  BeiYi
+//
+//  Created by Joe on 15/8/31.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  医生详情 控制器
+ */
+@interface DoctorDetail2Vc : UIViewController
+/**
+ *  医生ID(NSString)
+ */
+@property (nonatomic, copy) NSString *doctorID;
+
+@end

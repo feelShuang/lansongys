@@ -1,0 +1,30 @@
+//
+//  DoctorInfo.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/28.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "DoctorInfo.h"
+#import "MJExtension.h"
+
+@implementation DoctorInfo
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    return @{
+             @"doctor_id": @"id"
+             };
+}
+
++ (NSDictionary *)mj_objectClassInArray {
+    return @{
+             @"services": @"Service"
+             };
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end

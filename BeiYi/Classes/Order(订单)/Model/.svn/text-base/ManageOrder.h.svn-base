@@ -1,0 +1,74 @@
+//
+//  ManageOrder.h
+//  BeiYi
+//
+//  Created by Joe on 15/12/28.
+//  Copyright © 2015年 Joe. All rights reserved.
+//
+#import <Foundation/Foundation.h>
+@class HumanInfo;
+
+@interface ManageOrder : NSObject
+
+/**
+ *  NSString id
+ */
+@property (nonatomic, copy) NSString *offer_id;
+/**
+ *  NSString 服务类型
+ */
+@property (nonatomic, copy) NSString *order_type;
+/**
+ *  NSString 医院名称
+ */
+@property (nonatomic, copy) NSString *hospital_name;
+/**
+ *  NSString 描述信息
+ */
+@property (nonatomic, copy) NSString *memo;
+/**
+ *  NSString 起始时间
+ */
+@property (nonatomic, copy) NSString *start_time;
+/**
+ *  NSString 创建时间
+ */
+@property (nonatomic, copy) NSString *created_at;
+/**
+ *  NSString 订单状态
+ */
+@property (nonatomic, copy) NSString *order_status_str;
+/**
+ *  NSString 价格
+ */
+@property (nonatomic, copy) NSString *price;
+/**
+ *  NSString order_code
+ */
+@property (nonatomic, copy) NSString *order_code;
+/**
+ *  NSString 状态编码
+ */
+@property (nonatomic, copy) NSString *order_status;
+/**
+ *  NSString 结束时间
+ */
+@property (nonatomic, copy) NSString *end_time;
+/**
+ *  NSString 医生姓名
+ */
+@property (nonatomic, copy) NSString *doctor_name;
+/**
+ *  NSString 科室名称
+ */
+@property (nonatomic, copy) NSString *department_name;
+/**
+ *  HumanInfo 就诊人信息
+ */
+@property (nonatomic, strong) HumanInfo *humanInfo;
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
+
++ (instancetype)offerOrderWithDict:(NSDictionary *)dict;
+
+@end

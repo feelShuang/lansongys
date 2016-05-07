@@ -1,0 +1,40 @@
+//
+//  OrderAttach.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/22.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface OrderAttach : NSObject
+
+// attach over_exact_type
+@property (nonatomic, assign) NSInteger over_exact_type;
+
+// attach assure_flag
+@property (nonatomic, assign) NSInteger assure_flag;
+
+// attach order_id
+@property (nonatomic, assign) NSInteger order_id;
+
+// attach attach_id
+@property (nonatomic, assign) NSInteger attach_id;
+
+// attach assure_price
+@property (nonatomic, assign) NSInteger assure_price;
+
+// attach init_assure_price
+@property (nonatomic, assign) NSInteger init_assure_price;
+
+// attach service_price
+@property (nonatomic, assign) NSInteger service_price;
+
+// attach over_visit_time
+@property (nonatomic, copy) NSString *over_visit_time;
+
+// attach init_service_price
+@property (nonatomic, assign) NSInteger init_service_price;
+
+@end

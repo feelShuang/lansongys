@@ -1,0 +1,31 @@
+//
+//  CardVc.m
+//  BeiYi
+//
+//  Created by Joe on 15/8/25.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "CardVc.h"
+#import "Common.h"
+
+@interface CardVc ()
+
+@end
+
+@implementation CardVc
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = @"我的卡券";
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    UILabel *lblTip = [[UILabel alloc] init];
+    lblTip.text = @"没有卡券";
+    lblTip.textAlignment = NSTextAlignmentCenter;
+    lblTip.textColor = [UIColor lightGrayColor];
+    lblTip.frame = CGRectMake(0, SCREEN_HEIGHT/2 -22, SCREEN_WIDTH, 44);
+    [self.view addSubview:lblTip];
+}
+
+@end

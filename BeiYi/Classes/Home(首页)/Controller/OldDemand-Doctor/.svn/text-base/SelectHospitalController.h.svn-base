@@ -1,0 +1,15 @@
+//
+//  SelectHospitalController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/18.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  医院选择 控制器
+ */
+@interface SelectHospitalController : UITableViewController
+
+@end

@@ -1,0 +1,179 @@
+//
+//  ChangePwdController.m
+//  BeiYi
+//
+//  Created by Joe on 15/4/21.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "ChangePwdController.h"
+#import "Common.h"
+#import "ZZHttpTool.h"
+#import "MBProgressHUD+MJ.h"
+#import "Md5Coder.h"
+#import "ZZTabBarController.h"
+
+@interface ChangePwdController ()
+@property (nonatomic, strong) UITextField *textOldCode; // 旧密码
+@property (nonatomic, strong) UITextField *textNewCode; // 新密码
+@property (nonatomic, strong) UITextField *textRepeatCode; // 确认密码
+@end
+
+@implementation ChangePwdController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view .backgroundColor = ZZBackgroundColor;
+    self.title = @"修改密码";
+    
+    [self setUpUI];
+}
+
+- (void)setUpUI {
+    CGFloat backViewY = 64;
+    CGFloat backViewW = SCREEN_WIDTH;
+    CGFloat backViewH = SCREEN_HEIGHT/15;
+    
+    // 1.背景View
+    UIView *backView = [[UIView alloc] initWithFrame:CGRectMake(0, backViewY, backViewW, backViewH *3)];
+    backView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:backView];
+    
+    CGFloat lblX = ZZMarins/2;
+    CGFloat lblY = ZZMarins/1.5;
+    CGFloat lblWidth = ZZMarins * 4;
+    CGFloat lblHeight = backViewH-2*lblY;
+    
+    // textField的X值
+    CGFloat txFieldX = lblWidth +2*lblX;
+    // textField的W值
+    CGFloat txFieldW = backViewW -txFieldX -ZZMarins;
+    
+    // 2.1 旧密码label
+    UILabel *lblOldCode = [[UILabel alloc] initWithFrame:CGRectMake(lblX, lblY, lblWidth, lblHeight)];
+    lblOldCode.text = @"旧密码";
+    lblOldCode.textColor = ZZColor(51, 51, 51, 1);
+    lblOldCode.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:lblOldCode];
+    
+    // 2.2 旧密码textField
+    _textOldCode = [[UITextField alloc] initWithFrame:CGRectMake(txFieldX, lblY, txFieldW, lblHeight)];
+    _textOldCode.placeholder = @"请输入旧密码";
+    _textOldCode.textAlignment = NSTextAlignmentRight;
+    _textOldCode.keyboardType = UIKeyboardTypeNumberPad;
+    _textOldCode.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textOldCode.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:_textOldCode];
+    
+    // 3.1 新密码label
+    UILabel *lblNewCode = [[UILabel alloc] initWithFrame:CGRectMake(lblX, backViewH +lblY, lblWidth, lblHeight)];
+    lblNewCode.text = @"新密码";
+    lblNewCode.textColor = ZZColor(51, 51, 51, 1);
+    lblNewCode.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:lblNewCode];
+    
+    // 3.2 新密码textField
+    _textNewCode = [[UITextField alloc] initWithFrame:CGRectMake(txFieldX , backViewH +lblY, txFieldW, lblHeight)];
+    _textNewCode.placeholder = @"请输入新密码";
+    _textNewCode.textAlignment = NSTextAlignmentRight;
+    _textNewCode.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textNewCode.clearsOnBeginEditing = YES;
+    _textNewCode.keyboardType = UIKeyboardTypeEmailAddress;
+    _textNewCode.secureTextEntry = YES;
+    _textNewCode.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:_textNewCode];
+    
+    // 4.1 密码确认label
+    UILabel *lblRepeat = [[UILabel alloc] initWithFrame:CGRectMake(lblX, 2*backViewH +lblY, lblWidth, lblHeight)];
+    lblRepeat.text = @"密码确认";
+    lblRepeat.textColor = ZZColor(51, 51, 51, 1);
+    lblRepeat.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:lblRepeat];
+    
+    // 4.2 密码确认textField
+    _textRepeatCode = [[UITextField alloc] initWithFrame:CGRectMake(txFieldX+ZZMarins , 2*backViewH +lblY, txFieldW -ZZMarins, lblHeight)];
+    _textRepeatCode.placeholder = @"请再次输入新密码";
+    _textRepeatCode.textAlignment = NSTextAlignmentRight;
+    _textRepeatCode.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textRepeatCode.clearsOnBeginEditing = YES;
+    _textRepeatCode.keyboardType = UIKeyboardTypeEmailAddress;
+    _textRepeatCode.secureTextEntry = YES;
+    _textRepeatCode.font = [UIFont systemFontOfSize:15];
+    [backView addSubview:_textRepeatCode];
+    
+    // 5.确定按钮
+    UIButton *btnLogin = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnLogin.frame = CGRectMake(ZZMarins, CGRectGetMaxY(backView.frame) +ZZMarins, SCREEN_WIDTH -2*ZZMarins, ZZBtnHeight);
+    btnLogin.backgroundColor = ZZButtonColor;
+    btnLogin.layer.cornerRadius = 3.0f;
+    [btnLogin addTarget:self action:@selector(confirm) forControlEvents:UIControlEventTouchUpInside];
+    [btnLogin setTitle:@"确  认" forState:UIControlStateNormal];
+    [self.view addSubview:btnLogin];
+    
+    // 6.分割线
+    [ZZUITool viewWithframe:CGRectMake(txFieldX, backViewH, txFieldW, 0.6) backGroundColor:[UIColor lightGrayColor] superView:backView];
+    
+    [ZZUITool viewWithframe:CGRectMake(txFieldX, backViewH *2, txFieldW, 0.6) backGroundColor:[UIColor lightGrayColor] superView:backView];
+}
+
+#pragma mark - 监听 确认 按钮点击
+- (void)confirm {
+    ZZLog(@"点击了确认按钮");
+
+    if (self.textOldCode.text.length ==0) {
+        [MBProgressHUD showError:@"请输入您的旧密码"];
+        return;
+    }else if (self.textNewCode.text.length ==0) {
+        [MBProgressHUD showError:@"请输入您的新密码"];
+        return;
+    }else if(self.textRepeatCode.text.length ==0) {
+        [MBProgressHUD showError:@"请再次输入您的新密码"];
+        return;
+    }
+    
+    if (![self.textNewCode.text isEqualToString: self.textRepeatCode.text]) {
+        [MBProgressHUD showError:@"两次输入的密码不一致"];
+    } else {
+        
+        [MBProgressHUD showMessage:@"请稍后..."];
+        
+        // 1.准备参数
+        NSString *urlStr = [NSString stringWithFormat:@"%@/uc/my/update_pwd",BASEURL];
+        NSMutableDictionary *params = [NSMutableDictionary dictionary];
+        [params setObject:[Md5Coder md5:self.textOldCode.text] forKey:@"old_pwd"];
+        [params setObject:[Md5Coder md5:self.textNewCode.text] forKey:@"new_pwd"];
+        [params setObject:myAccount.token forKey:@"token"];
+        
+        // 2.发送请求
+        [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+            ZZLog(@"确认%@成功",responseObj);
+            
+            [MBProgressHUD hideHUD];
+
+            // 2.1判断是否修改成功
+            if ([responseObj[@"message"] isEqualToString:@"密码修改成功！"]) {// 密码修改成功
+                // 显示提示信息
+                [MBProgressHUD showSuccess:[NSString stringWithFormat:@"%@请重新登陆", responseObj[@"message"]]];
+                
+                // 删除账号信息，跳转回首页
+                [ZZAccountTool deleteAccount];
+                UIWindow *window = [UIApplication sharedApplication].keyWindow;
+                window.rootViewController = [[ZZTabBarController alloc] init];
+                
+            } else {// 密码修改失败
+                [MBProgressHUD showError:responseObj[@"message"]];
+            }
+            
+        } failure:^(NSError *error) {
+            ZZLog(@"确认%@成功",error);
+            [MBProgressHUD hideHUD];
+        }];
+    }
+}
+
+#pragma mark - 退出键盘
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self.view endEditing:YES];
+}
+
+@end

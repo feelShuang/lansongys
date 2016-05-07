@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "809ed987-2aca-417b-8c18-5512446147ac++774",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "809ed987-2aca-417b-8c18-5512446147ac++774" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "809ed987-2aca-417b-8c18-5512446147ac++774" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "66871F7D-B47A-41D6-BA0C-492D92063ACF",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "809ed987-2aca-417b-8c18-5512446147ac++774" : "ios\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "BeiYi",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "BeiYi\/BeiYi.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/192.168.1.200\/svn",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "809ed987-2aca-417b-8c18-5512446147ac++774"
+    }
+  ]
+}

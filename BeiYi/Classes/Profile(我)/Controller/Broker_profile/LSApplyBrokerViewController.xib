@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LSApplyBrokerViewController">
+            <connections>
+                <outlet property="invitationCodeTextField" destination="VdN-xm-5Ru" id="jcM-th-8tL"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E82-Ez-egm">
+                    <rect key="frame" x="0.0" y="79" width="600" height="44"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dl6-NF-nNC">
+                            <rect key="frame" x="0.0" y="0.0" width="600" height="1"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="1UN-OU-2PR"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sSz-Rh-ezy">
+                            <rect key="frame" x="0.0" y="43" width="600" height="1"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="RaN-Ke-s0Y"/>
+                            </constraints>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="邀请码" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7ZT-WD-aDh">
+                            <rect key="frame" x="15" y="14" width="42" height="17"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入邀请码" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VdN-xm-5Ru">
+                            <rect key="frame" x="87" y="14" width="498" height="17"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </textField>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="Dl6-NF-nNC" secondAttribute="trailing" id="6Lr-dA-khF"/>
+                        <constraint firstItem="Dl6-NF-nNC" firstAttribute="leading" secondItem="E82-Ez-egm" secondAttribute="leading" id="A50-ym-Fx4"/>
+                        <constraint firstAttribute="trailing" secondItem="VdN-xm-5Ru" secondAttribute="trailing" constant="15" id="AEx-UB-6DI"/>
+                        <constraint firstItem="7ZT-WD-aDh" firstAttribute="leading" secondItem="E82-Ez-egm" secondAttribute="leading" constant="15" id="DLU-6v-zMV"/>
+                        <constraint firstAttribute="height" constant="44" id="Gfa-MK-zyf"/>
+                        <constraint firstAttribute="bottom" secondItem="sSz-Rh-ezy" secondAttribute="bottom" id="Gt2-Qc-uaj"/>
+                        <constraint firstItem="VdN-xm-5Ru" firstAttribute="centerY" secondItem="7ZT-WD-aDh" secondAttribute="centerY" id="Sa0-VI-hea"/>
+                        <constraint firstItem="7ZT-WD-aDh" firstAttribute="centerY" secondItem="E82-Ez-egm" secondAttribute="centerY" id="T3a-mR-YYc"/>
+                        <constraint firstItem="sSz-Rh-ezy" firstAttribute="leading" secondItem="E82-Ez-egm" secondAttribute="leading" id="TBh-MS-ue3"/>
+                        <constraint firstItem="VdN-xm-5Ru" firstAttribute="leading" secondItem="7ZT-WD-aDh" secondAttribute="trailing" constant="30" id="a83-cx-Rlx"/>
+                        <constraint firstItem="Dl6-NF-nNC" firstAttribute="top" secondItem="E82-Ez-egm" secondAttribute="top" id="g1f-RE-VVc"/>
+                        <constraint firstAttribute="trailing" secondItem="sSz-Rh-ezy" secondAttribute="trailing" id="uNQ-zF-toh"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pwu-h4-Xob">
+                    <rect key="frame" x="498" y="133" width="87" height="12"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="87" id="7UX-Vx-jyI"/>
+                        <constraint firstAttribute="height" constant="12" id="A5b-Qa-839"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <state key="normal" title="点击获取邀请码">
+                        <color key="titleColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                    <connections>
+                        <action selector="accessInvitationCodeAction:" destination="-1" eventType="touchUpInside" id="p55-GY-v9g"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="没有邀请码？" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48z-Wl-Nqh">
+                    <rect key="frame" x="426" y="132" width="72" height="15"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" red="0.94117647059999998" green="0.94901960780000005" blue="0.96078431369999995" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="48z-Wl-Nqh" firstAttribute="centerY" secondItem="pwu-h4-Xob" secondAttribute="centerY" id="9c7-Ae-iOI"/>
+                <constraint firstAttribute="trailing" secondItem="pwu-h4-Xob" secondAttribute="trailing" constant="15" id="Xgq-lP-1fj"/>
+                <constraint firstItem="pwu-h4-Xob" firstAttribute="top" secondItem="E82-Ez-egm" secondAttribute="bottom" constant="10" id="a5e-jH-o4g"/>
+                <constraint firstItem="E82-Ez-egm" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="cr6-YM-Od0"/>
+                <constraint firstItem="E82-Ez-egm" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="79" id="kgo-Bi-mit"/>
+                <constraint firstItem="pwu-h4-Xob" firstAttribute="leading" secondItem="48z-Wl-Nqh" secondAttribute="trailing" id="kpF-h2-pII"/>
+                <constraint firstAttribute="trailing" secondItem="E82-Ez-egm" secondAttribute="trailing" id="rbG-5x-49C"/>
+            </constraints>
+            <point key="canvasLocation" x="539" y="318"/>
+        </view>
+    </objects>
+</document>

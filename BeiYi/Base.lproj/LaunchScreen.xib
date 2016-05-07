@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lanuch" translatesAutoresizingMaskIntoConstraints="NO" id="9XC-T7-2Z4">
+                    <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="9XC-T7-2Z4" secondAttribute="trailing" id="5CU-du-iJv"/>
+                <constraint firstAttribute="bottom" secondItem="9XC-T7-2Z4" secondAttribute="bottom" id="Lmb-6o-eez"/>
+                <constraint firstItem="9XC-T7-2Z4" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="bOD-JI-mfe"/>
+                <constraint firstItem="9XC-T7-2Z4" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="grx-I2-X6D"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="440" y="354"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="lanuch" width="1125" height="2001"/>
+    </resources>
+</document>

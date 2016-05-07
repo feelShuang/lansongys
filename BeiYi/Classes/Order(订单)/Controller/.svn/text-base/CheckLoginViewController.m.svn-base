@@ -1,0 +1,67 @@
+//
+//  CheckLoginViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/26.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "CheckLoginViewController.h"
+#import "LoginController.h"
+#import "Common.h"
+
+@interface CheckLoginViewController ()
+
+@end
+
+@implementation CheckLoginViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self setUI];
+    
+}
+
+- (void)setUI {
+    
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    // 提示label
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(SCREEN_WIDTH / 2 - 40, SCREEN_HEIGHT / 2 - 40, 80, 35)];
+    label.text = @"您还没有登录";
+    label.textColor = [UIColor grayColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.font = [UIFont systemFontOfSize:13];
+    
+    [self.view addSubview:label];
+    
+    // 登陆按钮
+    UIButton *loginButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    loginButton.backgroundColor = [UIColor greenColor];
+    loginButton.frame = CGRectMake(label.frame.origin.x, CGRectGetMaxY(label.frame) + 10, 80, 35);
+    [loginButton setTitle:@"登陆/注册" forState:UIControlStateNormal];
+    loginButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    [loginButton addTarget:self action:@selector(loginButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    [self.view addSubview:loginButton];
+    
+    
+}
+
+- (void)loginButtonAction {
+    
+    LoginController *loginVC = [[LoginController alloc] init];
+    [self.navigationController pushViewController:loginVC animated:YES];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

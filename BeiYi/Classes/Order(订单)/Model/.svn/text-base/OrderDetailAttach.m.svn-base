@@ -1,0 +1,26 @@
+//
+//  OrderDetailAttach.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/27.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "OrderDetailAttach.h"
+
+@implementation OrderDetailAttach
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"attach_id": @"id"
+             };
+    
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+    
+}
+
+@end

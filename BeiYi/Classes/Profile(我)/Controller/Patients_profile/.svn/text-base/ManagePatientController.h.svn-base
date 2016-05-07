@@ -1,0 +1,26 @@
+//
+//  PatientIDCardController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/21.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+#import <UIKit/UIKit.h>
+@protocol ManageDelegate <NSObject>
+@optional
+/**
+ *  传值【就诊人姓名】
+ */
+- (void)passPatientName:(NSString *)name;
+
+
+@end
+
+/**
+ *  管理就诊人 控制器
+ */
+@interface ManagePatientController : UITableViewController
+
+@property (nonatomic, weak) id<ManageDelegate> delegate;
+
+@end

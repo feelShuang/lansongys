@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LSPointsViewController">
+            <connections>
+                <outlet property="view" destination="iN0-l3-epB" id="tGJ-qV-Fuf"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="qi_dai" translatesAutoresizingMaskIntoConstraints="NO" id="bY8-Lt-pb0">
+                    <rect key="frame" x="198" y="211" width="205" height="178"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="205" id="YiB-7Y-Ct3"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" red="0.94117647059999998" green="0.94901960780000005" blue="0.96078431369999995" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="bY8-Lt-pb0" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="4tY-rm-3eN"/>
+                <constraint firstItem="bY8-Lt-pb0" firstAttribute="width" secondItem="bY8-Lt-pb0" secondAttribute="height" multiplier="410:357" id="S2Q-Y3-Mg7"/>
+                <constraint firstItem="bY8-Lt-pb0" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="ylH-BV-i8q"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="qi_dai" width="205" height="178"/>
+    </resources>
+</document>

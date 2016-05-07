@@ -1,0 +1,264 @@
+//
+//  OrderController.m
+//  BeiYi
+//
+//  Created by Joe on 15/4/13.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+#define kPageSize 10 // 每页取数据的数量
+
+#import "OrderController.h"
+#import "Common.h"
+#import "MJRefresh.h"
+#import "MJExtension.h"
+#import "GetOrderCell.h"
+#import "GetOrder.h"
+#import "LoginController.h"
+#import "GetOrderDetailController.h"
+#import "OrderInfoViewController.h"
+#import "RabOrderInfoViewController.h"
+
+@interface OrderController ()<GetOrderCellDelegate>
+/** NSMutableArray 抢单 数组*/
+@property (nonatomic, strong) NSMutableArray *getOrders;
+/** NSDictionary 抢单 详情*/
+@property (nonatomic, strong) NSDictionary *getOrderInfos;
+
+@end
+
+@implementation OrderController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    [self addHeaderRefresh]; // 普通Header刷新
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.title = @"抢单";
+    self.tableView.backgroundColor = ZZBackgroundColor;
+    self.tableView.tableFooterView = [[UIView alloc] init];
+    [self addFooterRefresh]; // 普通Footer刷新
+}
+
+#pragma mark - 普通Header刷新
+- (void)addHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.getOrders removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadHeadHttpRequest];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_header endRefreshing];
+    }];
+    
+     // 4.首次进入页面马上进入刷新状态
+     [self.tableView.mj_header beginRefreshing];
+}
+
+#pragma mark - 普通Footer刷新
+- (void)addFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.加载网络请求
+        [weakSelf loadFooterHttpRequest];
+        
+        // 2.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_footer endRefreshing];
+    }];
+    
+}
+
+#pragma mark - 下拉加载网络请求
+- (void)loadHeadHttpRequest {
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.发送网络请求
+    // 2.1准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/order",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    if (myAccount) {
+        [params setObject:myAccount.token forKey:@"token"]; // 登录传token
+    } else {
+        [params setObject:@"" forKey:@"token"]; // 未登录token传空
+    }
+    [params setObject:@1 forKey:@"pn"]; // 页码
+    [params setObject:@-1 forKey:@"order_type"]; // 订单类型
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.2发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"抢单-responseObj--%@",responseObj);
+
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [weakSelf.getOrders removeAllObjects];
+            [weakSelf.tableView reloadData];
+            [MBProgressHUD showError:@"订单已被抢完" toView:weakSelf.view];
+        }else {
+            // 将字典数组转成模型数组
+            weakSelf.getOrders = [GetOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [weakSelf.tableView reloadData];
+        }
+
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 上拉加载网络请求
+- (void)loadFooterHttpRequest {
+    // 1.显示遮盖
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 2.发送网络请求
+    // 2.1准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/order",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    if (myAccount) {
+        [params setObject:myAccount.token forKey:@"token"];// 登录传token
+    } else {
+        [params setObject:@"" forKey:@"token"];// 未登录token传空
+    }
+    
+    /** 当前页码 */
+    NSUInteger currentPage = 0;
+    if (self.getOrders.count <10) {// 当首页显示的数量少于10就说明数据已经取光，直接让current的数值超过1
+        currentPage = 2;
+        
+    }else {
+        currentPage = self.getOrders.count/10 +1;
+
+    }
+    
+    [params setObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage] forKey:@"pn"];// 页码
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.2发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"抢单-responseObj--%@",responseObj);
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+        
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"没有更多订单了哦" toView:weakSelf.view];
+        }else {
+            
+            NSMutableArray *tempArr = [NSMutableArray array];
+            // 将字典数组转成模型数组
+            tempArr = [GetOrder mj_objectArrayWithKeyValuesArray:dataList];
+            
+            [weakSelf.getOrders addObjectsFromArray:tempArr];
+            
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [weakSelf.tableView reloadData];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - TableView Delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.getOrders.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    GetOrderCell *cell = [GetOrderCell cellWithTableView:tableView];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;// 取消选中状态
+    if (indexPath.row<self.getOrders.count) {
+        cell.getOrder = self.getOrders[indexPath.row];
+
+    }
+    cell.delegate = self;
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 89;
+}
+#pragma mark  - 抢单按钮监听
+- (void)getOrderCell:(GetOrderCell *)getOrderCell didClickedBtnGrab:(UIButton *)btn {
+    
+    if (btn.selected == YES) {// 单子已经被抢
+        [MBProgressHUD showError:@"定单已被抢" toView:self.view];
+
+    }else {
+        if (myAccount) {// 已经登陆(允许抢单)
+            [MBProgressHUD showMessage:@"抢单中..." toView:self.view];
+            // 1.准备参数
+            NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/grab",BASEURL];// 抢单接口
+            NSMutableDictionary *params = [NSMutableDictionary dictionary];
+            [params setObject:getOrderCell.getOrder.order_code forKey:@"order_code"];// 订单编号
+            [params setObject:myAccount.token forKey:@"token"];
+            
+            
+            __weak typeof(self) weakSelf = self;
+            
+            // 2.发送post请求
+            [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+                [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+                ZZLog(@"抢单---%@",responseObj);
+                
+                if ([responseObj[@"code"] isEqual:@"0000"]) {// 在提供者范围内
+                    
+                    // 1.抢单成功直接推出抢单订单详情页面
+                    RabOrderInfoViewController *rabOrderInfoVC = [[RabOrderInfoViewController alloc] init];
+                    rabOrderInfoVC.order_code = responseObj[@"result"][@"order_code"];
+                    [self.navigationController pushViewController:rabOrderInfoVC animated:YES];
+                    
+                }else {// 该提供者不为此医院提供服务
+                    [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+                    
+                }
+                
+            } failure:^(NSError *error) {
+                [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+                [MBProgressHUD showError:@"发生异常，请重试..." toView:weakSelf.view];
+                
+            }];
+            
+        }else {// 未登陆,跳转到登陆界面
+            LoginController *loginVc = [[LoginController alloc] init];
+            [self.navigationController pushViewController:loginVc animated:YES];
+        }
+    }
+}
+
+@end

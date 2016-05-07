@@ -1,0 +1,282 @@
+//
+//  MyCollectionViewController.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/23.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "MyCollectionViewController.h"
+#import "CollectionHosTableViewCell.h"
+#import "Common.h"
+#import "LSCollectionHospital.h"
+#import "LSCollectionDoctor.h"
+
+@interface MyCollectionViewController ()<UITableViewDataSource,UITableViewDelegate>
+
+// 选择线
+@property (nonatomic, strong) UIView *selectLine;
+// 医院tableView
+@property (nonatomic, strong) UITableView *hosTableView;
+// 医生tableView
+@property (nonatomic, strong) UITableView *docTableView;
+// 分段控制器
+@property (nonatomic, strong) UISegmentedControl *segControl;
+// 收藏的对象类型
+@property (nonatomic, copy) NSString *obj_type;
+// 存放医院的数组
+@property (nonatomic, strong) NSMutableArray *hosArray;
+// 存放医生的数组
+@property (nonatomic, strong) NSMutableArray *docArray;
+
+@end
+
+@implementation MyCollectionViewController
+
+//- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    // 设置title
+    self.title = @"我的收藏";
+
+    // 设置界面
+    [self setUI];
+    
+    // 设置请求类型
+    self.obj_type = @"1";
+    
+    // 加载网络请求
+    [self loadHttpCollectionRequest];
+    
+    // 添加医院列表
+    [self addHospitalTableViewController];
+    
+}
+
+// 设置UI
+- (void)setUI {
+    // 设置背景
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    UIView *segBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 64, SCREEN_WIDTH, 40)];
+    segBgView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:segBgView];
+    
+    // 分段控制器
+    self.segControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"收藏的医院",@"收藏的医生", nil]];
+    self.segControl.frame = CGRectMake(0, 64, SCREEN_WIDTH, 40);
+    self.segControl.tintColor = [UIColor clearColor];
+    NSDictionary* selectedTextAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:16],
+                                             NSForegroundColorAttributeName: [UIColor blackColor]};
+    [self.segControl setTitleTextAttributes:selectedTextAttributes forState:UIControlStateSelected];//设置文字属性
+    NSDictionary* unselectedTextAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:16],
+                                               NSForegroundColorAttributeName: [UIColor blackColor]};
+    [self.segControl setTitleTextAttributes:unselectedTextAttributes forState:UIControlStateNormal];
+    self.segControl.selectedSegmentIndex = 0;
+    [self.segControl addTarget:self action:@selector(segControlClickedAction:) forControlEvents:UIControlEventValueChanged];
+    
+    [self.view addSubview:self.segControl];
+
+    // 分割线
+    UIView *separatorLine = [[UIView alloc] initWithFrame:CGRectMake(SCREEN_WIDTH / 2, 10, 1, 20)];
+    separatorLine.backgroundColor = ZZBackgroundColor;
+    [self.segControl addSubview:separatorLine];
+    
+    // 选择线
+    _selectLine = [[UIView alloc] initWithFrame:CGRectMake(0, 38, SCREEN_WIDTH / 2, 2)];
+    _selectLine.backgroundColor = ZZBaseColor;
+    [self.segControl addSubview:_selectLine];
+}
+
+#pragma mark - 分段控制器 选项 点击监听
+- (void)segControlClickedAction:(UISegmentedControl *)sender {
+ 
+    if (sender.selectedSegmentIndex == 0) {
+        
+        self.obj_type = @"1";
+        // 1. 移除医生 tableView
+        [self.docTableView removeFromSuperview];
+        self.docTableView = nil;
+        
+        // 2. 添加医院 tableView
+        [self addHospitalTableViewController];
+        [self loadHttpCollectionRequest];
+        
+        // 3. 移动线条
+        [UIView animateWithDuration:0.3 animations:^{
+            self.selectLine.frame = CGRectMake(0, 38, SCREEN_WIDTH / 2, 2);
+        }];
+        
+    } else {
+        
+        self.obj_type = @"2";
+        // 1. 移除医院 tableView
+        [self.hosTableView removeFromSuperview];
+        self.hosTableView = nil;
+        
+        // 2. 添加医生 tableView
+        [self addDocTableViewController];
+        [self loadHttpCollectionRequest];
+        
+        // 3. 移动线条
+        [UIView animateWithDuration:0.3 animations:^{
+            self.selectLine.frame = CGRectMake(SCREEN_WIDTH / 2, 38, SCREEN_WIDTH / 2, 2);
+        }];
+    }
+}
+
+- (void)addHospitalTableViewController {
+    
+    self.hosTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64 + 49, SCREEN_WIDTH, SCREEN_HEIGHT - 44) style:UITableViewStylePlain];
+    self.hosTableView.backgroundColor = ZZBackgroundColor;
+    self.hosTableView.dataSource = self;
+    self.hosTableView.delegate = self;
+    [self.view addSubview:self.hosTableView];
+    
+    // 注册Cell
+    [self.hosTableView registerNib:[UINib nibWithNibName:NSStringFromClass([CollectionHosTableViewCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([CollectionHosTableViewCell class])];
+}
+
+- (void)addDocTableViewController {
+    
+    self.docTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64 + 49, SCREEN_WIDTH, SCREEN_HEIGHT - 44) style:UITableViewStylePlain];
+    self.docTableView.backgroundColor = ZZBackgroundColor;
+    self.docTableView.dataSource = self;
+    self.docTableView.delegate = self;
+    [self.view addSubview:self.docTableView];
+    
+    // 注册cell
+    [self.docTableView registerNib:[UINib nibWithNibName:NSStringFromClass([CollectionHosTableViewCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([CollectionHosTableViewCell class])];
+}
+
+#pragma mark - 医生收藏网络请求
+- (void)loadHttpCollectionRequest {
+    
+    // 1. 准备请求网址
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/favorite/index",BASEURL];
+    
+    // 2. 创键请求体
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:self.obj_type forKey:@"obj_type"];
+    [params setObject:@1 forKey:@"pn"];
+    
+    __weak typeof(self)weakSelf = self;
+    [ZZHTTPTool post:urlStr params:params success:^(id responseObj) {
+        ZZLog(@"---responseObj = %@",responseObj);
+        
+        [weakSelf.hosArray removeAllObjects];
+        [weakSelf.docArray removeAllObjects];
+        
+        NSArray *dataList = responseObj[@"result"][@"dataList"];
+        
+        if (!dataList.count) {
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            if ([self.obj_type isEqualToString:@"1"]) { // 1. 医院
+                
+                [weakSelf.hosTableView reloadData];
+                [MBProgressHUD showError:@"没有收藏的医院" toView:weakSelf.view];
+            }
+            else {
+                
+                [weakSelf.docTableView reloadData];
+                [MBProgressHUD showError:@"没有收藏的医生" toView:weakSelf.view];
+            }
+        }
+        else {
+            
+            NSMutableArray *tempArr = [NSMutableArray array];
+            
+            if ([self.obj_type isEqualToString:@"1"]) { // 1. 医院
+                
+                tempArr = [LSCollectionHospital mj_objectArrayWithKeyValuesArray:dataList];
+                self.hosArray = tempArr;
+            } else {
+                tempArr = [LSCollectionDoctor mj_objectArrayWithKeyValuesArray:dataList];
+                self.docArray = tempArr;
+            }
+            
+            // 刷新数据
+            [self.hosTableView reloadData];
+            [self.docTableView reloadData];
+            // 隐藏遮盖
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        
+        ZZLog(@"--error = %@",error);
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    if (tableView == self.hosTableView) {
+        return self.hosArray.count;
+    } else {
+        return self.docArray.count;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CollectionHosTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([CollectionHosTableViewCell class]) forIndexPath:indexPath];
+    
+        if (tableView == self.hosTableView) {
+            LSCollectionHospital *hospital = self.hosArray[indexPath.row];
+            cell.hospital = hospital;
+            
+        } else {
+            LSCollectionDoctor *doctor = self.docArray[indexPath.row];
+            cell.doctor = doctor;
+        }
+    return cell;
+}
+
+#pragma mark - UITableViewdelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    return 80;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 懒加载
+- (NSMutableArray *)hosArray {
+    
+    if (_hosArray == nil) {
+        self.hosArray = [NSMutableArray array];
+    }
+    return _hosArray;
+}
+
+- (NSMutableArray *)docArray {
+    
+    if (_docArray == nil) {
+        self.docArray = [NSMutableArray array];
+    }
+    return _docArray;
+}
+
+@end

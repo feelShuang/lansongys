@@ -1,0 +1,17 @@
+//
+//  Record.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/17.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "Record.h"
+
+@implementation Record
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end

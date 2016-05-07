@@ -1,0 +1,18 @@
+//
+//  MyOrderController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/**
+ *  我的订单 控制器
+ */
+@interface MyOrderController : UIViewController
+
+/** segmentControld 的值 0：我的订单/ 1：我的抢单 */
+@property (nonatomic, assign) int segControlSelectedIndex;
+
+@end

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KGk-i7-Jjw" customClass="SelectVisitTimeTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1970-01-01" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qtF-h6-bCU">
+                        <rect key="frame" x="10" y="11" width="88" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gF4-3Z-aYa">
+                        <rect key="frame" x="247" y="10" width="65" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="65" id="TmX-f0-vD2"/>
+                        </constraints>
+                        <inset key="imageEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        <state key="normal" title="下午" image="OKBtn">
+                            <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bsy-ea-EvK">
+                        <rect key="frame" x="174" y="10" width="65" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="65" id="CeX-4W-nKf"/>
+                        </constraints>
+                        <inset key="imageEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        <state key="normal" title="上午" image="OKBtn">
+                            <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="gF4-3Z-aYa" firstAttribute="leading" secondItem="bsy-ea-EvK" secondAttribute="trailing" constant="8" id="1ky-N4-U8m"/>
+                    <constraint firstItem="qtF-h6-bCU" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="HzJ-et-o4F"/>
+                    <constraint firstItem="qtF-h6-bCU" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="bPF-xv-nSd"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="gF4-3Z-aYa" secondAttribute="trailing" id="j6e-Kh-j6F"/>
+                    <constraint firstItem="bsy-ea-EvK" firstAttribute="centerY" secondItem="gF4-3Z-aYa" secondAttribute="centerY" id="j7f-Ts-aWD"/>
+                    <constraint firstItem="gF4-3Z-aYa" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="p6H-Fv-ImM"/>
+                </constraints>
+            </tableViewCellContentView>
+            <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+            <connections>
+                <outlet property="amButton" destination="bsy-ea-EvK" id="ALV-KI-W9H"/>
+                <outlet property="pmButton" destination="gF4-3Z-aYa" id="hAE-ra-qkj"/>
+                <outlet property="timeLabel" destination="qtF-h6-bCU" id="ZkR-8f-DcE"/>
+            </connections>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="OKBtn" width="50" height="50"/>
+    </resources>
+</document>

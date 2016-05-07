@@ -1,0 +1,48 @@
+//
+//  GetOrder.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/28.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "GetOrder.h"
+#import "MJExtension.h"
+
+@implementation GetOrder
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"get_id": @"id"
+             };
+    
+}
+
++ (NSDictionary *)mj_objectClassInArray {
+    
+    return @{
+             
+             @"attach": @"OrderAttach"
+             
+             };
+    
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+    
+}
+
+- (instancetype)initWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+
+    }
+    return self;
+}
+
++ (instancetype)getOrderWithDict:(NSDictionary *)dict {
+    return [[self alloc] initWithDict:dict];
+}
+
+@end

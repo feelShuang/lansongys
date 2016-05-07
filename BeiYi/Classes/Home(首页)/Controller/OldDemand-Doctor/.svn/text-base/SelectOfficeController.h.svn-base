@@ -1,0 +1,19 @@
+//
+//  SelectOfficeController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/18.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/*
+ * 科室选择 控制器
+ */
+@interface SelectOfficeController : UIViewController
+/** 医院id */
+@property (nonatomic, copy) NSString *hospital_id;
+/** 医院名称 */
+@property (nonatomic, copy) NSString *hospital_name;
+
+@end

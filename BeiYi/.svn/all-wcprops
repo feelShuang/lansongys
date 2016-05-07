@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/453/project/bestdoctor/source/ios/BeiYi/BeiYi
+END
+PushConfig.plist
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/PushConfig.plist
+END
+main.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/main.m
+END
+AppDelegate.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/AppDelegate.h
+END
+Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/Info.plist
+END
+AppDelegate.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/AppDelegate.m
+END
+libcrypto.a
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/377/project/bestdoctor/source/ios/BeiYi/BeiYi/libcrypto.a
+END
+libssl.a
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/377/project/bestdoctor/source/ios/BeiYi/BeiYi/libssl.a
+END

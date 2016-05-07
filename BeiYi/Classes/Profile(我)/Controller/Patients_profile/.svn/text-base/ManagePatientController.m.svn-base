@@ -1,0 +1,232 @@
+//
+//  PatientIDCardController.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/21.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "ManagePatientController.h"
+#import "Common.h"
+#import "AddPatientController.h"
+#import "MJRefresh.h"
+#import "Patient.h"
+#import "OrderInfo.h"
+#import "PatientCell.h"
+#import "EditPatientController.h"
+#import "GuaHaoController.h"
+
+@interface ManagePatientController ()<UIAlertViewDelegate,PatientCellDelegate>
+/**
+ *  存放就诊人模型 的数组
+ */
+@property (nonatomic, strong) NSMutableArray *patients;
+
+@end
+
+@implementation ManagePatientController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setupUI]; // 界面布局
+    self.tableView.tableFooterView = [[UIView alloc] init];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self addHeaderRefresh]; // 加载网络请求
+}
+
+#pragma mark - 普通Header刷新
+- (void)addHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.patients removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadHttpRequest];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_header endRefreshing];
+    }];
+    
+    // 3.首次进入页面马上进入刷新状态
+    [self.tableView.mj_header beginRefreshing];
+}
+
+#pragma mark - 普通Footer刷新
+- (void)addFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.patients removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadHttpRequest];
+        
+        // 3.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableView.mj_footer endRefreshing];
+    }];
+}
+
+#pragma mark - 加载网络请求
+- (void)loadHttpRequest {
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/visit_human/list",BASEURL];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:myAccount.token forKey:@"token"];
+    
+    __weak typeof(self) weakSelf = self;
+
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        
+        ZZLog(@"---哇哈哈哈---%@",responseObj);
+        
+        // 1.取到结果字典
+        NSArray *resultArray = responseObj[@"result"];
+
+        if (![responseObj[@"code"] isEqual:@"0000"]) {// 不存在就诊人信息
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+            
+        }else {
+            // 1.取出数据
+            NSMutableArray *tempArray = [NSMutableArray array];
+            for (NSDictionary *dict in resultArray) {
+                Patient *patient = [Patient patientWithDict:dict];
+                [tempArray addObject:patient];
+            }
+            weakSelf.patients = tempArray;
+            
+            // 2.刷新列表
+            [weakSelf.tableView reloadData];
+            if (!resultArray.count) {// 不存在就诊人信息 数量小于0
+                
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"没有就诊人，是否添加" delegate:weakSelf cancelButtonTitle:@"否" otherButtonTitles:@"是", nil];
+                [alert show];
+            }
+        }
+
+    } failure:^(NSError *error) {
+        ZZLog(@"%@",error);
+    }];
+}
+
+#pragma mark - 界面布局
+- (void)setupUI {
+    // 1.设置基本信息
+    self.view .backgroundColor = [UIColor whiteColor];
+    self.title = @"就诊人管理";
+    
+    // 2.设置导航栏右侧按钮
+    UIButton *btnAdd = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnAdd.frame = CGRectMake(270, 0, 60, 40);
+    [btnAdd setTitle:@"添加" forState:UIControlStateNormal];
+    btnAdd.titleLabel.font = [UIFont systemFontOfSize:15];
+    [btnAdd setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnAdd addTarget:self action:@selector(gotoAdd) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btnAdd];
+}
+
+#pragma mark - 添加按钮点击监听
+- (void)gotoAdd {
+    ZZLog(@"===添加一个就诊人===");
+    AddPatientController *addVc = [[AddPatientController alloc] init];
+    [self.navigationController pushViewController:addVc animated:YES];
+}
+
+#pragma mark - UITableViewDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.patients.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    PatientCell *cell = [PatientCell cellWithTableView:tableView];
+    
+    if (indexPath.row < self.patients.count) {
+        Patient *patient = self.patients[indexPath.row];
+        cell.patient = patient;
+    }
+    cell.delegate = self;
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 80;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // 1.取消选中
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+        
+        // 2.点击选中，返回前一页，并且传递数据
+        Patient *patient = self.patients[indexPath.row];
+        [OrderInfo shareInstance].patient_id = patient.patient_id;
+        if ([self.delegate respondsToSelector:@selector(passPatientName:)]) {
+            [self.delegate passPatientName:patient.name];
+        }
+        
+        // 3.跳转界面
+        [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+
+#pragma mark - PatientCellDelegate
+- (void)patientCell:(PatientCell *)patientCell btnEditDidClicked:(UIButton *)btn {
+    ZZLog(@"~~~~~点击了编辑按钮");
+    
+    EditPatientController *editController = [[EditPatientController alloc] init];
+    editController.patient = patientCell.patient;
+    [self.navigationController pushViewController:editController animated:YES];
+
+}
+
+- (void)patientCell:(PatientCell *)patientCell btnDeleteDidClicked:(UIButton *)btn {
+    
+    ZZLog(@"---------");
+    
+    [MBProgressHUD showMessage:@"加载中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/visit_human/delete",BASEURL];
+    
+    NSMutableDictionary *params  = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:patientCell.patient.patient_id forKey:@"id"];// 就诊人id
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~~%@~~~",responseObj);
+        
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showSuccess:@"删除成功!" toView:weakSelf.view];
+        [weakSelf loadHttpRequest];
+        [weakSelf.tableView reloadData];
+        
+    } failure:^(NSError *error) {
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试。" toView:weakSelf.view];
+        ZZLog(@"~~~%@~~~",error);
+        
+    }];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 1) {// 点击了是，添加就诊人
+        [self gotoAdd];
+    }
+}
+
+@end

@@ -1,0 +1,677 @@
+//
+//  MyOrderController.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/27.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "MyOrderController.h"
+#import "Common.h"
+#import "OfferOrder.h"
+#import "OfferOrderCell.h"
+#import "UIBarButtonItem+Extension.h"
+#import "ZZTabBarController.h"
+#import "MJRefresh.h"
+#import "OffOrderDetailController.h"
+#import "GetOrderDetailController.h"
+#import "GetOrderDetailVC.h"
+#import "CommentController.h"
+#import "ProfileController.h"
+
+@interface MyOrderController ()<UITableViewDataSource,UITableViewDelegate>
+/**
+ *  我的订单 TableView
+ */
+@property (nonatomic, strong) UITableView *tableOrderOffer;
+/**
+ *  我的抢单 TableView
+ */
+@property (nonatomic, strong) UITableView *tableOrderGet;
+/**
+ *  存放 我的订单 模型 数组
+ */
+@property (nonatomic, strong) NSMutableArray *offerOrders;
+/**
+ *  存放 我的抢单 模型 数组
+ */
+@property (nonatomic, strong) NSMutableArray *getOrders;
+/**
+ *  分段控制器
+ */
+@property (nonatomic, strong) UISegmentedControl *segControl;
+
+@end
+
+@implementation MyOrderController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self segControlClicked:_segControl];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self setupUI];// 界面布局
+}
+
+#pragma mark - 界面布局
+- (void)setupUI {
+    // 0.重写导航栏返回按钮
+    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTitle:@"返回" imageName:@"NavBack" target:self action:@selector(leftBtnClicked)];
+    
+    // 1.基本信息设置
+    self.title = @"我的订单";
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    // 2.分段控制器创建
+    _segControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"我的订单",@"我的抢单", nil]];
+    _segControl.frame = CGRectMake(10, 64 +5, SCREEN_WIDTH -20, 40);
+    _segControl.tintColor = ZZBaseColor;
+    _segControl.selectedSegmentIndex = self.segControlSelectedIndex;
+    [_segControl addTarget:self action:@selector(segControlClicked:) forControlEvents:UIControlEventValueChanged];
+    [self segControlClicked:_segControl];
+    
+    [self.view addSubview:_segControl];
+}
+
+#pragma mark - 分段控制器 选项 点击监听
+- (void)segControlClicked:(UISegmentedControl *)sender{
+    
+    if (sender.selectedSegmentIndex == 0) {
+        // 1.移除我的抢单 tableView
+        [self.tableOrderGet removeFromSuperview];
+        self.tableOrderGet = nil;
+        
+        // 2.添加我的订单 tableView
+        [self addTableOrderOffer];
+        [self addOfferFooterRefresh];// 添加普通Footer刷新
+
+        [self addOfferHeaderRefresh];// 头部网络请求（获取我的订单信息）
+        
+    }else {
+        // 1.移除我的订单 tableView
+        [self.tableOrderOffer removeFromSuperview];
+        self.tableOrderOffer = nil;
+        
+        // 2.添加我的抢单 tableView
+        [self addTableOrderGet];
+        [self addGetFooterRefresh];// 添加普通Footer刷新
+        
+        [self addGetHeaderRefresh];// 头部网络请求（获取我的抢单信息）
+        
+    }
+}
+
+#pragma mark - 创建 我的订单 tableView
+- (void)addTableOrderOffer {
+    self.tableOrderOffer = [[UITableView alloc] initWithFrame:CGRectMake(0, 64 +5 +40, SCREEN_WIDTH, SCREEN_HEIGHT -64 -40) style:UITableViewStylePlain];
+    self.tableOrderOffer.dataSource = self;
+    self.tableOrderOffer.delegate = self;
+    self.tableOrderOffer.tableFooterView = [[UIView alloc] init];
+    [self.view addSubview:self.tableOrderOffer];
+}
+
+#pragma mark - 创建 我的抢单 tableView
+- (void)addTableOrderGet {
+    self.tableOrderGet = [[UITableView alloc] initWithFrame:CGRectMake(0, 64 +5 +40, SCREEN_WIDTH, SCREEN_HEIGHT -64 -40) style:UITableViewStylePlain];
+    self.tableOrderGet.dataSource = self;
+    self.tableOrderGet.delegate = self;
+    self.tableOrderGet.tableFooterView = [[UIView alloc] init];
+    [self.view addSubview:self.tableOrderGet];
+}
+
+#pragma mark - 监听导航栏左侧按钮点击
+- (void)leftBtnClicked {
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    ZZTabBarController *tabbarController = [[ZZTabBarController alloc] init];
+    tabbarController.selectedIndex = 2;
+    window.rootViewController = tabbarController;
+}
+
+#pragma mark - 下拉刷新-网络请求（获取我的订单信息）
+- (void)loadOfferOrderHeader {
+//    [MBProgressHUD showMessage:@"获取订单中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    [params setObject:@1 forKey:@"pn"];// 页码
+    
+    __weak typeof(self) weakSelf = self;
+
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        
+        // 2.2获取订单数组，判断是否为空
+        NSDictionary *resultDict = responseObj[@"result"];
+        ZZLog(@"---获取我的订单---%@",resultDict);
+
+        if ([resultDict isEqual:[NSNull null]]) {
+            [MBProgressHUD hideHUDForView:weakSelf.view  animated:YES];
+            [weakSelf.offerOrders removeAllObjects];
+            [weakSelf.tableOrderOffer reloadData];
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+
+        } else {// 展示订单信息
+            [MBProgressHUD hideHUDForView:weakSelf.view  animated:YES];
+            NSArray *dataList = resultDict[@"dataList"];
+            
+            NSMutableArray *arrOffTemp = [NSMutableArray array];
+            for (NSDictionary *dict in dataList) {
+                OfferOrder *offOrder = [OfferOrder offerOrderWithDict:dict];
+                [arrOffTemp addObject:offOrder];
+            }
+            
+            // 获取数据，刷新数组
+            weakSelf.offerOrders = arrOffTemp;
+            [weakSelf.tableOrderOffer reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"发布订单---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view  animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 上拉刷新-网络请求（获取我的订单信息）
+- (void)loadOfferOrderFooter {
+//    [MBProgressHUD showMessage:@"获取订单中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+
+    /** 当前页码 */
+    NSUInteger currentPage = 0;
+    if (self.offerOrders.count <10) {// 当首页显示的数量少于10就说明数据已经取光，直接让current的数值超过1
+        currentPage = 2;
+        
+    }else {
+        currentPage = self.offerOrders.count/10 +1;
+        
+    }
+    ZZLog(@"~~~~currentPage-%lu",currentPage);
+    
+    [params setObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage] forKey:@"pn"];// 页码
+    
+    __weak typeof(self) weakSelf = self;
+   
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"哈哈获取我的订单---%@",responseObj);
+        
+        // 2.1获取订单数组，判断是否为空
+        NSDictionary *resultDict = responseObj[@"result"];
+        NSArray *dataList = resultDict[@"dataList"];
+        
+        if (dataList.count == 0) {// 没有订单信息
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"没有更多订单咯" toView:weakSelf.view];
+            
+        } else {// 展示订单信息
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            NSMutableArray *arrTemp = [NSMutableArray array];
+            for (NSDictionary *dict in dataList) {
+                OfferOrder *offOrder = [OfferOrder offerOrderWithDict:dict];
+                [arrTemp addObject:offOrder];
+            }
+            
+            // 获取数据，刷新数组
+            [weakSelf.offerOrders addObjectsFromArray:arrTemp];
+            [weakSelf.tableOrderOffer reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"发布订单---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 我的订单tableView 普通Header刷新
+- (void)addOfferHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableOrderOffer.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.offerOrders removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadOfferOrderHeader];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableOrderOffer.mj_header endRefreshing];
+    }];
+    
+    // 4.首次进入页面马上进入刷新状态
+    [self.tableOrderOffer.mj_header beginRefreshing];
+}
+
+#pragma mark - 我的订单tableView 普通Footer刷新
+- (void)addOfferFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableOrderOffer.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.加载网络请求
+        [weakSelf loadOfferOrderFooter];
+        
+        // 2.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableOrderOffer.mj_footer endRefreshing];
+    }];
+
+}
+
+#pragma mark - 下拉刷新-网络请求（获取我的抢单信息）
+- (void)loadGetOrder {
+//    [MBProgressHUD showMessage:@"获取抢单中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/grab_list",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    [params setObject:@1 forKey:@"pn"];// 页码
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        
+        // 2.1隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        
+        // 2.2获取订单数组，判断是否为空
+        NSDictionary *resultDict = responseObj[@"result"];
+        ZZLog(@"---获取我的抢单---%@",resultDict);
+
+        if ([resultDict isEqual:[NSNull null]]) {
+            [weakSelf.tableOrderGet reloadData];
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+            
+        }else {// 展示订单信息
+            NSArray *dataList = resultDict[@"dataList"];
+
+            NSMutableArray *arrGetTemp = [NSMutableArray array];
+            for (NSDictionary *dict in dataList) {
+                OfferOrder *offOrder = [OfferOrder offerOrderWithDict:dict];
+                [arrGetTemp addObject:offOrder];
+            }
+
+            // 获取数据，刷新数组
+            weakSelf.getOrders = arrGetTemp;
+            [weakSelf.tableOrderGet reloadData];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"抢单---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 上拉刷新-网络请求（获取我的订单信息）
+- (void)loadGetOrderFooter {
+//    [MBProgressHUD showMessage:@"获取订单中..." toView:self.view];
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    
+    /** 当前页码 */
+    NSUInteger currentPage = 0;
+    if (self.getOrders.count <10) {// 当首页显示的数量少于10就说明数据已经取光，直接让current的数值超过1
+        currentPage = 2;
+        
+    }else {
+        currentPage = self.getOrders.count/10 +1;
+        
+    }
+    ZZLog(@"~~~~currentPage-%lu",currentPage);
+    
+    [params setObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage] forKey:@"pn"];// 页码
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"哈哈获取我的订单---%@",responseObj);
+        // 2.1获取订单数组，判断是否为空
+        NSDictionary *resultDict = responseObj[@"result"];
+        NSArray *dataList = resultDict[@"dataList"];
+        
+        if (dataList.count == 0) {// 没有订单信息
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            [MBProgressHUD showError:@"没有更多订单咯" toView:weakSelf.view];
+            
+        } else {// 展示订单信息
+            [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+            NSMutableArray *arrTemp = [NSMutableArray array];
+            for (NSDictionary *dict in dataList) {
+                OfferOrder *offOrder = [OfferOrder offerOrderWithDict:dict];
+                [arrTemp addObject:offOrder];
+            }
+            
+            // 获取数据，刷新数组
+            [weakSelf.getOrders addObjectsFromArray:arrTemp];
+            [weakSelf.tableOrderGet reloadData];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"发布订单---%@",error);
+        
+        // 隐藏遮盖
+        [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
+        [MBProgressHUD showError:@"发生错误，请重试" toView:weakSelf.view];
+    }];
+}
+
+#pragma mark - 我的抢单tableView 普通Header刷新
+- (void)addGetHeaderRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableOrderGet.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 1.清除所有数据
+        [weakSelf.getOrders removeAllObjects];
+        
+        // 2.加载网络请求
+        [weakSelf loadGetOrder];
+        
+        // 3.拿到当前的下拉刷新控件，结束刷新状态
+        [weakSelf.tableOrderGet.mj_header endRefreshing];
+    }];
+    
+    // 4.首次进入页面马上进入刷新状态
+    [self.tableOrderGet.mj_header beginRefreshing];
+}
+
+#pragma mark - 我的抢单tableView 普通Footer刷新
+- (void)addGetFooterRefresh {
+    __weak typeof(self) weakSelf = self;
+    
+    self.tableOrderGet.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        // 1.加载网络请求
+        [weakSelf loadGetOrderFooter];
+        
+        // 2.拿到当前的上拉刷新控件，结束刷新状态
+        [weakSelf.tableOrderGet.mj_footer endRefreshing];
+    }];
+
+}
+
+#pragma mark - UITableViewDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if ([tableView isEqual: self.tableOrderGet]) {
+        return self.getOrders.count;
+
+    }else {
+        return self.offerOrders.count;
+
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    OfferOrderCell *cell = [OfferOrderCell cellWithTableView:tableView];
+    
+    if ([tableView isEqual: self.tableOrderGet]) {
+        if (indexPath.row < self.getOrders.count) {
+            OfferOrder *offer = self.getOrders[indexPath.row];
+            cell.offOrder = offer;
+
+            // 指定--订单状态（抢）
+            switch ([offer.order_status intValue]) {
+                case 1:
+                    cell.lblState.text = @"待付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = ZZButtonColor;
+                    break;
+                case 2:
+                    cell.lblState.text = @"已付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 3:// order_status_str = "提供者待付款"
+                    cell.lblState.text = @"待付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = ZZButtonColor;
+                    break;
+                case 4:// order_status_str = "提供者已付款"
+                    cell.lblState.text = @"已付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 5:
+                    cell.lblState.text = @"申请退单中";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 6:
+                    cell.lblState.text = @"拒绝退单";
+                    cell.lblState.textColor = [UIColor lightGrayColor];
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 7:
+                    cell.lblState.text = @"凭证已提交";
+                    cell.lblState.textColor = ZZBaseColor;
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 8:
+                    cell.lblState.text = @"凭证被拒绝";
+                    cell.lblState.textColor = [UIColor lightGrayColor];
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 9:
+                    cell.lblState.text = @"交易成功";
+                    cell.lblState.textColor = ZZBaseColor;
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 10:
+                    cell.lblState.text = @"交易关闭";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 11:
+                    cell.lblState.text = @"待对方评价";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+    }else {
+        if (indexPath.row < self.offerOrders.count) {
+            OfferOrder *offer = self.offerOrders[indexPath.row];
+            cell.offOrder = offer;
+            
+            // 指定--订单状态（发单）
+            switch ([offer.order_status intValue]) {
+                case 1:
+                    cell.lblState.text = @"待付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = ZZButtonColor;
+                    break;
+                case 2:
+                    cell.lblState.text = @"已付款";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 3:// order_status_str = "提供者待付款"
+                    cell.lblState.text = @"已被抢(未付款)";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 4:// order_status_str = "提供者已付款"
+                    cell.lblState.text = @"已被抢(已付款)";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 5:
+                    cell.lblState.text = @"申请退单中";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 6:
+                    cell.lblState.text = @"退单被拒绝";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 7:
+                    cell.lblState.text = @"凭证已提交";
+                    cell.lblState.textColor = ZZBaseColor;
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 8:
+                    cell.lblState.text = @"拒绝凭证";
+                    cell.lblState.textColor = [UIColor lightGrayColor];
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 9:
+                    cell.lblState.text = @"交易成功";
+                    cell.lblState.textColor = ZZBaseColor;
+                    cell.lblState.backgroundColor = [UIColor clearColor];
+                    break;
+                case 10:
+                    cell.lblState.text = @"交易关闭";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = [UIColor lightGrayColor];
+                    break;
+                case 11:
+                    cell.lblState.text = @"待评价";
+                    cell.lblState.textColor = [UIColor whiteColor];
+                    cell.lblState.backgroundColor = ZZBaseColor;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 89;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if ([tableView isEqual:self.tableOrderOffer]) {// 点击 我的订单cell
+        
+        if (indexPath.row < self.offerOrders.count) {
+            OfferOrder *offOrder = self.offerOrders[indexPath.row];
+            [self loadHttpForOffOrderDetail:offOrder];
+        }
+
+        
+    }else {// 点击我的抢单Cell
+        ZZLog(@"----点击我的抢单Cell---");
+        OfferOrder *offOrder = self.getOrders[indexPath.row];
+
+        [self loadHttpForGetOrderDetail:offOrder];
+    }
+ }
+
+#pragma mark - 点击 加载我的订单详情 信息
+- (void)loadHttpForOffOrderDetail:(OfferOrder *)offOrder {
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/order_detail",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    [params setObject:offOrder.order_code forKey:@"order_code"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"---订单详情---%@",responseObj);
+        if ([responseObj[@"code"] isEqual:@"0000"]) {// 操作成功!
+            
+            if ([responseObj[@"result"][@"order_status"] intValue] == 11) {// 跳转到待评价界面
+                // 进入评价界面，选择相关数据，点击提交凭证
+                CommentController *commentVc = [[CommentController alloc] init];
+                commentVc.orderCode = offOrder.order_code;
+                [self.navigationController pushViewController:commentVc animated:YES];
+                
+            }else {
+                // 跳转到 订单详情 界面，传值
+                OffOrderDetailController *orderDetailVc = [[OffOrderDetailController alloc] init];
+                orderDetailVc.orderInfos = responseObj[@"result"];
+                [weakSelf.navigationController pushViewController:orderDetailVc animated:YES];
+            }
+            
+        }else {// 操作失败
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---订单详情---%@",error);
+        
+    }];
+    
+}
+
+#pragma mark - 点击 加载我的订单详情 信息
+- (void)loadHttpForGetOrderDetail:(OfferOrder *)offOrder {
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/order/order_detail",BASEURL];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];// 登录token
+    [params setObject:offOrder.order_code forKey:@"order_code"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送post请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"---订单详情---%@",responseObj[@"result"]);
+        if ([responseObj[@"code"] isEqual:@"0000"]) {// 操作成功!
+            
+            ZZLog(@"---抢单状态---%@",responseObj[@"result"][@"order_status"]);
+            
+            if ([responseObj[@"result"][@"order_status"] intValue] == 3) {
+                // 跳转到 抢单订单(订单被抢未付款时) 界面，传值
+                GetOrderDetailController *getOrderVc = [[GetOrderDetailController alloc] init];
+                getOrderVc.orderInfos = responseObj[@"result"];
+                [weakSelf.navigationController pushViewController:getOrderVc animated:YES];
+                
+            }else {
+                // 跳转到 抢单订单(订单被抢已付款之后) 界面，传值
+                GetOrderDetailVC *getOrderVc = [[GetOrderDetailVC alloc] init];
+                getOrderVc.orderInfos = responseObj[@"result"];
+                [weakSelf.navigationController pushViewController:getOrderVc animated:YES];
+            }
+
+            
+        }else {// 操作失败
+            [MBProgressHUD showError:responseObj[@"message"] toView:weakSelf.view];
+        }
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"---订单详情---%@",error);
+        
+    }];
+    
+}
+
+@end

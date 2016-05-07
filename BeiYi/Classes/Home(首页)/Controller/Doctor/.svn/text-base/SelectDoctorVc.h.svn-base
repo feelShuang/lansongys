@@ -1,0 +1,21 @@
+//
+//  SelectDoctorVc.h
+//  BeiYi
+//
+//  Created by Joe on 15/8/5.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+/**
+ *  选择医生界面 控制器
+ */
+@interface SelectDoctorVc : UIViewController
+
+// 过滤医生的id
+@property (nonatomic, copy) NSString *filterIDs;
+// 订单类型（下单时）
+@property (nonatomic, copy) NSString *order_type;
+
+@end

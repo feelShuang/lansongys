@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>level_id</key>
+		<string>0</string>
+		<key>level_name</key>
+		<string>全部</string>
+	</dict>
+	<dict>
+		<key>level_id</key>
+		<string>1</string>
+		<key>level_name</key>
+		<string>医师</string>
+	</dict>
+	<dict>
+		<key>level_id</key>
+		<string>2</string>
+		<key>level_name</key>
+		<string>主治医师</string>
+	</dict>
+	<dict>
+		<key>level_id</key>
+		<string>3</string>
+		<key>level_name</key>
+		<string>副主任医师</string>
+	</dict>
+	<dict>
+		<key>level_id</key>
+		<string>4</string>
+		<key>level_name</key>
+		<string>主任医师</string>
+	</dict>
+</array>
+</plist>

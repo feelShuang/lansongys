@@ -1,0 +1,17 @@
+//
+//  HosDetailController.h
+//  BeiYi
+//
+//  Created by Joe on 15/5/25.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+/*
+ * 医院详情 控制器
+ */
+@interface HosDetailController : UIViewController
+/** 医院id */
+@property (nonatomic, copy) NSString *hosID;
+
+@end

@@ -1,0 +1,32 @@
+//
+//  CollectionDoctor.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/24.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface CollectionDoctor : NSObject
+
+// 头像
+@property (nonatomic, copy) NSString *avator;
+// 医生级别名字
+@property (nonatomic, copy) NSString *level_str;
+// 所在医院
+@property (nonatomic, copy) NSString *hospital_name;
+// 医生ID
+@property (nonatomic, copy) NSString *doc_id;
+// 医生级别NSInteger
+@property (nonatomic, copy) NSString *level;
+// 擅长
+@property (nonatomic, copy) NSString *good_at;
+// 科室
+@property (nonatomic, copy) NSString *department_name;
+// 医院ID
+@property (nonatomic, copy) NSString *hospital_id;
+// 医生姓名
+@property (nonatomic, copy) NSString *name;
+
+@end

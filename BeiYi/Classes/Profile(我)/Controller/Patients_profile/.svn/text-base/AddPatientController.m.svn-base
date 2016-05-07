@@ -1,0 +1,191 @@
+//
+//  AddPatientController.m
+//  BeiYi
+//
+//  Created by Joe on 15/5/21.
+//  Copyright (c) 2015年 Joe. All rights reserved.
+//
+
+#import "AddPatientController.h"
+#import "Common.h"
+#import "SectionCell.h"
+#import "ZZSelectedView.h"
+
+@interface AddPatientController ()<UITextFieldDelegate,ZZSelectedViewDelegate>
+/** 性别标记:1男 2女 */
+@property (nonatomic, assign) int sex;
+/** 就诊人姓名 */
+@property (nonatomic, weak) UITextField *txName;
+/** 就诊人身份证 */
+@property (nonatomic, weak) UITextField *txIDCode;
+/** 就诊人性别 */
+@property (nonatomic, weak) UITextField *txSex;
+/** 就诊人手机号 */
+@property (nonatomic, weak) UITextField *txPhoneNum;
+
+@end
+
+@implementation AddPatientController
+
+- (instancetype)initWithStyle:(UITableViewStyle)style {
+    if (self = [super initWithStyle:UITableViewStylePlain]) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self setupUI]; // 界面布局
+    self.tableView.tableFooterView = [[UIView alloc] init];
+}
+
+#pragma mark - 界面布局
+- (void)setupUI {
+    // 1.设置基本信息
+    self.view .backgroundColor = ZZBackgroundColor;
+    self.title = @"添加就诊人";
+    
+    // 2.设置导航栏右侧按钮
+    UIButton *btnSave = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnSave.frame = CGRectMake(270, 0, 60, 40);
+    [btnSave setTitle:@"保存" forState:UIControlStateNormal];
+    btnSave.titleLabel.font = [UIFont systemFontOfSize:15];
+    [btnSave setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnSave setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    [btnSave addTarget:self action:@selector(gotoAdd) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btnSave];
+}
+
+#pragma mark - 监听右侧保存按钮点击
+- (void)gotoAdd {
+    if (self.txName.text.length == 0) {
+        [MBProgressHUD showError:@"请填写您的真实姓名" toView:self.view];
+        return;
+    }else if (self.txIDCode.text.length == 0) {
+        [MBProgressHUD showError:@"请填写有效的身份证号码" toView:self.view];
+        return;
+    }else if (self.txPhoneNum.text.length == 0) {
+        [MBProgressHUD showError:@"请填写有效的手机号码" toView:self.view];
+        return;
+    }
+    
+    // 1.准备参数
+    NSString *urlStr = [NSString stringWithFormat:@"%@/uc/visit_human/create",BASEURL];
+    
+    NSMutableDictionary *params  = [NSMutableDictionary dictionary];
+    [params setObject:myAccount.token forKey:@"token"];
+    [params setObject:@"12314" forKey:@"address"];// 必要参数
+    [params setObject:self.txName.text forKey:@"name"];
+    [params setObject:self.txIDCode.text forKey:@"id_card"];
+    [params setObject:[NSString stringWithFormat:@"%d",self.sex] forKey:@"sex"];
+    [params setObject:self.txPhoneNum.text forKey:@"mobile"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    // 2.发送网络请求
+    [ZZHTTPTool post:urlStr params:params success:^(NSDictionary *responseObj) {
+        ZZLog(@"~~~%@~~~",responseObj);
+        
+        [MBProgressHUD showSuccess:responseObj[@"message"] toView:weakSelf.view];
+        [weakSelf.navigationController popViewControllerAnimated:YES];
+        
+    } failure:^(NSError *error) {
+        ZZLog(@"~~~%@~~~",error);
+        
+    }];
+}
+
+#pragma mark - ZZSelectedViewDelegate
+- (void)ZZSelectedViewDidClickedBtnMan:(ZZSelectedView *)selectedView {
+    selectedView.btnMan.selected = YES;
+    selectedView.btnWoman.selected = NO;
+    self.sex = 1;
+    ZZLog(@"性别参数～～～%d",self.sex);
+}
+
+- (void)ZZSelectedViewDidClickedBtnWoman:(ZZSelectedView *)selectedView {
+    selectedView.btnMan.selected = NO;
+    selectedView.btnWoman.selected = YES;
+    self.sex = 2;
+    ZZLog(@"性别参数～～～%d",self.sex);
+}
+
+#pragma mark - UITableViewDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    SectionCell *cell = [SectionCell cellWithTableView:tableView];
+    
+    // 设定 cell的 选中样式
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    switch (indexPath.row) {
+        case 0: {
+            cell.lblTitle.text = @"姓  名";
+            cell.txField.placeholder = @"请输入您的真实姓名";
+            self.txName = cell.txField;
+        }
+            break;
+        case 1: {
+            cell.lblTitle.text = @"身份证";
+            cell.txField.placeholder = @"请输入有效的身份证";
+            cell.txField.delegate = self;
+            self.txIDCode = cell.txField;
+        }
+            break;
+        case 2: {
+            cell.lblTitle.text = @"性  别";
+            cell.txField.hidden = YES;
+            ZZSelectedView *selectedView = [[ZZSelectedView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(cell.lblTitle.frame)+3*ZZMarins, 0, cell.frame.size.width, cell.frame.size.height) selectOne:@"男" selectTwo:@"女"];
+            selectedView.delegate = self;
+            [self ZZSelectedViewDidClickedBtnMan:selectedView];
+            [cell.contentView addSubview:selectedView];
+        }
+            break;
+        case 3: {
+            cell.lblTitle.text = @"手机号";
+            cell.txField.placeholder = @"用于接受预约短信";
+            cell.txField.keyboardType = UIKeyboardTypeNumberPad;
+            cell.txField.delegate = self;
+            self.txPhoneNum = cell.txField;
+        }
+            break;
+        default:
+            break;
+    }
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 0;
+}
+
+#pragma mark - UITextFieldDelegate
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
+{
+    if ([string isEqualToString:@"\n"])
+    {
+        return YES;
+    }
+    NSString * toBeString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    
+    if (textField == self.txIDCode)    {
+        if ([toBeString length] > 18) {// 身份证号码只能输入11位
+            textField.text = [toBeString substringToIndex:18];
+            return NO;
+        }
+        
+    }else if (textField == self.txPhoneNum) {// 电话号码只能输入11位
+        if ([toBeString length] >10) {
+            textField.text = [toBeString substringToIndex:10];
+        }
+        
+    }
+    return YES;
+}
+
+@end

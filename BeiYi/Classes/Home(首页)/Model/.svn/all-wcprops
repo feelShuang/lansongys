@@ -1,0 +1,185 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model
+END
+Doctor.h
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Doctor.h
+END
+Doctor.m
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Doctor.m
+END
+CollectionHospital.h
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/!svn/ver/432/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CollectionHospital.h
+END
+CellModel.h
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CellModel.h
+END
+ADInfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ADInfo.h
+END
+Service.h
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Service.h
+END
+Department.h
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Department.h
+END
+CollectionHospital.m
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/!svn/ver/432/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CollectionHospital.m
+END
+NewDoctor.h
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/NewDoctor.h
+END
+Patient.h
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Patient.h
+END
+CellModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CellModel.m
+END
+ADInfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ADInfo.m
+END
+Service.m
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Service.m
+END
+CollectionDoctor.h
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/!svn/ver/432/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CollectionDoctor.h
+END
+DoctorInfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/DoctorInfo.h
+END
+HospitalDetail.h
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/!svn/ver/431/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/HospitalDetail.h
+END
+ChildDepartment.h
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ChildDepartment.h
+END
+Department.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Department.m
+END
+NewDoctor.m
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/NewDoctor.m
+END
+Patient.m
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Patient.m
+END
+CollectionDoctor.m
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/!svn/ver/432/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/CollectionDoctor.m
+END
+AlipayOrder.h
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/AlipayOrder.h
+END
+DoctorInfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/398/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/DoctorInfo.m
+END
+HospitalDetail.m
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/!svn/ver/431/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/HospitalDetail.m
+END
+ChildDepartment.m
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ChildDepartment.m
+END
+AlipayOrder.m
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/!svn/ver/373/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/AlipayOrder.m
+END
+Hospital.h
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Hospital.h
+END
+ServicePrice.h
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/!svn/ver/428/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ServicePrice.h
+END
+Hospital.m
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/!svn/ver/448/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/Hospital.m
+END
+ServicePrice.m
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/!svn/ver/428/project/bestdoctor/source/ios/BeiYi/BeiYi/Classes/Home(%E9%A6%96%E9%A1%B5)/Model/ServicePrice.m
+END

@@ -1,0 +1,26 @@
+//
+//  OrderManagerTableViewController.h
+//  BeiYi
+//
+//  Created by 刘爽 on 16/1/25.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface OrderManagerTableViewController : UITableViewController
+
+// 外界请求参数
+
+// 订单状态
+@property (nonatomic, copy) NSString *order_statu;
+
+@property (nonatomic, strong) NSArray *orderstatistic;
+
+//// 订单详情界面做出了操作
+//@property (nonatomic, assign) BOOL didOperation;
+
+// 重写初始化方法
+- (instancetype)initWithorder_statu:(NSString *)order_status;
+
+@end

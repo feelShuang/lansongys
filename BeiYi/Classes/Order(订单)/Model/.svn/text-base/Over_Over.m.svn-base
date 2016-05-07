@@ -1,0 +1,25 @@
+//
+//  Over_Over.m
+//  BeiYi
+//
+//  Created by 刘爽 on 16/2/2.
+//  Copyright © 2016年 Joe. All rights reserved.
+//
+
+#import "Over_Over.h"
+
+@implementation Over_Over
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    
+    return @{
+             @"over_id": @"id"
+             };
+    
+}
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key {
+    
+}
+
+@end
