@@ -12,6 +12,7 @@
 #import "LSBrokerOrderInfoViewController.h"
 #import "LSTravelPriceViewController.h"
 #import "LSRechargeViewController.h"
+#import "LSCheckLoginView.h"
 #import "GetOrderDetailController.h"
 #import "LoginController.h"
 #import "AccountInfo.h"
@@ -22,8 +23,12 @@
 #import "MJRefresh.h"
 #import "Common.h"
 
-@interface LSBrokerGrabOrderViewController ()<LSBrokerGrabOrderDelegate>
+@interface LSBrokerGrabOrderViewController ()<LSBrokerGrabOrderDelegate,UITableViewDataSource,UITableViewDelegate>
 
+/** 抢单列表 */
+@property (nonatomic, strong) UITableView *grabOrderTableView;
+/** 未登录状态下的View */
+@property (nonatomic, strong) LSCheckLoginView *checkLoginView;
 /** NSMutableArray 抢单 数组*/
 @property (nonatomic, strong) NSMutableArray *grabOrders;
 /** NSDictionary 抢单 详情*/
@@ -37,38 +42,76 @@
 
 @implementation LSBrokerGrabOrderViewController
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    // 加载数据
-    [self loadHeadHttpRequest];
-    
-    // 获取余额
-    [self getBalance];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.title = @"抢单";
+    
     // 获取账号信息
     [AccountInfo getAccount];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
-    self.title = @"抢单";
-    self.tableView.backgroundColor = ZZBackgroundColor;
-    self.tableView.tableFooterView = [[UIView alloc] init];
+    if (_checkLoginView != nil) {
+        [_checkLoginView removeFromSuperview];
+    }
     
-    [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([LSBrokerGrabOrderTableViewCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([LSBrokerGrabOrderTableViewCell class])];
+    if (myAccount) {
+
+        [self setUI];
+        // 加载数据
+        [self loadHeadHttpRequest];
+        
+        // 获取余额
+        [self getBalance];
+    } else {
+        self.checkLoginView = [[LSCheckLoginView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        
+        [self.checkLoginView.checkLoginBtn addTarget:self action:@selector(checkLoginBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:_checkLoginView];
+    }
+}
+
+#pragma mark - 设置UI
+- (void)setUI {
     
-    // 添加刷新控件
-    [self addHeaderRefresh];
-    [self addFooterRefresh];
+    self.view.backgroundColor = ZZBackgroundColor;
+    
+    if (myAccount) { // 已登录
+        // 添加tableView
+        UITableView *orderTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 49) style:UITableViewStylePlain];
+        orderTableView.backgroundColor = ZZBackgroundColor;
+        orderTableView.delegate = self;
+        orderTableView.dataSource = self;
+        [self.view addSubview:orderTableView];
+        self.grabOrderTableView = orderTableView;
+        
+        // 注册Cell
+        [self.grabOrderTableView registerNib:[UINib nibWithNibName:NSStringFromClass([LSBrokerGrabOrderTableViewCell class]) bundle:nil] forCellReuseIdentifier:NSStringFromClass([LSBrokerGrabOrderTableViewCell class])];
+        
+        // 添加刷新控件
+        [self addHeaderRefresh];
+        [self addFooterRefresh];
+    } else {
+        // 未登录添加
+        [self.view addSubview:_checkLoginView];
+    }
+}
+
+
+- (void)checkLoginBtnAction:(UIButton *)sender {
+    
+    LoginController *loginVC = [[LoginController alloc] init];
+    [self.navigationController pushViewController:loginVC animated:YES];
 }
 
 #pragma mark - 普通Header刷新
 - (void)addHeaderRefresh {
     __weak typeof(self) weakSelf = self;
     
-    self.tableView.mj_header = [LSRefreshGifHeader headerWithRefreshingBlock:^{
+    self.grabOrderTableView.mj_header = [LSRefreshGifHeader headerWithRefreshingBlock:^{
         // 1.清除所有数据
         [weakSelf.grabOrders removeAllObjects];
         
@@ -76,7 +119,7 @@
         [weakSelf loadHeadHttpRequest];
         
         // 3.拿到当前的下拉刷新控件，结束刷新状态
-        [weakSelf.tableView.mj_header endRefreshing];
+        [weakSelf.grabOrderTableView.mj_header endRefreshing];
     }];
 }
 
@@ -84,12 +127,12 @@
 - (void)addFooterRefresh {
     __weak typeof(self) weakSelf = self;
     
-    self.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+    self.grabOrderTableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         // 1.加载网络请求
         [weakSelf loadFooterHttpRequest];
         
         // 2.拿到当前的上拉刷新控件，结束刷新状态
-        [weakSelf.tableView.mj_footer endRefreshing];
+        [weakSelf.grabOrderTableView.mj_footer endRefreshing];
     }];
 }
 
@@ -120,20 +163,15 @@
         if (!dataList.count) {
             // 隐藏遮盖
             [weakSelf.grabOrders removeAllObjects];
-            [weakSelf.tableView reloadData];
-            
-            
-            
+            [weakSelf.grabOrderTableView reloadData];
         }else {
             // 将字典数组转成模型数组
             weakSelf.grabOrders = [LSGrabOrder mj_objectArrayWithKeyValuesArray:dataList];
             
             // 隐藏遮盖
             [MBProgressHUD hideHUDForView:weakSelf.view animated:YES];
-            [weakSelf.tableView reloadData];
+            [weakSelf.grabOrderTableView reloadData];
         }
-        
-        
     } failure:^(NSError *error) {
         ZZLog(@"---%@",error);
         
@@ -199,7 +237,7 @@
         
         if (!dataList.count) {
             // 拿到当前的上拉刷新控件，变为没有更多数据的状态
-            [self.tableView.mj_footer endRefreshingWithNoMoreData];
+            [self.grabOrderTableView.mj_footer endRefreshingWithNoMoreData];
         }else {
             
             NSMutableArray *tempArr = [NSMutableArray array];
@@ -208,7 +246,7 @@
             
             [weakSelf.grabOrders addObjectsFromArray:tempArr];
             
-            [weakSelf.tableView reloadData];
+            [weakSelf.grabOrderTableView reloadData];
         }
         
         

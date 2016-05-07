@@ -25,15 +25,22 @@
                     </constraints>
                 </imageView>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eIK-Q1-zKh">
-                    <rect key="frame" x="260" y="375" width="81" height="30"/>
+                    <rect key="frame" x="212" y="375" width="176" height="44"/>
                     <animations/>
                     <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="81" id="VRB-kt-EJ3"/>
+                        <constraint firstAttribute="width" constant="176" id="VRB-kt-EJ3"/>
+                        <constraint firstAttribute="height" constant="44" id="mrx-NX-0LH"/>
                     </constraints>
                     <state key="normal" title="  登录/注册  ">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <action selector="checkLoginBtnAction:" destination="-1" eventType="touchUpInside" id="tgV-x9-q6g"/>
                     </connections>

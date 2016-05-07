@@ -21,12 +21,13 @@
 
 @interface LSPatientOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
 
+/** 检查登陆的页面 */
 @property (nonatomic, strong) LSCheckLoginView *checkLoginView;
-// 分段控制器
+/** 分段控制器 */
 @property (nonatomic, strong) UISegmentedControl *orderSegment;
-// 订单列表
+/** 订单列表 */
 @property (nonatomic, strong) UITableView *orderTableView;
-// 存放订单的数组
+/** 存放订单的数组 */
 @property (nonatomic, strong) NSMutableArray *orders;
 
 /** 刷新标记 */
@@ -46,9 +47,6 @@
     self.refreshFlag = @"1";
     
     [OrderInfo shareInstance].isUpLoading = NO;
-    
-    // 设置UI
-    [self setUI];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

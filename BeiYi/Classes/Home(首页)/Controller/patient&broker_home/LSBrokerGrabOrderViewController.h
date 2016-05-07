@@ -10,6 +10,6 @@
 /**
  *  抢单 控制器
  */
-@interface LSBrokerGrabOrderViewController : UITableViewController
+@interface LSBrokerGrabOrderViewController : UIViewController
 
 @end
